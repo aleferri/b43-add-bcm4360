@@ -1,0 +1,40 @@
+=== acphytbl_info_rev0 (24 entries) ===
+  [ 0] id=  0x1 len=  0x80 off=   0x0 width=16 ptr=acphy_mcs_tbl_rev0
+  [ 1] id=  0x2 len=  0x26 off=   0x0 width= 8 ptr=acphy_tx_evm_tbl_rev0
+  [ 2] id=  0x4 len= 0x100 off=   0x0 width= 8 ptr=acphy_rx_evm_shaping_tbl_rev0
+  [ 3] id=  0x3 len= 0x100 off=   0x0 width=32 ptr=acphy_noise_shaping_tbl_rev0
+  [ 4] id=  0x5 len=  0x16 off=   0x0 width=32 ptr=acphy_phasetrack_tbl_rev0
+  [ 5] id=  0x6 len=  0x12 off=   0x0 width=32 ptr=acphy_sqthreshold_tbl_rev0
+  [ 6] id= 0x40 len=  0x80 off=   0x0 width=16 ptr=acphy_est_pwr_lut_core0_rev0
+  [ 7] id= 0x60 len=  0x80 off=   0x0 width=16 ptr=acphy_est_pwr_lut_core1_rev0
+  [ 8] id= 0x80 len=  0x80 off=   0x0 width=16 ptr=acphy_est_pwr_lut_core2_rev0
+  [ 9] id= 0x41 len=  0x80 off=   0x0 width=32 ptr=acphy_iq_lut_core0_rev0
+  [10] id= 0x61 len=  0x80 off=   0x0 width=32 ptr=acphy_iq_lut_core0_rev0
+  [11] id= 0x81 len=  0x80 off=   0x0 width=32 ptr=acphy_iq_lut_core2_rev0
+  [12] id= 0x42 len=  0x80 off=   0x0 width=16 ptr=acphy_loft_lut_core0_rev0
+  [13] id= 0x62 len=  0x80 off=   0x0 width=16 ptr=acphy_loft_lut_core1_rev0
+  [14] id= 0x82 len=  0x80 off=   0x0 width=16 ptr=acphy_loft_lut_core2_rev0
+  [15] id= 0x40 len=  0x80 off=   0x0 width=16 ptr=acphy_papd_comp_rfpwr_tbl_core0_rev0
+  [16] id= 0x60 len=  0x80 off=   0x0 width=16 ptr=acphy_papd_comp_rfpwr_tbl_core1_rev0
+  [17] id= 0x80 len=  0x80 off=   0x0 width=16 ptr=acphy_papd_comp_rfpwr_tbl_core2_rev0
+  [18] id= 0x47 len=  0x40 off=   0x0 width=32 ptr=acphy_papd_comp_epsilon_tbl_core0_rev0
+  [19] id= 0x67 len=  0x40 off=   0x0 width=32 ptr=acphy_papd_comp_epsilon_tbl_core1_rev0
+  [20] id= 0x87 len=  0x40 off=   0x0 width=32 ptr=acphy_papd_comp_epsilon_tbl_core2_rev0
+  [21] id= 0x48 len=  0x40 off=   0x0 width=32 ptr=acphy_papd_cal_scalars_tbl_core0_rev0
+  [22] id= 0x68 len=  0x40 off=   0x0 width=32 ptr=acphy_papd_cal_scalars_tbl_core1_rev0
+  [23] id= 0x88 len=  0x40 off=   0x0 width=32 ptr=acphy_papd_cal_scalars_tbl_core2_rev0
+
+=== acphytbl_info_rev2 (12 entries) ===
+  [ 0] id=  0x1 len=  0x80 off=   0x0 width=16 ptr=acphy_mcs_tbl_rev0
+  [ 1] id=  0x2 len=  0x26 off=   0x0 width= 8 ptr=acphy_tx_evm_tbl_rev0
+  [ 2] id=  0x4 len= 0x100 off=   0x0 width= 8 ptr=acphy_rx_evm_shaping_tbl_rev0
+  [ 3] id=  0x3 len= 0x100 off=   0x0 width=32 ptr=acphy_noise_shaping_tbl_rev0
+  [ 4] id=  0x3 len= 0x100 off=   0x0 width=32 ptr=acphy_nvadj_tbl_rev2
+  [ 5] id=  0x5 len=  0x16 off=   0x0 width=32 ptr=acphy_phasetrack_tbl_rev2
+  [ 6] id= 0x40 len=  0x80 off=   0x0 width=16 ptr=acphy_est_pwr_lut_core0_rev0
+  [ 7] id= 0x41 len=  0x80 off=   0x0 width=32 ptr=acphy_iq_lut_core0_rev0
+  [ 8] id= 0x42 len=  0x80 off=   0x0 width=16 ptr=acphy_loft_lut_core0_rev0
+  [ 9] id= 0x40 len=  0x80 off=   0x0 width=16 ptr=acphy_papd_comp_rfpwr_tbl_core0_rev0
+  [10] id= 0x47 len=  0x40 off=   0x0 width=32 ptr=acphy_papd_comp_epsilon_tbl_core0_rev0
+  [11] id= 0x48 len=  0x40 off=   0x0 width=32 ptr=acphy_papd_cal_scalars_tbl_core0_rev0
+

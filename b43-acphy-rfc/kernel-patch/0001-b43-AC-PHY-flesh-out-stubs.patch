@@ -1,0 +1,930 @@
+Subject: [PATCH RFC] b43: AC-PHY: flesh out stubs into compilable scaffolding
+
+This is a scaffolding patch on top of Rafał Miłecki's January 2015 AC-PHY
+stub. The 2015 stub registered b43_phyops_ac with only 8 members; the
+b43 core unconditionally dereferences several ops that were left NULL
+(notably ->init and ->software_rfkill, called by b43_phy_init() in
+phy_common.c, which is consistent with the "BUG: NULL pointer
+dereference at 0000000000000000" reported by users).
+
+This patch:
+
+  * Adds every PHY operation that phy_common.h documents as
+    "Must not be NULL" (prepare_structs, init, phy_read, phy_write,
+    software_rfkill, switch_analog, switch_channel). Bodies are skeletons
+    modelled on b43/phy_ht.c (the closest BCMA-only sibling).
+  * Splits the file into the same sections as phy_ht.c (Radio, RF,
+    Various PHY ops, Channel switching, Basic PHY ops, R/W, PHY ops
+    struct), so that future work has the same structure as for the
+    HT-PHY.
+  * Introduces tables_phy_ac.{c,h} and radio_2069.{c,h} as placeholders.
+  * Extends struct b43_phy_ac with the per-device state that the init
+    flow needs (saved RF ctrl, idle TSSI, bb_mult, tx_pwr_idx, tx_pwr_ctl).
+  * Adds the register #defines used by the skeleton (RF_CTL1, RF_SEQ_*,
+    AFE_C{1,2,3}{,_OVER}, EXTG/OFDM, TXPCTL_*, IQLOCAL_CMDGCTL, SAMP_*,
+    TEST). Their numeric offsets are TODOs: see comments.
+
+It is NOT meant to make the device work. Kconfig stays BROKEN. The
+device still cannot Tx/Rx because:
+
+  * the PHY init tables are placeholders (see tables_phy_ac.c),
+  * the 2069 radio init/channel sequences are placeholders
+    (see radio_2069.c),
+  * the channel-table values are not populated,
+  * no open-source ucode42 firmware exists.
+
+The goal is to have a structure where each missing piece is a function
+with a TODO that says exactly where to look:
+  - b43/phy_ht.c              for b43-side ops layout (BCMA, MIMO),
+  - brcmsmac/phy/phy_n.c      for init flow (wlc_phy_init_nphy),
+  - bcm-v4.sipsolutions.net   for register documentation,
+  - the wl proprietary blob   if/where licence allows extraction.
+
+Not-Signed-off-by: nobody (this is RFC scaffolding, do not apply)
+---
+ drivers/net/wireless/broadcom/b43/Makefile        |   2 +
+ drivers/net/wireless/broadcom/b43/phy_ac.c        | 437 +++++++++++++++++++++-
+ drivers/net/wireless/broadcom/b43/phy_ac.h        | 138 ++++++-
+ drivers/net/wireless/broadcom/b43/radio_2069.c    |  84 +++++
+ drivers/net/wireless/broadcom/b43/radio_2069.h    |  53 +++
+ drivers/net/wireless/broadcom/b43/tables_phy_ac.c |  68 ++++
+ drivers/net/wireless/broadcom/b43/tables_phy_ac.h |  18 +
+ 7 files changed, 794 insertions(+), 6 deletions(-)
+ create mode 100644 drivers/net/wireless/broadcom/b43/radio_2069.c
+ create mode 100644 drivers/net/wireless/broadcom/b43/radio_2069.h
+ create mode 100644 drivers/net/wireless/broadcom/b43/tables_phy_ac.c
+ create mode 100644 drivers/net/wireless/broadcom/b43/tables_phy_ac.h
+
+diff --git a/drivers/net/wireless/broadcom/b43/Makefile b/drivers/net/wireless/broadcom/b43/Makefile
+--- a/drivers/net/wireless/broadcom/b43/Makefile
++++ b/drivers/net/wireless/broadcom/b43/Makefile
+@@ -14,6 +14,8 @@ b43-$(CONFIG_B43_PHY_HT)	+= tables_phy_ht.o
+ b43-$(CONFIG_B43_PHY_HT)	+= radio_2059.o
+ b43-$(CONFIG_B43_PHY_LCN)	+= phy_lcn.o tables_phy_lcn.o
+ b43-$(CONFIG_B43_PHY_AC)	+= phy_ac.o
++b43-$(CONFIG_B43_PHY_AC)	+= tables_phy_ac.o
++b43-$(CONFIG_B43_PHY_AC)	+= radio_2069.o
+ b43-y				+= sysfs.o
+ b43-y				+= xmit.o
+ b43-y				+= dma.o
+
+diff --git a/drivers/net/wireless/broadcom/b43/phy_ac.h b/drivers/net/wireless/broadcom/b43/phy_ac.h
+--- a/drivers/net/wireless/broadcom/b43/phy_ac.h
++++ b/drivers/net/wireless/broadcom/b43/phy_ac.h
+@@ -3,8 +3,29 @@
+ 
+ #include "phy_common.h"
+ 
++/*
++ * Number of RF cores (= number of MIMO chains) on AC-PHY.
++ *
++ * The b43 dmesg in the wild only ever reports BCM4352 (2x2) and BCM4360
++ * (advertised 3x3 in router/AP variants, 2x2 in laptop variants like the
++ * Apple/Asus PCIe cards). For now we default to 2 because every public
++ * crash log so far is from a 2x2 part. Make this discoverable from the
++ * SPROM rev 11 fields once that parsing exists in bcma.
++ */
++#define B43_PHY_AC_NUM_CORES		2
++
++/*
++ * PHY register offsets, relative to PHY MMIO space.
++ *
++ * The numbers below come from the original 2015 stub (BBCFG, BANDCTL,
++ * TABLE_*, CLASSCTL, BW1A..6, RFCTL_CMD, C{1,2,3}_CLIP). The new ones
++ * (RF_CTL1, RF_SEQ_*, AFE_*, EXTG_*, TXPCTL_*, SAMP_*, IQLOCAL_*) are
++ * marked as TODO: their offsets need to be read out of the wl ELF or
++ * matched against bcm-v4.sipsolutions.net. Where unknown the value is
++ * 0xFFFF and use is gated by a B43_WARN_ON(1).
++ */
+ #define B43_PHY_AC_BBCFG			0x001
+ #define  B43_PHY_AC_BBCFG_RSTCCA		0x4000	/* Reset CCA */
++#define  B43_PHY_AC_BBCFG_RSTRX			0x8000	/* TODO: confirm bit (HT uses 0x8000) */
+ #define B43_PHY_AC_BANDCTL			0x003	/* Band control */
+ #define  B43_PHY_AC_BANDCTL_5GHZ		0x0001
+ #define B43_PHY_AC_TABLE_ID			0x00d
+@@ -16,6 +37,15 @@
+ #define  B43_PHY_AC_CLASSCTL_CCKEN		0x0001	/* CCK enable */
+ #define  B43_PHY_AC_CLASSCTL_OFDMEN		0x0002	/* OFDM enable */
+ #define  B43_PHY_AC_CLASSCTL_WAITEDEN		0x0004	/* Waited enable */
++
++/* TODO: TEST register, used by HT for OFDM-disable on channel 14.
++ * Likely exists on AC too at a different offset. */
++#define B43_PHY_AC_TEST				0xFFFF
++
++/* RF Control & RF Sequencer.
++ * On HT-PHY these live around 0x4xx; AC offsets unknown. */
++#define B43_PHY_AC_RFCTL1			0xFFFF
++#define B43_PHY_AC_RF_SEQ_MODE			0xFFFF
++#define B43_PHY_AC_RF_SEQ_TRIG			0xFFFF
++#define B43_PHY_AC_RF_SEQ_STATUS		0xFFFF
++#define  B43_PHY_AC_RF_SEQ_TRIG_RX2TX		0x0001	/* TODO: confirm */
++#define  B43_PHY_AC_RF_SEQ_TRIG_RST2RX		0x0004	/* TODO: confirm */
+ #define B43_PHY_AC_BW1A				0x371
+ #define B43_PHY_AC_BW2				0x372
+ #define B43_PHY_AC_BW3				0x373
+@@ -23,12 +53,116 @@
+ #define B43_PHY_AC_BW5				0x375
+ #define B43_PHY_AC_BW6				0x376
+ #define B43_PHY_AC_RFCTL_CMD			0x408
++
++/*
++ * Analog Front End (AFE), per RF core.
++ *
++ * On HT-PHY these are AFE_C{1,2,3} = {0x848, 0x868, 0x888}-ish, with
++ * matching _OVER registers. On AC the layout is conceptually the same
++ * but offsets must be confirmed. Leave as 0xFFFF until found, so any
++ * accidental access blows up loudly.
++ */
++#define B43_PHY_AC_AFE_C1			0xFFFF
++#define B43_PHY_AC_AFE_C1_OVER			0xFFFF
++#define B43_PHY_AC_AFE_C2			0xFFFF
++#define B43_PHY_AC_AFE_C2_OVER			0xFFFF
++
+ #define B43_PHY_AC_C1_CLIP			0x6d4
+ #define  B43_PHY_AC_C1_CLIP_DIS			0x4000
+ #define B43_PHY_AC_C2_CLIP			0x8d4
+ #define  B43_PHY_AC_C2_CLIP_DIS			0x4000
+ #define B43_PHY_AC_C3_CLIP			0xad4
+ #define  B43_PHY_AC_C3_CLIP_DIS			0x4000
+ 
++/*
++ * Per-device PHY state.
++ *
++ * Mirrors struct b43_phy_ht (phy_ht.h). Fields:
++ *  - rf_ctl_int_save: saved RF_CTL_INT registers across pa_override(false).
++ *  - tx_pwr_ctl: HW TX power control currently enabled.
++ *  - tx_pwr_idx: cached per-core TX power index across enable/disable.
++ *  - bb_mult_save: baseband multiplier saved when running TX samples.
++ *  - idle_tssi: TSSI baseline measured at idle in TX power setup.
++ *
++ * If you change the size of any of these arrays, update the loops in
++ * phy_ac.c that walk over [B43_PHY_AC_NUM_CORES].
++ */
+ struct b43_phy_ac {
++	u16 rf_ctl_int_save[B43_PHY_AC_NUM_CORES];
++
++	bool tx_pwr_ctl;
++	u16 tx_pwr_idx[B43_PHY_AC_NUM_CORES];
++
++	s32 bb_mult_save[B43_PHY_AC_NUM_CORES];
++
++	u8 idle_tssi[B43_PHY_AC_NUM_CORES];
+ };
+ 
+ extern const struct b43_phy_operations b43_phyops_ac;
+ 
+ #endif /* B43_PHY_AC_H_ */
+
+diff --git a/drivers/net/wireless/broadcom/b43/phy_ac.c b/drivers/net/wireless/broadcom/b43/phy_ac.c
+--- a/drivers/net/wireless/broadcom/b43/phy_ac.c
++++ b/drivers/net/wireless/broadcom/b43/phy_ac.c
+@@ -1,21 +1,46 @@
+ /*
+  * Broadcom B43 wireless driver
+  * IEEE 802.11ac AC-PHY support
+  *
+- * Copyright (c) 2015 Rafał Miłecki <zajec5@gmail.com>
++ * Copyright (c) 2015        Rafał Miłecki <zajec5@gmail.com>
++ * Copyright (c) 2026 (RFC scaffolding extension)
+  *
+  * This program is free software; you can redistribute	it and/or modify it
+  * under  the terms of	the GNU General	 Public License as published by the
+  * Free Software Foundation;  either version 2 of the  License, or (at your
+  * option) any later version.
++ *
++ * This file is split into the same sections as phy_ht.c:
++ *   - Radio 2069
++ *   - RF
++ *   - Various PHY ops
++ *   - Channel switching ops
++ *   - Basic PHY ops
++ *   - R/W ops
++ *   - PHY ops struct
++ *
++ * Every block of register writes is currently empty or filled with
++ * placeholder values, marked TODO. The companion files are:
++ *   - radio_2069.{c,h}    — radio init and channel-table writes
++ *   - tables_phy_ac.{c,h} — PHY init tables
++ *
++ * The intent is that someone with access to dump-and-replay of the
++ * BCM4360 wl driver, or to bcm-v4.sipsolutions.net documentation, can
++ * fill the body of each TODO function in isolation.
+  */
+ 
++#include <linux/slab.h>
++
+ #include "b43.h"
+ #include "phy_ac.h"
++#include "phy_common.h"
++#include "tables_phy_ac.h"
++#include "radio_2069.h"
++#include "main.h"
+ 
+ /**************************************************
+- * Basic PHY ops
++ * Radio 2069
+  **************************************************/
+ 
++/*
++ * Initial bring-up of the 2069 radio.
++ *
++ * Equivalent of b43_radio_2059_init() in phy_ht.c. The 2059 init does:
++ *   1. write fixed values to a few R2059_ALL registers,
++ *   2. set bit 0x3 of {C1,C2,C3}|0x146,
++ *   3. pulse 0x2e/0xc0 high then low (PLL bring-up),
++ *   4. PLL calibration loop on R2059_C3|0x4 / 0x145,
++ *   5. per-core programming of 0x17F/0x13D/0x13E/0x13C and a wait
++ *      on bit 1 of 0x140 (PLL lock per core),
++ *   6. final mask of 0x11 bit 0x0008.
++ *
++ * The 2069 should follow the same shape (it is the AC-band evolution of
++ * the 2057/2059 family). The exact register list comes from the wl
++ * driver's wlc_phy_radio_init_acphy(); we don't have it here, so for now
++ * we just ensure the function exists and is wired up. Returns 0 on
++ * success so software_rfkill() can complete.
++ */
++static void b43_radio_2069_init(struct b43_wldev *dev)
++{
++	/* TODO: port the wlc_radio_2069_init sequence here.
++	 * Until then this is a deliberate no-op: the radio will NOT
++	 * be tuned. Anything that depends on Tx/Rx will fail.
++	 */
++	b43dbg(dev->wl, "AC-PHY: radio 2069 init: stub, doing nothing\n");
++}
++
++/**************************************************
++ * RF sequencing
++ **************************************************/
++
++/*
++ * Force a single RF sequence.
++ *
++ * Carbon copy of b43_phy_ht_force_rf_sequence(): write rf_seq into
++ * RF_SEQ_TRIG, poll RF_SEQ_STATUS until the bit clears, restore the old
++ * RF_SEQ_MODE. This will WARN every call until the register offsets are
++ * filled in (currently 0xFFFF). That is intentional: it surfaces every
++ * place that needs the offsets resolved.
++ */
++static void b43_phy_ac_force_rf_sequence(struct b43_wldev *dev, u16 rf_seq)
++{
++	u16 save_seq_mode;
++	u8 i;
++
++	if (B43_WARN_ON(B43_PHY_AC_RF_SEQ_MODE == 0xFFFF))
++		return;
++
++	save_seq_mode = b43_phy_read(dev, B43_PHY_AC_RF_SEQ_MODE);
++	b43_phy_set(dev, B43_PHY_AC_RF_SEQ_MODE, 0x3);
++
++	b43_phy_set(dev, B43_PHY_AC_RF_SEQ_TRIG, rf_seq);
++	for (i = 0; i < 200; i++) {
++		if (!(b43_phy_read(dev, B43_PHY_AC_RF_SEQ_STATUS) & rf_seq)) {
++			i = 0;
++			break;
++		}
++		msleep(1);
++	}
++	if (i)
++		b43err(dev->wl, "Forcing RF sequence timeout\n");
++
++	b43_phy_write(dev, B43_PHY_AC_RF_SEQ_MODE, save_seq_mode);
++}
++
++/**************************************************
++ * Various PHY ops
++ **************************************************/
++
++/*
++ * Reset the CCA (Clear Channel Assessment) state machine.
++ *
++ * Pattern lifted directly from b43_phy_ht_reset_cca():
++ *   force_clock(true); set RSTCCA; clear RSTCCA; force_clock(false);
++ *   force RST2RX RF sequence.
++ *
++ * The BBCFG register offset (0x001) and the RSTCCA bit (0x4000) come
++ * from the original 2015 stub and match the HT-PHY layout, so this
++ * function should be safe to invoke even before the rest of the init
++ * is real.
++ */
++static void b43_phy_ac_reset_cca(struct b43_wldev *dev)
++{
++	u16 bbcfg;
++
++	b43_phy_force_clock(dev, true);
++	bbcfg = b43_phy_read(dev, B43_PHY_AC_BBCFG);
++	b43_phy_write(dev, B43_PHY_AC_BBCFG, bbcfg | B43_PHY_AC_BBCFG_RSTCCA);
++	udelay(1);
++	b43_phy_write(dev, B43_PHY_AC_BBCFG, bbcfg & ~B43_PHY_AC_BBCFG_RSTCCA);
++	b43_phy_force_clock(dev, false);
++
++	b43_phy_ac_force_rf_sequence(dev, B43_PHY_AC_RF_SEQ_TRIG_RST2RX);
++}
++
++/*
++ * Update the classifier control register.
++ *
++ * The classifier picks which preamble types the PHY decodes (CCK, OFDM,
++ * "waited"). The bits are already known (CCKEN/OFDMEN/WAITEDEN) and
++ * the offset (0x140) is in the original stub.
++ *
++ * Use this from switch_channel() to disable OFDM on Japanese channel
++ * 14, exactly like b43_phy_ht_classifier() does.
++ */
++static u16 b43_phy_ac_classifier(struct b43_wldev *dev, u16 mask, u16 val)
++{
++	u16 tmp;
++	u16 allowed = B43_PHY_AC_CLASSCTL_CCKEN |
++		      B43_PHY_AC_CLASSCTL_OFDMEN |
++		      B43_PHY_AC_CLASSCTL_WAITEDEN;
++
++	tmp = b43_phy_read(dev, B43_PHY_AC_CLASSCTL);
++	tmp &= allowed;
++	tmp &= ~mask;
++	tmp |= (val & mask);
++	b43_phy_maskset(dev, B43_PHY_AC_CLASSCTL, ~allowed, tmp);
++
++	return tmp;
++}
++
++/**************************************************
++ * Channel switching ops
++ **************************************************/
++
++/*
++ * Per-channel PHY register programming.
++ *
++ * Equivalent of b43_phy_ht_channel_setup(). The HT version does:
++ *   - write per-channel BW1..BW6 from a channel table,
++ *   - tweak the classifier and TEST register on channel 14,
++ *   - call tx_power_fix() and spur_avoid().
++ *
++ * For AC the BW1A..BW6 register offsets ARE in the 2015 stub. What's
++ * missing is the channel table (struct b43_phy_ac_channeltab_e_phy and
++ * a populated array indexed by center_freq). That table comes from
++ * radio_2069.c and is currently empty.
++ */
++static void b43_phy_ac_channel_setup(struct b43_wldev *dev,
++				     const struct b43_phy_ac_channeltab_e_phy *e,
++				     struct ieee80211_channel *new_channel)
++{
++	if (!e) {
++		b43err(dev->wl, "AC-PHY: no channel table entry, skipping setup\n");
++		return;
++	}
++
++	b43_phy_write(dev, B43_PHY_AC_BW1A, e->bw1);
++	b43_phy_write(dev, B43_PHY_AC_BW2,  e->bw2);
++	b43_phy_write(dev, B43_PHY_AC_BW3,  e->bw3);
++	b43_phy_write(dev, B43_PHY_AC_BW4,  e->bw4);
++	b43_phy_write(dev, B43_PHY_AC_BW5,  e->bw5);
++	b43_phy_write(dev, B43_PHY_AC_BW6,  e->bw6);
++
++	if (new_channel->hw_value == 14)
++		b43_phy_ac_classifier(dev, B43_PHY_AC_CLASSCTL_OFDMEN, 0);
++	else
++		b43_phy_ac_classifier(dev, B43_PHY_AC_CLASSCTL_OFDMEN,
++				      B43_PHY_AC_CLASSCTL_OFDMEN);
++
++	b43_phy_ac_reset_cca(dev);
++
++	/* TODO:
++	 *   - spur avoidance (bcma_pmu_spuravoid_pllupdate + TSF_CLK_FRAC),
++	 *   - 80 MHz / VHT bandwidth handling (this is the whole point of AC
++	 *     and is the largest piece missing vs HT-PHY),
++	 *   - 5GHz / 2GHz transition register dance.
++	 */
++}
++
++static int b43_phy_ac_set_channel(struct b43_wldev *dev,
++				  struct ieee80211_channel *channel,
++				  enum nl80211_channel_type channel_type)
++{
++	struct b43_phy *phy = &dev->phy;
++	const struct b43_phy_ac_channeltab_e_radio2069 *e2069;
++
++	if (phy->radio_ver != 0x2069)
++		return -ESRCH;
++
++	e2069 = b43_phy_ac_get_channeltab_e_r2069(dev, channel->center_freq);
++	if (!e2069)
++		return -ESRCH;
++
++	b43_radio_2069_channel_setup(dev, e2069);
++	b43_phy_ac_channel_setup(dev, &e2069->phy_regs, channel);
++
++	return 0;
++}
++
++/**************************************************
++ * Basic PHY ops
+  **************************************************/
+ 
+ static int b43_phy_ac_op_allocate(struct b43_wldev *dev)
+@@ -29,6 +254,21 @@ static int b43_phy_ac_op_allocate(struct b43_wldev *dev)
+ 	return 0;
+ }
+ 
++/*
++ * prepare_structs is called by the b43 core after allocate() and before
++ * init(). On HT-PHY this only zeroes the per-PHY struct and seeds a few
++ * defaults. We do the same.
++ */
++static void b43_phy_ac_op_prepare_structs(struct b43_wldev *dev)
++{
++	struct b43_phy_ac *phy_ac = dev->phy.ac;
++	int i;
++
++	memset(phy_ac, 0, sizeof(*phy_ac));
++	phy_ac->tx_pwr_ctl = true;
++	for (i = 0; i < B43_PHY_AC_NUM_CORES; i++)
++		phy_ac->bb_mult_save[i] = -1;
++}
++
+ static void b43_phy_ac_op_free(struct b43_wldev *dev)
+ {
+ 	struct b43_phy *phy = &dev->phy;
+@@ -38,6 +278,93 @@ static void b43_phy_ac_op_free(struct b43_wldev *dev)
+ 	phy->ac = NULL;
+ }
+ 
++/*
++ * The PHY init.
++ *
++ * Skeleton modelled on b43_phy_ht_op_init(). The order of phases is the
++ * same one used by brcmsmac/phy/phy_n.c::wlc_phy_init_nphy() and by the
++ * wl proprietary driver's wlc_phy_init_acphy(); paraphrased:
++ *
++ *   1. sanity: this PHY only exists on BCMA;
++ *   2. load PHY init tables  -> b43_phy_ac_tables_init();
++ *   3. clear/seed a handful of registers (mode bits, EXTG zeroing);
++ *   4. AFE bring-up across all cores;
++ *   5. init the bphy compatibility shim (CCK rate registers);
++ *   6. force-update the MAC PHY clock;
++ *   7. PA override off / RX2TX / RST2RX / PA override on;
++ *   8. read the clip-detection state for later;
++ *   9. on 2GHz, bphy_init();
++ *  10. write any "late" entries in PHY tables;
++ *  11. TX power control: fix, disable, idle TSSI cal, setup, restore.
++ *
++ * Each numbered phase below is a placeholder that calls a helper or
++ * leaves a TODO. The body of those helpers is what someone reverse-
++ * engineering the wl blob (or porting from the asus/openwrt fork) would
++ * actually need to fill in.
++ */
++static int b43_phy_ac_op_init(struct b43_wldev *dev)
++{
++	if (dev->dev->bus_type != B43_BUS_BCMA) {
++		b43err(dev->wl, "AC-PHY is supported only on BCMA bus!\n");
++		return -EOPNOTSUPP;
++	}
++
++	/* (2) PHY tables. Empty stub for now. */
++	b43_phy_ac_tables_init(dev);
++
++	/* (3) Mode-bit clears.
++	 * On HT this is e.g. b43_phy_mask(dev, 0x0be, ~0x2) and
++	 * b43_phy_set(dev, 0x23f, 0x7ff). Equivalent AC offsets unknown.
++	 */
++	/* TODO: AC equivalents of HT 0x0be/0x23f/0x240/0x241 setup. */
++
++	/* (4) AFE bring-up: write 0 to AFE_C{1,2,…}_OVER, etc.
++	 * Gated until offsets are real, otherwise we'd write to 0xFFFF. */
++	if (B43_PHY_AC_AFE_C1_OVER != 0xFFFF) {
++		b43_phy_write(dev, B43_PHY_AC_AFE_C1_OVER, 0);
++		b43_phy_write(dev, B43_PHY_AC_AFE_C2_OVER, 0);
++	}
++
++	/* (6) MAC PHY clock. This call is already implemented in main.c. */
++	b43_mac_phy_clock_set(dev, true);
++
++	/* (7) PA override / RF sequence dance.
++	 * pa_override(false) needs B43_PHY_AC_RFCTL_INT_C{1,2}; offsets
++	 * unknown, so we skip until those are filled. */
++	/* TODO: b43_phy_ac_pa_override(dev, false); */
++	b43_phy_ac_force_rf_sequence(dev, B43_PHY_AC_RF_SEQ_TRIG_RX2TX);
++	b43_phy_ac_force_rf_sequence(dev, B43_PHY_AC_RF_SEQ_TRIG_RST2RX);
++	/* TODO: b43_phy_ac_pa_override(dev, true); */
++
++	/* (8) Clip detection — handy to have for debugging RX issues
++	 * but offsets are not known yet, so skip. */
++	/* TODO: b43_phy_ac_read_clip_detection(dev, clip_state); */
++
++	/* (9) bphy compat: only relevant on 2.4 GHz cards (BCM4352 yes,
++	 * BCM4360 5 GHz-only no). On HT-PHY this is a 16-iteration loop
++	 * filling B43_PHY_N_BMODE(0x88..0xa7). The same scheme should
++	 * apply for AC. */
++	if (b43_current_band(dev->wl) == NL80211_BAND_2GHZ) {
++		/* TODO: b43_phy_ac_bphy_init(dev); */
++	}
++
++	/* (11) TX power control. The current stub recalc_txpower returns
++	 * RES_DONE which means the b43 core will NOT call ->adjust_txpower
++	 * (see phy_common.c::b43_phy_txpower_check). For now we leave the
++	 * full setup as TODO; the upshot is that TX power is whatever the
++	 * silicon defaults to at reset.
++	 */
++	/* TODO: b43_phy_ac_tx_power_fix(dev);
++	 *       b43_phy_ac_tx_power_ctl(dev, false);
++	 *       b43_phy_ac_tx_power_ctl_idle_tssi(dev);
++	 *       b43_phy_ac_tx_power_ctl_setup(dev);
++	 *       b43_phy_ac_tssi_setup(dev);
++	 *       b43_phy_ac_tx_power_ctl(dev, saved_tx_pwr_ctl);
++	 */
++
++	return 0;
++}
++
++/*
++ * software_rfkill: the b43 core calls this BEFORE init(), with
++ * blocked=false (see b43_phy_init() in phy_common.c). The first thing
++ * it does on unblock is bring the radio up — that's where we lose the
++ * crash if we leave it NULL.
++ *
++ * Pattern from phy_ht.c: pulse RF_CTL1, then call radio_2069_init(),
++ * then trigger a channel switch to dev->phy.channel.
++ */
++static void b43_phy_ac_op_software_rfkill(struct b43_wldev *dev, bool blocked)
++{
++	if (b43_read32(dev, B43_MMIO_MACCTL) & B43_MACCTL_ENABLED)
++		b43err(dev->wl, "MAC not suspended\n");
++
++	if (blocked) {
++		if (B43_PHY_AC_RFCTL1 != 0xFFFF)
++			b43_phy_mask(dev, B43_PHY_AC_RFCTL1, 0);
++		return;
++	}
++
++	if (B43_PHY_AC_RFCTL1 != 0xFFFF) {
++		/* TODO: real RFCTL1 sequence. HT does:
++		 *   mask 0; mask 0|0x1; mask 0; mask 0|0x2.
++		 */
++		b43_phy_mask(dev, B43_PHY_AC_RFCTL1, 0);
++	}
++
++	if (dev->phy.radio_ver == 0x2069)
++		b43_radio_2069_init(dev);
++	else
++		B43_WARN_ON(1);
++
++	b43_switch_channel(dev, dev->phy.channel);
++}
++
++/*
++ * switch_analog: turns the analog frontend on or off. The HT-PHY
++ * implementation writes a magic 0x00cd / 0x00fd pair to AFE_C{1,2,3}{,_OVER}.
++ * We keep the same shape, gated on offsets being valid.
++ */
++static void b43_phy_ac_op_switch_analog(struct b43_wldev *dev, bool on)
++{
++	if (B43_PHY_AC_AFE_C1 == 0xFFFF) {
++		/* No AFE offsets yet → use the generic helper, which just
++		 * pokes B43_MMIO_PHY0. It's almost certainly wrong on AC
++		 * but at least it doesn't crash. */
++		b43_phyop_switch_analog_generic(dev, on);
++		return;
++	}
++
++	if (on) {
++		b43_phy_write(dev, B43_PHY_AC_AFE_C1,      0x00cd);
++		b43_phy_write(dev, B43_PHY_AC_AFE_C1_OVER, 0x0000);
++		b43_phy_write(dev, B43_PHY_AC_AFE_C2,      0x00cd);
++		b43_phy_write(dev, B43_PHY_AC_AFE_C2_OVER, 0x0000);
++	} else {
++		b43_phy_write(dev, B43_PHY_AC_AFE_C1_OVER, 0x07ff);
++		b43_phy_write(dev, B43_PHY_AC_AFE_C1,      0x00fd);
++		b43_phy_write(dev, B43_PHY_AC_AFE_C2_OVER, 0x07ff);
++		b43_phy_write(dev, B43_PHY_AC_AFE_C2,      0x00fd);
++	}
++}
++
++static int b43_phy_ac_op_switch_channel(struct b43_wldev *dev,
++					unsigned int new_channel)
++{
++	struct ieee80211_channel *channel = dev->wl->hw->conf.chandef.chan;
++	enum nl80211_channel_type channel_type =
++		cfg80211_get_chandef_type(&dev->wl->hw->conf.chandef);
++
++	if (b43_current_band(dev->wl) == NL80211_BAND_2GHZ) {
++		if (new_channel < 1 || new_channel > 14)
++			return -EINVAL;
++	}
++	/* No 5GHz range check here — VHT channels go up to 165. The wl
++	 * driver validates against a per-country regulatory map. For
++	 * scaffolding we accept anything. */
++
++	return b43_phy_ac_set_channel(dev, channel, channel_type);
++}
++
++/**************************************************
++ * R/W ops
++ **************************************************/
++
++/*
++ * Plain PHY register read/write.
++ *
++ * The 2015 stub only registered ->phy_maskset, which means b43_phy_read
++ * and b43_phy_write (called all over the rest of the b43 core) will
++ * dereference a NULL ->phy_read/->phy_write. Add them, identical in
++ * shape to phy_ht.c.
++ */
++static u16 b43_phy_ac_op_read(struct b43_wldev *dev, u16 reg)
++{
++	b43_write16f(dev, B43_MMIO_PHY_CONTROL, reg);
++	return b43_read16(dev, B43_MMIO_PHY_DATA);
++}
++
++static void b43_phy_ac_op_write(struct b43_wldev *dev, u16 reg, u16 value)
++{
++	b43_write16f(dev, B43_MMIO_PHY_CONTROL, reg);
++	b43_write16(dev, B43_MMIO_PHY_DATA, value);
++}
++
+ static void b43_phy_ac_op_maskset(struct b43_wldev *dev, u16 reg, u16 mask,
+ 				  u16 set)
+ {
+@@ -69,9 +396,28 @@ static void b43_phy_ac_op_adjust_txpower(struct b43_wldev *dev)
+ {
+ }
+ 
++/**************************************************
++ * PHY ops struct
++ **************************************************/
++
++/*
++ * Anything still NULL here is an op that phy_common.h documents as
++ * optional. In particular: prepare_hardware, exit, supports_hwpctl,
++ * set_rx_antenna, interf_mitigation, pwork_15sec, pwork_60sec.
++ *
++ * Once the init body is real and TX/RX is needed:
++ *   - implement set_rx_antenna so userspace antenna selection works,
++ *   - implement interf_mitigation for the WLC_NONWLAN modes,
++ *   - revisit recalc_txpower to actually return NEED_ADJUST and add
++ *     a real adjust_txpower that walks the SPROM core_pwr_info.
++ */
+ const struct b43_phy_operations b43_phyops_ac = {
+ 	.allocate		= b43_phy_ac_op_allocate,
+ 	.free			= b43_phy_ac_op_free,
++	.prepare_structs	= b43_phy_ac_op_prepare_structs,
++	.init			= b43_phy_ac_op_init,
++	.phy_read		= b43_phy_ac_op_read,
++	.phy_write		= b43_phy_ac_op_write,
+ 	.phy_maskset		= b43_phy_ac_op_maskset,
+ 	.radio_read		= b43_phy_ac_op_radio_read,
+ 	.radio_write		= b43_phy_ac_op_radio_write,
++	.software_rfkill	= b43_phy_ac_op_software_rfkill,
++	.switch_analog		= b43_phy_ac_op_switch_analog,
++	.switch_channel		= b43_phy_ac_op_switch_channel,
+ 	.get_default_chan	= b43_phy_ac_op_get_default_chan,
+ 	.recalc_txpower		= b43_phy_ac_op_recalc_txpower,
+ 	.adjust_txpower		= b43_phy_ac_op_adjust_txpower,
+ };
+
+diff --git a/drivers/net/wireless/broadcom/b43/radio_2069.h b/drivers/net/wireless/broadcom/b43/radio_2069.h
+new file mode 100644
+--- /dev/null
++++ b/drivers/net/wireless/broadcom/b43/radio_2069.h
+@@ -0,0 +1,53 @@
++/* SPDX-License-Identifier: GPL-2.0-or-later */
++#ifndef B43_RADIO_2069_H_
++#define B43_RADIO_2069_H_
++
++#include <linux/types.h>
++
++struct b43_wldev;
++
++/*
++ * Per-core register routing for the 2069 radio.
++ *
++ * On the 2057/2059 radios (used by N-PHY and HT-PHY) the radio register
++ * space is split per chain (R20XX_C1, R20XX_C2, R20XX_C3) plus an "ALL"
++ * routing that broadcasts a write to every core. The 2069 follows the
++ * same scheme. The exact bit layout for the routing prefix is unknown
++ * here — these values are placeholders, see radio_2057.h / radio_2059.h
++ * for the real shape (typically 0x000/0x100/0x200/0x300 in the upper
++ * bits of the register address).
++ */
++#define R2069_C1   0xFFFF /* TODO */
++#define R2069_C2   0xFFFF /* TODO */
++#define R2069_ALL  0xFFFF /* TODO */
++
++/*
++ * One PHY-side row in the per-channel table. The fields here mirror
++ * struct b43_phy_ht_channeltab_e_phy used by b43_phy_ht_channel_setup().
++ * The HT version contains exactly the BW1..BW6 values; AC will need
++ * more once VHT bandwidth handling is added (40/80 MHz secondary
++ * channel offset, etc).
++ */
++struct b43_phy_ac_channeltab_e_phy {
++	u16 bw1;
++	u16 bw2;
++	u16 bw3;
++	u16 bw4;
++	u16 bw5;
++	u16 bw6;
++};
++
++/*
++ * One row of the per-channel table for the 2069 radio. Compose of:
++ *   - the PHY-side BW programming (above),
++ *   - radio-side per-channel register values (currently unknown).
++ */
++struct b43_phy_ac_channeltab_e_radio2069 {
++	struct b43_phy_ac_channeltab_e_phy phy_regs;
++	/* TODO: add radio_synXX / radio_rxtxYY fields, mirroring
++	 * struct b43_phy_ht_channeltab_e_radio2059. */
++};
++
++const struct b43_phy_ac_channeltab_e_radio2069 *
++b43_phy_ac_get_channeltab_e_r2069(struct b43_wldev *dev, u16 freq);
++
++void b43_radio_2069_channel_setup(struct b43_wldev *dev,
++	const struct b43_phy_ac_channeltab_e_radio2069 *e);
++
++#endif /* B43_RADIO_2069_H_ */
+
+diff --git a/drivers/net/wireless/broadcom/b43/radio_2069.c b/drivers/net/wireless/broadcom/b43/radio_2069.c
+new file mode 100644
+--- /dev/null
++++ b/drivers/net/wireless/broadcom/b43/radio_2069.c
+@@ -0,0 +1,84 @@
++// SPDX-License-Identifier: GPL-2.0-or-later
++/*
++ * Broadcom B43 wireless driver
++ * 2069 radio — RFC scaffolding
++ *
++ * The 2069 is the radio paired with the AC-PHY in BCM4352/BCM4360.
++ * No public reverse-engineered description of it exists. This file is
++ * a structure: one channel table, one lookup function, one channel-
++ * setup function. They are deliberately empty.
++ *
++ * To populate them you will want, in roughly this order:
++ *   1. The list of supported center frequencies. From the Broadcom
++ *      hybrid-v35 wl source, it's the entries returned by
++ *      wlc_acphy_chanspec_to_radio_target() / wlc_phy_chanspec_radio2069_set().
++ *   2. For each frequency, the values written to:
++ *        - global radio registers (offsets 0x16, 0x17, 0x22, 0x25, …;
++ *          on 2059 there are 13 of these),
++ *        - per-core registers (0x4a, 0x58, 0x5a, 0x6a, 0x6d, 0x6e,
++ *          0x92, 0x98 on 2059) routed via R2069_C1/C2.
++ *   3. The PHY-side BW1..BW6 values for that frequency.
++ *
++ * Until those are filled, every call here returns NULL or no-ops, and
++ * the b43 core's switch_channel() returns -ESRCH. This is intentional:
++ * better explicit failure than silent garbage on the air.
++ */
++
++#include "b43.h"
++#include "phy_ac.h"
++#include "radio_2069.h"
++
++/*
++ * The channel table itself. Empty for now; add entries like:
++ *
++ *   static const struct b43_phy_ac_channeltab_e_radio2069 b43_chantab_r2069[] = {
++ *   	{ .phy_regs = { .bw1 = 0x..., ... }, ... },
++ *   	...
++ *   };
++ *
++ * with one entry per supported channel center frequency.
++ */
++static const struct b43_phy_ac_channeltab_e_radio2069 b43_chantab_r2069[] = {
++	/* TODO: populate. */
++};
++
++/*
++ * Look up the entry for a given center_freq. The HT-PHY equivalent
++ * (b43_phy_ht_get_channeltab_e_r2059) does a linear scan; the table is
++ * small (a few dozen entries) so that's fine.
++ *
++ * The freq → entry mapping itself isn't spelled out in our struct
++ * because we don't have entries yet. When you add real entries, give
++ * the struct a `u16 freq` field and search on it.
++ */
++const struct b43_phy_ac_channeltab_e_radio2069 *
++b43_phy_ac_get_channeltab_e_r2069(struct b43_wldev *dev, u16 freq)
++{
++	if (ARRAY_SIZE(b43_chantab_r2069) == 0)
++		return NULL;
++
++	/* TODO: scan b43_chantab_r2069[] for a matching entry. */
++	(void)dev;
++	(void)freq;
++	return NULL;
++}
++
++/*
++ * Apply a channel-table entry to the 2069 radio.
++ *
++ * On the 2059 (HT) this writes ~13 global registers, then ~8 per-core
++ * registers across all 3 cores via the routing prefix, then triggers a
++ * calibration pulse on 0x2b/0x2e and waits 300 µs.
++ *
++ * Mirror that here once the entries exist. Until then, no-op.
++ */
++void b43_radio_2069_channel_setup(struct b43_wldev *dev,
++	const struct b43_phy_ac_channeltab_e_radio2069 *e)
++{
++	if (!e)
++		return;
++
++	/* TODO: write per-channel radio registers from e. */
++	(void)dev;
++}
+
+diff --git a/drivers/net/wireless/broadcom/b43/tables_phy_ac.h b/drivers/net/wireless/broadcom/b43/tables_phy_ac.h
+new file mode 100644
+--- /dev/null
++++ b/drivers/net/wireless/broadcom/b43/tables_phy_ac.h
+@@ -0,0 +1,18 @@
++/* SPDX-License-Identifier: GPL-2.0-or-later */
++#ifndef B43_TABLES_PHY_AC_H_
++#define B43_TABLES_PHY_AC_H_
++
++struct b43_wldev;
++
++/*
++ * Load the AC-PHY init tables into the PHY's table memory.
++ *
++ * On HT this is the long sequence of b43_httab_write{,_few,_bulk}()
++ * calls in b43_phy_ht_tables_init() (in tables_phy_ht.c), driven by
++ * a series of huge static u16/u32 arrays.
++ *
++ * For AC the equivalent arrays do not exist in any open driver.
++ */
++void b43_phy_ac_tables_init(struct b43_wldev *dev);
++
++#endif /* B43_TABLES_PHY_AC_H_ */
+
+diff --git a/drivers/net/wireless/broadcom/b43/tables_phy_ac.c b/drivers/net/wireless/broadcom/b43/tables_phy_ac.c
+new file mode 100644
+--- /dev/null
++++ b/drivers/net/wireless/broadcom/b43/tables_phy_ac.c
+@@ -0,0 +1,68 @@
++// SPDX-License-Identifier: GPL-2.0-or-later
++/*
++ * Broadcom B43 wireless driver
++ * AC-PHY tables — RFC scaffolding
++ *
++ * On a working PHY this file holds the static arrays of u16 / u32
++ * values that are loaded into the PHY's internal table memory at init
++ * time. On HT-PHY (tables_phy_ht.c) there are roughly:
++ *   - per-table (table_id) arrays, each describing one logical chunk
++ *     (e.g. "RX gain table", "TX gain table", "RFSEQ external", "AGC
++ *     init", "channel-independent radio gain", …),
++ *   - a top-level init function that calls
++ *     b43_httab_write_bulk(dev, B43_HTTAB16(table_id, offset), len, arr)
++ *     for each one.
++ *
++ * For AC we don't have any of these arrays. The plan is:
++ *   1. Identify the table writes performed by the wl proprietary driver
++ *      during init (e.g. with kprobes on b43_httab_write* equivalents,
++ *      or by static disassembly of wl.ko's wlc_phytbl_init_acphy()).
++ *   2. Capture (table_id, offset, value) tuples.
++ *   3. Group them into per-table arrays here.
++ *   4. Call them from b43_phy_ac_tables_init() below.
++ *
++ * Until then this file's only purpose is to define an empty function
++ * so that phy_ac.c links.
++ */
++
++#include "b43.h"
++#include "phy_ac.h"
++#include "tables_phy_ac.h"
++
++/*
++ * Sample arrays — keep the shape, leave the contents marked 0xDEAD so
++ * that if anyone accidentally calls b43_httab_write_bulk() with them,
++ * the values on the wire scream "I am a placeholder" rather than zero
++ * (which is plausibly valid hardware state).
++ *
++ * Pick the table_id values to mirror HT once known; for now, just keep
++ * them as named constants.
++ */
++#define B43_AC_TABLE_ID_RXGAIN_PLACEHOLDER	0
++#define B43_AC_TABLE_ID_TXGAIN_PLACEHOLDER	1
++
++static const u16 b43_phy_ac_tab_rxgain_placeholder[] = {
++	[0 ... 7] = 0xDEAD,
++};
++
++static const u16 b43_phy_ac_tab_txgain_placeholder[] = {
++	[0 ... 7] = 0xDEAD,
++};
++
++/*
++ * The init function. b43_httab_write_bulk is HT-specific (it goes
++ * through the HT-PHY's TABLE_ADDR / TABLE_DATAHI / TABLE_DATALO
++ * registers); for AC the layout is BBCFG-adjacent (TABLE_ID, TABLE_OFFSET,
++ * TABLE_DATA1/2/3). A b43_actab_write* helper will need to be added in
++ * tables.c once we know the exact register sequence.
++ *
++ * For the moment do nothing.
++ */
++void b43_phy_ac_tables_init(struct b43_wldev *dev)
++{
++	(void)dev;
++	(void)b43_phy_ac_tab_rxgain_placeholder;
++	(void)b43_phy_ac_tab_txgain_placeholder;
++
++	/* TODO: write tables via a b43_actab_write_bulk() helper. */
++}

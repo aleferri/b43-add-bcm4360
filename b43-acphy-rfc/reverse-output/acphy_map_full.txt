@@ -1,0 +1,4225 @@
+wlc_phy_cal_gphy_measurelo:
+  00030120  phy_reg_read(reg=0x80f)
+
+WRITE_APHY_TABLE_ENT:
+  00030304  phy_reg_write(reg=0x472, val=?)
+
+gphy_tr_switch:
+  00030388  phy_reg_read(reg=0x4a0)
+  000303a8  phy_reg_write(reg=0x4a0, val=?)
+
+gphy_classifyctl:
+  00030478  phy_reg_read(reg=0x802)
+
+aphy_all_crs:
+  000304dc  phy_reg_read(reg=0x29)
+
+wlc_phy_ant_rxdiv_set_abgphy:
+  00030560  phy_reg_read(reg=0x401)
+  00030584  phy_reg_write(reg=0x401, val=?)
+  00030600  phy_reg_write(reg=0x401, val=?)
+
+wlc_phy_init_aphy:
+  00030698  phy_reg_write(reg=0x13, val=0x140)
+  00030794  phy_reg_write_array(count=&.rodata+0x6f60, arrptr=0x9)
+
+wlc_synth_pu_war:
+  00030af8  write_phy_channel_reg(reg=?, val=0x33)
+
+wlc_phy_switch_radio_abgphy:
+  00030bc0  phy_reg_write(reg=0x811, val=?)
+
+wlc_set_11a_txpower:
+  00030cf8  write_radio_reg(reg=0x19, val=?)
+  00030d50  phy_reg_write(reg=0x72, val=0x3001)
+  00030d64  phy_reg_read(reg=0x73)
+
+wlc_phy_chanspec_set_abgphy:
+  00030fa0  write_phy_channel_reg(reg=?, val=?)
+  000310c8  or_radio_reg(reg=0x51, val=0x4)
+  0003110c  read_radio_reg(reg=0x5c)
+  0003112c  write_radio_reg(reg=0x5c, val=?)
+
+wlc_phy_noise_sample_aphy_meas:
+  000312a4  read_radio_reg(reg=0x13)
+  000312c4  and_radio_reg(reg=0x13, mask=0xffef)
+  000312d4  phy_reg_read(reg=0x3)
+  00031304  phy_reg_write_array(count=&.rodata+0x69b4, arrptr=0x8)
+  0003133c  phy_reg_write(reg=0x3, val=?)
+  00031354  write_radio_reg(reg=0x13, val=?)
+
+wlc_set_11b_txpower:
+  000314a0  phy_reg_mod(reg=0x60, mask=?, val=?)
+  00031500  mod_radio_reg(reg=0x43, mask=0xf, val=?)
+  000315bc  write_radio_reg(reg=0x43, val=?)
+
+wlc_bgphy_pwrctrl_init:
+  000316b8  phy_reg_write(reg=0x28, val=0x8018)
+  00031764  phy_reg_read(reg=0x29)
+  00031814  phy_reg_mod(reg=0x36, mask=0x3f, val=?)
+  000319fc  phy_reg_write_array(count=&.rodata+0x70d8, arrptr=0xf)
+
+T.1515:
+  00031c48  phy_reg_write(reg=0x803, val=?)
+
+T.1516:
+  00031f20  phy_reg_read(reg=0x811)
+  00031f50  phy_reg_write_array(count=&.rodata+0x679c, arrptr=0x6)
+  00031f80  phy_reg_write(reg=0x811, val=?)
+
+T.1517:
+  00032080  phy_reg_read(reg=0x811)
+  000320b0  phy_reg_write_array(count=&.rodata+0x6790, arrptr=0x6)
+  000320e0  phy_reg_write(reg=0x811, val=?)
+
+wlc_phy_cal_radio2050_nrssioffset_gmode1:
+  000321b0  phy_reg_read(reg=0x1)
+  000321c8  read_radio_reg(reg=0x7a)
+  000322a0  phy_reg_write_array(count=&.rodata+0x6f48, arrptr=0xb)
+  000322f8  or_radio_reg(reg=0x7a, val=0x70)
+  00032314  or_radio_reg(reg=0x7a, val=0x80)
+  00032360  and_radio_reg(reg=0x7a, mask=0x7f)
+  0003237c  phy_reg_write_array(count=&.rodata+0x6ee0, arrptr=0x1b)
+  000323a0  phy_reg_or(reg=0xa, val=0x2000)
+  000323c8  phy_reg_write_array(count=&.rodata+0x6ecc, arrptr=0xa)
+  000323e0  or_radio_reg(reg=0x7a, val=0xf)
+  00032418  mod_radio_reg(reg=0x43, mask=0xff0f, val=0xf)
+  00032474  write_radio_reg(reg=0x7b, val=?)
+  000324fc  write_radio_reg(reg=0x7b, val=0x7)
+  00032784  phy_reg_write_array(count=&.rodata+0x6f18, arrptr=0x18)
+  00032864  phy_reg_write(reg=0x3, val=0x122)
+
+wlc_cal_2050_nrssislope_gmode1:
+  00032978  read_radio_reg(reg=0x7a)
+  0003298c  phy_reg_read(reg=0x15)
+  00032a74  or_radio_reg(reg=0x7a, val=0x70)
+  00032aac  and_radio_reg(reg=0x7a, mask=0xf7)
+  00032b28  phy_reg_mod(reg=0x3, mask=0x60, val=0x40)
+  00032b84  phy_reg_write(reg=0x15, val=0xf330)
+  00032bcc  mod_radio_reg(reg=0x52, mask=0xf0, val=0x60)
+  00032f9c  phy_reg_write_array(count=&.rodata+0x6a9c, arrptr=0x18)
+  00033080  write_radio_reg(reg=0x7b, val=?)
+
+wlc_phy_aci_ctl_gphy:
+  000330bc  phy_reg_read(reg=0x33)
+  000330f8  phy_reg_write(reg=0x401, val=?)
+  000333bc  phy_reg_write_array(count=&.rodata+0x6a58, arrptr=0x21)
+  00033414  phy_reg_mod(reg=0x48c, mask=0xf00, val=0x200)
+
+wlc_phy_aci_scan_gphy:
+  000338ac  phy_reg_read(reg=0x48a)
+
+T.1518:
+  00033984  read_radio_reg(reg=0x43)
+  0003399c  read_radio_reg(reg=0x51)
+  000339b8  read_radio_reg(reg=0x52)
+  000339cc  phy_reg_read(reg=0x15)
+  00033b10  phy_reg_mod(reg=0x3, mask=0x60, val=0x40)
+  00033b5c  read_radio_reg(reg=0x60)
+  00033b98  phy_reg_write_array(count=&.rodata+0x70cc, arrptr=0x6)
+  00033bc0  or_radio_reg(reg=0x51, val=0x4)
+  00033be8  write_radio_reg(reg=0x52, val=?)
+  00033c04  mod_radio_reg(reg=0x43, mask=0xf, val=0x9)
+  00033d8c  read_radio_reg(reg=0x78)
+  000343a0  phy_reg_write(reg=0x814, val=?)
+  0003447c  write_radio_reg(reg=0x43, val=0x1f)
+  000344b0  phy_reg_write_array(count=&.rodata+0x70cc, arrptr=0x6)
+
+wlc_phy_init_gphy:
+  00034650  phy_reg_write(reg=0x3e, val=0x817a)
+  00034668  or_radio_reg(reg=0x7a, val=0x58)
+  0003478c  or_radio_reg(reg=0x7a, val=0x7)
+  000347c8  phy_reg_write_array(count=&.rodata+0x6fa0, arrptr=0x9)
+  00034824  phy_reg_mod(reg=0x2, mask=0x3f, val=0x4)
+  000348b0  mod_radio_reg(reg=0x52, mask=0xf, val=?)
+  00034aec  phy_reg_mod(reg=0x61, mask=0xf000, val=?)
+  00034b20  phy_reg_read(reg=0x400)
+  00034b64  phy_reg_read(reg=0x429)
+  00034c84  read_radio_reg(reg=0x52)
+  00034cf8  mod_radio_reg(reg=0x43, mask=0xf, val=0x9)
+  00034d30  phy_reg_mod(reg=0x60, mask=?, val=?)
+  00034d7c  and_radio_reg(reg=0x7a, mask=0xf7)
+  00034dbc  phy_reg_mod(reg=0x812, mask=0xf00, val=?)
+  00034fe0  phy_reg_mod(reg=0x60, mask=?, val=?)
+  000350b4  write_radio_reg(reg=0x51, val=?)
+  000351a4  or_radio_reg(reg=0x7c, val=0x2)
+  00035250  phy_reg_or(reg=0x812, val=0x30)
+  0003529c  phy_reg_mod(reg=0x812, mask=0xf00, val=?)
+
+wlc_phy_gpiosel_acphy:
+  00036b9c  phy_reg_write(reg=0x392, val=?)
+
+wlc_phy_rx_fdiqi_comp_acphy:
+  00036da8  phy_reg_mod(reg=0x210, mask=0x7, val=0x4)
+  000371bc  phy_reg_mod(reg=0x211, mask=0x1, val=?)
+
+wlc_phy_set_crs_min_pwr_acphy:
+  00037358  phy_reg_mod(reg=0x324, mask=0xff, val=?)
+  000373fc  phy_reg_write(reg=0x910, val=?)
+
+wlc_phy_dig_lpf_override_acphy:
+  00037504  phy_reg_write(reg=0x18b, val=0x2d4)
+  000375bc  phy_reg_read(reg=0x181)
+  000375d4  phy_reg_write(reg=0x18b, val=?)
+  000376f8  phy_reg_read(reg=0x18b)
+  000377bc  phy_reg_write(reg=0x18b, val=?)
+
+wlc_phy_test_tssi_acphy:
+  00037888  phy_reg_read(reg=?)
+
+wlc_phy_rxcore_getstate_acphy:
+  000378d0  phy_reg_read(reg=0x401)
+
+wlc_phy_txpwr_est_pwr_acphy:
+  0003797c  phy_reg_read(reg=?)
+
+wlc_phy_rx_iq_comp_acphy:
+  00037a88  phy_reg_write(reg=?, val=?)
+  00037ad8  phy_reg_read(reg=?)
+  00037b30  phy_reg_write(reg=?, val=?)
+
+wlc_phy_txpwrctrl_get_cur_index_acphy:
+  00037ba4  phy_reg_read(reg=0x640)
+
+wlc_phy_txpwrctrl_enable_acphy:
+  00037c1c  phy_reg_read(reg=0x70)
+  00037c80  phy_reg_mod(reg=0x70, mask=0xe000, val=0xe000)
+
+wlc_phy_txpwr_idx_get_acphy:
+  00037dcc  phy_reg_read(reg=0x70)
+
+wlc_phy_classifier_acphy:
+  00037f08  phy_reg_read(reg=0x140)
+  00037f38  phy_reg_write(reg=0x140, val=?)
+
+wlc_phy_ed_thres_acphy:
+  00037f90  phy_reg_read(reg=0x33a)
+  00038034  phy_reg_write(reg=0x33a, val=?)
+
+wlc_phy_pulse_adc_reset_acphy:
+  00038200  phy_reg_read(reg=?)
+  0003831c  phy_reg_write(reg=?, val=?)
+
+wlc_phy_rx_iq_est_acphy:
+  000386cc  phy_reg_write(reg=0x272, val=?)
+  000386e8  phy_reg_mod(reg=0x271, mask=0xff, val=?)
+
+wlc_phy_txcal_radio_setup_acphy:
+  00038900  read_radio_reg(reg=0x184)
+  000389d8  mod_radio_reg(reg=0x184, mask=0x100, val=?)
+  00038a34  mod_radio_reg(reg=0x184, mask=0x4000, val=0x4000)
+  00038cac  mod_radio_reg(reg=0x184, mask=0x100, val=0x100)
+  00038d08  mod_radio_reg(reg=0x184, mask=0x4000, val=?)
+
+wlc_phy_rxcal_radio_setup_acphy:
+  00039058  read_radio_reg(reg=?)
+  00039220  write_radio_reg(reg=?, val=?)
+  00039254  write_radio_reg(reg=?, val=?)
+  00039288  write_radio_reg(reg=?, val=?)
+  000392bc  write_radio_reg(reg=?, val=?)
+  000392f0  write_radio_reg(reg=?, val=?)
+  00039324  write_radio_reg(reg=?, val=?)
+  00039368  mod_radio_reg(reg=?, mask=0x100, val=?)
+  000393a4  mod_radio_reg(reg=?, mask=0x10, val=?)
+  00039754  mod_radio_reg(reg=?, mask=0x100, val=?)
+  000397ac  mod_radio_reg(reg=?, mask=0x20, val=0x20)
+
+wlc_phy_rxcal_radio_cleanup_acphy:
+  00039a9c  write_radio_reg(reg=?, val=?)
+  00039d34  phy_reg_mod(reg=0x19e, mask=0x3c, val=?)
+
+wlc_2069_rfpll_150khz:
+  00039dd8  mod_radio_reg(reg=0x8d1, mask=0xff00, val=?)
+  00039e34  write_radio_reg(reg=0x8d2, val=0x2)
+  00039f14  mod_radio_reg(reg=0x8c9, mask=0xff00, val=?)
+  00039f60  write_radio_reg(reg=0x8ca, val=0x2)
+
+wlc_phy_radio2069_rccal:
+  0003a0d4  mod_radio_reg(reg=0x8f2, mask=0x80, val=0x80)
+  0003a1d0  write_radio_reg(reg=0x817, val=?)
+  0003a488  write_radio_reg(reg=0x412, val=?)
+  0003a568  mod_radio_reg(reg=0x8ea, mask=0x80, val=0x80)
+
+wlc_phy_radio_override_acphy:
+  0003a838  write_radio_reg(reg=?, val=?)
+  0003a87c  mod_radio_reg(reg=0x971, mask=0x2, val=?)
+
+wlc_phy_radio2069_afecal:
+  0003a968  mod_radio_reg(reg=0x8f2, mask=0x80, val=0x80)
+  0003a9f0  phy_reg_read(reg=?)
+  0003aa18  phy_reg_read(reg=?)
+  0003aa40  phy_reg_read(reg=?)
+  0003aa68  phy_reg_mod(reg=0xb39, mask=0x80, val=0x80)
+  0003aa84  phy_reg_mod(reg=0xb25, mask=0x4, val=0x4)
+  0003aac4  mod_radio_reg(reg=?, mask=0x1000, val=?)
+  0003ab04  mod_radio_reg(reg=?, mask=0x1000, val=0x1000)
+  0003ab6c  write_radio_reg(reg=?, val=?)
+  0003ac94  write_radio_reg(reg=?, val=?)
+  0003acac  phy_reg_write(reg=?, val=?)
+  0003acc4  phy_reg_write(reg=?, val=?)
+  0003acdc  phy_reg_write(reg=?, val=?)
+  0003ad24  mod_radio_reg(reg=0x8f2, mask=0x80, val=?)
+  0003ad80  phy_reg_mod(reg=0x739, mask=0x80, val=0x80)
+  0003ad9c  phy_reg_mod(reg=0x725, mask=0x4, val=0x4)
+  0003addc  mod_radio_reg(reg=0x8ea, mask=0x80, val=?)
+  0003ae20  mod_radio_reg(reg=0x8f2, mask=0x80, val=0x80)
+  0003ae7c  mod_radio_reg(reg=?, mask=0x20, val=0x20)
+  0003aeb0  mod_radio_reg(reg=?, mask=0x10, val=0x10)
+  0003b380  mod_radio_reg(reg=?, mask=0x20, val=0x20)
+  0003b3b0  mod_radio_reg(reg=?, mask=0x10, val=0x10)
+  0003b7a8  phy_reg_mod(reg=0x939, mask=0x80, val=0x80)
+
+wlc_phy_force_rfseq_acphy:
+  0003b9ec  phy_reg_read(reg=0x400)
+  0003ba48  phy_reg_or(reg=0x400, val=0x3)
+  0003bab4  phy_reg_write(reg=0x400, val=?)
+
+wlc_phy_rxcore_setstate_acphy:
+  0003bba8  phy_reg_read(reg=0x401)
+  0003bbe8  phy_reg_mod(reg=0x160, mask=0x7, val=?)
+  0003bc9c  phy_reg_write(reg=0x400, val=?)
+
+wlc_phy_clip_det_acphy:
+  0003bd50  phy_reg_write(reg=0x6da, val=?)
+  0003be30  phy_reg_or(reg=?, val=0x4000)
+
+wlc_phy_resetcca_acphy:
+  0003be7c  phy_reg_read(reg=0x1)
+  0003be9c  phy_reg_write(reg=0x1, val=?)
+
+wlc_phy_txcal_phy_cleanup_acphy:
+  0003bfac  phy_reg_write(reg=?, val=?)
+  0003c208  phy_reg_mod(reg=0x19e, mask=0x3c, val=?)
+
+wlc_phy_calc_extra_init_gain_acphy:
+  0003c7c4  phy_reg_read(reg=0x19e)
+  0003c7e0  phy_reg_mod(reg=0x19e, mask=0x2, val=0x2)
+  0003c80c  wlc_phy_table_read_acphy(id=0x7, len=0x3, off=0xf9, width=0x10, arrptr=?)
+
+wlc_phy_lpf_hpc_override_acphy:
+  0003ca9c  phy_reg_write(reg=0xb23, val=?)
+  0003cb80  phy_reg_read(reg=0x19e)
+  0003cba0  phy_reg_mod(reg=0x19e, mask=0x2, val=0x2)
+  0003cbcc  wlc_phy_table_read_acphy(id=0x7, len=0x1, off=0x122, width=0x10, arrptr=?)
+
+wlc_phy_sample_collect_acphy:
+  0003cee8  phy_reg_write(reg=0x467, val=?)
+  0003cf38  phy_reg_mod(reg=0x467, mask=0x1, val=0x1)
+  0003d010  phy_reg_write(reg=0x467, val=?)
+  0003d098  phy_reg_read(reg=0x394)
+  0003d0d4  phy_reg_mod(reg=0x467, mask=0x400, val=?)
+  0003d138  phy_reg_mod(reg=0x467, mask=0x7c, val=0x28)
+  0003d1c0  phy_reg_mod(reg=0x467, mask=0x7c, val=0x24)
+  0003d218  phy_reg_mod(reg=0x467, mask=0x7c, val=0x20)
+  0003d270  phy_reg_mod(reg=0x467, mask=0x7c, val=0x1c)
+  0003d2c8  phy_reg_mod(reg=0x467, mask=0x7c, val=0x18)
+  0003d320  phy_reg_mod(reg=0x467, mask=0x7c, val=0x14)
+  0003d388  phy_reg_mod(reg=0x467, mask=0x180, val=?)
+  0003d414  phy_reg_mod(reg=0x19f, mask=0x700, val=?)
+  0003d480  phy_reg_mod(reg=0x19f, mask=0x700, val=?)
+  0003d4dc  phy_reg_mod(reg=0x19f, mask=0x700, val=?)
+  0003d568  phy_reg_mod(reg=0x19f, mask=0x700, val=?)
+  0003d5f4  phy_reg_mod(reg=0x19f, mask=0x700, val=?)
+  0003d644  phy_reg_read(reg=0x394)
+  0003d6a0  phy_reg_mod(reg=0x467, mask=0x400, val=0x400)
+  0003dbfc  phy_reg_read(reg=0x6a0)
+
+wlc_phy_rfctrl_override_rxgain_acphy:
+  0003e458  phy_reg_read(reg=0x19e)
+  0003e478  phy_reg_mod(reg=0x19e, mask=0x2, val=0x2)
+  0003e4c4  wlc_phy_table_read_acphy(id=0x15, len=0x1, off=?, width=0x8, arrptr=?)
+  0003e4f4  wlc_phy_table_read_acphy(id=0x15, len=0x1, off=?, width=0x8, arrptr=?)
+  0003e794  phy_reg_write(reg=?, val=?)
+
+wlc_phy_get_txgain_settings_by_index_acphy:
+  0003e850  phy_reg_read(reg=0x19e)
+  0003e894  wlc_phy_table_read_acphy(id=0x20, len=0x1, off=?, width=0x30, arrptr=?)
+
+wlc_phy_get_tx_bbmult_acphy:
+  0003e954  phy_reg_read(reg=0x19e)
+  0003e974  phy_reg_mod(reg=0x19e, mask=0x2, val=0x2)
+  0003e9a0  wlc_phy_table_read_acphy(id=0xc, len=0x1, off=?, width=0x10, arrptr=?)
+
+wlc_phy_get_initgain_dB_acphy:
+  0003ea18  phy_reg_read(reg=0x19e)
+  0003ea38  phy_reg_mod(reg=0x19e, mask=0x2, val=0x2)
+  0003ea64  wlc_phy_table_read_acphy(id=0x7, len=0x3, off=0xf9, width=0x10, arrptr=?)
+  0003ec98  phy_reg_mod(reg=0x19e, mask=0x2, val=?)
+
+wlc_phy_cal_txiqlo_coeffs_acphy:
+  0003ee04  phy_reg_read(reg=0x19e)
+  0003ef04  wlc_phy_table_read_acphy(id=0xc, len=0x2, off=?, width=0x10, arrptr=?)
+  0003ef9c  wlc_phy_table_write_acphy(id=0xc, len=?, off=?, width=0x10, arrptr=?)
+
+wlc_phy_scanroam_cache_cal_acphy:
+  0003f014  phy_reg_read(reg=0x19e)
+  0003f030  phy_reg_mod(reg=0x19e, mask=0x2, val=0x2)
+
+wlc_phy_set_tx_bbmult_acphy:
+  0003f47c  phy_reg_read(reg=0x19e)
+  0003f498  phy_reg_mod(reg=0x19e, mask=0x2, val=0x2)
+  0003f4cc  wlc_phy_table_write_acphy(id=0xc, len=0x1, off=?, width=0x10, arrptr=?)
+
+wlc_phy_stopplayback_acphy:
+  0003f554  phy_reg_read(reg=0x464)
+  0003f57c  phy_reg_and(reg=0x460, mask=0xfffb)
+  0003f640  phy_reg_or(reg=0x460, val=0x2)
+  0003f65c  phy_reg_and(reg=0x382, mask=0x7fff)
+
+wlc_phy_txcal_txgain_setup_acphy:
+  0003f6ac  phy_reg_read(reg=0x19e)
+  0003f6cc  phy_reg_mod(reg=0x19e, mask=0x2, val=0x2)
+  0003f758  wlc_phy_table_read_acphy(id=0x7, len=0x1, off=?, width=0x10, arrptr=?)
+
+wlc_phy_cal_txiqlo_update_ladder_acphy:
+  0003f970  phy_reg_read(reg=0x19e)
+  0003f998  phy_reg_mod(reg=0x19e, mask=0x2, val=0x2)
+  0003f9ec  wlc_phy_table_write_acphy(id=0xc, len=0x1, off=?, width=0x10, arrptr=?)
+  0003fa60  phy_reg_mod(reg=0x19e, mask=0x2, val=?)
+
+wlc_phy_txcal_txgain_cleanup_acphy:
+  0003fad8  phy_reg_read(reg=0x19e)
+  0003faf4  phy_reg_mod(reg=0x19e, mask=0x2, val=0x2)
+  0003fb6c  wlc_phy_table_write_acphy(id=0x7, len=0x1, off=?, width=0x10, arrptr=?)
+
+wlc_phy_txpwr_by_index_acphy:
+  0003fc60  phy_reg_read(reg=0x19e)
+  0003fc80  phy_reg_mod(reg=0x19e, mask=0x2, val=0x2)
+  0003fd9c  phy_reg_mod(reg=0x19e, mask=0x2, val=?)
+
+wlc_phy_rxcal_phy_cleanup_acphy:
+  0003fe10  phy_reg_read(reg=0x19e)
+  0003fe30  phy_reg_mod(reg=0x19e, mask=0x2, val=0x2)
+  0003fe4c  phy_reg_write(reg=0x401, val=?)
+  0003fec8  wlc_phy_table_write_acphy(id=0x7, len=0x1, off=?, width=0x10, arrptr=?)
+
+wlc_phy_set_tx_afe_dacbuf_cap:
+  00040448  phy_reg_read(reg=0x19e)
+  00040468  phy_reg_mod(reg=0x19e, mask=0x2, val=0x2)
+  0004053c  wlc_phy_table_read_acphy(id=0x7, len=0x1, off=?, width=0x10, arrptr=?)
+  000405c8  wlc_phy_table_write_acphy(id=0x7, len=0x1, off=?, width=0x10, arrptr=?)
+  00040608  phy_reg_mod(reg=0x19e, mask=0x2, val=?)
+
+wlc_phy_set_analog_rx_lpf:
+  0004071c  phy_reg_read(reg=0x19e)
+  0004073c  phy_reg_mod(reg=0x19e, mask=0x2, val=0x2)
+  00040818  wlc_phy_table_read_acphy(id=0x7, len=0x1, off=?, width=0x10, arrptr=?)
+  00040840  wlc_phy_table_read_acphy(id=0x7, len=0x1, off=?, width=0x10, arrptr=?)
+  0004090c  wlc_phy_table_write_acphy(id=0x7, len=0x1, off=?, width=0x10, arrptr=?)
+  00040934  wlc_phy_table_write_acphy(id=0x7, len=0x1, off=?, width=0x10, arrptr=?)
+  000409a8  phy_reg_mod(reg=0x19e, mask=0x2, val=?)
+
+wlc_phy_set_analog_tx_lpf:
+  00040a64  phy_reg_read(reg=0x19e)
+  00040a84  phy_reg_mod(reg=0x19e, mask=0x2, val=0x2)
+  00040b78  wlc_phy_table_read_acphy(id=0x7, len=0x1, off=?, width=0x10, arrptr=?)
+  00040ba0  wlc_phy_table_read_acphy(id=0x7, len=0x1, off=?, width=0x10, arrptr=?)
+  00040c6c  wlc_phy_table_write_acphy(id=0x7, len=0x1, off=?, width=0x10, arrptr=?)
+  00040ca0  wlc_phy_table_write_acphy(id=0x7, len=0x1, off=?, width=0x10, arrptr=?)
+  00040ce4  phy_reg_mod(reg=0x19e, mask=0x2, val=?)
+
+wlc_phy_txpwrctrl_pwr_setup_acphy:
+  00040d60  phy_reg_read(reg=0x19e)
+  00041268  wlc_phy_table_write_acphy(id=0x40, len=0x80, off=?, width=0x10, arrptr=?)
+
+wlc_phy_set_pdet_on_reset_acphy:
+  00041c78  wlc_phy_table_read_acphy(id=0x7, len=0x1, off=?, width=0x10, arrptr=?)
+
+wlc_phy_set_regtbl_on_band_change_acphy:
+  00041d58  phy_reg_read(reg=0x19e)
+  00041d74  phy_reg_mod(reg=0x19e, mask=0x2, val=0x2)
+  00041da4  phy_reg_write(reg=0x1ec, val=0x2)
+  00041e1c  phy_reg_write(reg=0x1ec, val=0x9c40)
+  00041e94  wlc_phy_table_write_acphy(id=0x20, len=0x80, off=?, width=0x30, arrptr=&acphy_txgain_epa_5g_2069rev0)
+  00041eec  mod_radio_reg(reg=?, mask=0x3000, val=0x1000)
+  00041f54  phy_reg_write(reg=0x1ec, val=0x9c40)
+  00042038  mod_radio_reg(reg=?, mask=0xf000, val=0x6000)
+  000420bc  mod_radio_reg(reg=0x463, mask=0xf000, val=0x6000)
+
+wlc_phy_set_regtbl_on_bw_change_acphy:
+  00042248  phy_reg_read(reg=0x19e)
+  00042264  phy_reg_mod(reg=0x19e, mask=0x2, val=0x2)
+  00042484  wlc_phy_table_write_acphy(id=0x7, len=0x8, off=0x30, width=0x10, arrptr=&.data+0x2a8)
+  000426d4  wlc_phy_table_write_acphy(id=0x14, len=0x1, off=0x30, width=0x30, arrptr=?)
+
+wlc_phy_rxgainctrl_set_gaintbls_acphy:
+  000429f8  phy_reg_read(reg=0x19e)
+  00042a18  phy_reg_mod(reg=0x19e, mask=0x2, val=0x2)
+  00042a44  phy_reg_mod(reg=0x16c, mask=0x40, val=0x40)
+  00042aec  phy_reg_mod(reg=0x6f9, mask=0x7f00, val=?)
+  00042b0c  phy_reg_mod(reg=0x8f9, mask=0x7f00, val=?)
+  00042b2c  phy_reg_mod(reg=0xaf9, mask=0x7f00, val=?)
+  00042d80  wlc_phy_table_read_acphy(id=0x45, len=0x1, off=?, width=0x8, arrptr=?)
+  00042dac  wlc_phy_table_read_acphy(id=0x45, len=0x6, off=0x8, width=0x8, arrptr=?)
+  00042dd8  wlc_phy_table_read_acphy(id=0x45, len=0x7, off=0x10, width=0x8, arrptr=?)
+  00042e04  wlc_phy_table_read_acphy(id=0x45, len=0xa, off=0x20, width=0x8, arrptr=?)
+  00042e2c  wlc_phy_table_read_acphy(id=0x44, len=0x8, off=0x60, width=0x8, arrptr=?)
+  00042e54  wlc_phy_table_read_acphy(id=0x44, len=0x8, off=0x70, width=0x8, arrptr=?)
+  00042e80  wlc_phy_table_read_acphy(id=0x45, len=0x8, off=0x60, width=0x8, arrptr=?)
+  00042eac  wlc_phy_table_read_acphy(id=0x45, len=0x8, off=0x70, width=0x8, arrptr=?)
+  00042f58  phy_reg_mod(reg=0x289, mask=0x7f00, val=?)
+  000430a4  phy_reg_mod(reg=0x19e, mask=0x2, val=?)
+  000431a0  wlc_phy_table_write_acphy(id=0xb, len=0x3, off=0xb, width=?, arrptr=?)
+
+wlc_phy_subband_cust_2g_acphy:
+  000431f8  phy_reg_read(reg=0x19e)
+  0004321c  phy_reg_mod(reg=0x19e, mask=0x2, val=0x2)
+  00043248  phy_reg_write(reg=0x6dc, val=0x14a)
+  000433a0  wlc_phy_table_write_acphy(id=0x7, len=0x3, off=0xf9, width=0x10, arrptr=?)
+  000434ac  phy_reg_mod(reg=0x19e, mask=0x2, val=?)
+  0004352c  phy_reg_write(reg=0x16dc, val=0x14a)
+  00043668  mod_radio_reg(reg=0x32, mask=0xf0, val=0x80)
+
+wlc_phy_subband_cust_5g_acphy:
+  000436d8  phy_reg_read(reg=0x19e)
+  000436fc  phy_reg_mod(reg=0x19e, mask=0x2, val=0x2)
+  0004372c  phy_reg_write(reg=0x6dc, val=0x16a)
+  00043880  wlc_phy_table_write_acphy(id=0x7, len=0x3, off=0xf9, width=0x10, arrptr=?)
+  000438e8  mod_radio_reg(reg=?, mask=0x40, val=?)
+  00043940  mod_radio_reg(reg=?, mask=0xf0, val=0x70)
+  000439a8  mod_radio_reg(reg=?, mask=0x40, val=?)
+  00043a08  mod_radio_reg(reg=?, mask=0xf0, val=0xd0)
+  00043a4c  phy_reg_mod(reg=0x19e, mask=0x2, val=?)
+  00043ab8  mod_radio_reg(reg=?, mask=0xf0, val=0xa0)
+  00043c34  mod_radio_reg(reg=0x3a, mask=0xf0, val=0xc0)
+
+wlc_phy_set_analog_rxgain:
+  00043d0c  phy_reg_write(reg=?, val=?)
+  00043d34  phy_reg_mod(reg=0xadd, mask=0x70, val=?)
+  00043d54  phy_reg_mod(reg=0x6dd, mask=0x70, val=?)
+  00043db8  wlc_phy_table_write_acphy(id=0x7, len=0x1, off=?, width=0x10, arrptr=?)
+  00043e00  phy_reg_write(reg=?, val=?)
+  00043e24  phy_reg_mod(reg=0xae3, mask=0x70, val=?)
+  00043e48  phy_reg_write(reg=?, val=?)
+  00043e6c  phy_reg_mod(reg=0xadf, mask=0x70, val=?)
+  00043e90  phy_reg_write(reg=?, val=?)
+  00043eb4  phy_reg_mod(reg=0xae1, mask=0x70, val=?)
+  00043ed4  phy_reg_mod(reg=0x6e3, mask=0x70, val=?)
+  00043f2c  phy_reg_mod(reg=0x6df, mask=0x70, val=?)
+  00043f4c  phy_reg_mod(reg=0x6e1, mask=0x70, val=?)
+  00043f68  phy_reg_mod(reg=0x8e3, mask=0x70, val=?)
+  00043f84  phy_reg_mod(reg=0x8dd, mask=0x70, val=?)
+  00043fa4  phy_reg_mod(reg=0x8df, mask=0x70, val=?)
+  00043fc0  phy_reg_mod(reg=0x8e1, mask=0x70, val=?)
+
+wlc_phy_rxgainctrl_gainctrl_acphy:
+  00044040  phy_reg_read(reg=0x19e)
+  00044060  phy_reg_mod(reg=0x19e, mask=0x2, val=0x2)
+  000441ac  phy_reg_read(reg=?)
+  00044308  phy_reg_mod(reg=0xae1, mask=0x8, val=0x8)
+  00044324  phy_reg_mod(reg=0xae1, mask=0x4, val=?)
+  0004447c  phy_reg_read(reg=?)
+  000444c8  phy_reg_read(reg=?)
+  0004459c  phy_reg_mod(reg=0x6ee, mask=0x3, val=?)
+  00044638  mod_radio_reg(reg=?, mask=0x80, val=?)
+  000446f8  phy_reg_read(reg=?)
+  000447c4  phy_reg_mod(reg=0x6ee, mask=0xc, val=0x8)
+  00044818  mod_radio_reg(reg=?, mask=0xf0, val=?)
+  00044850  phy_reg_mod(reg=0x19e, mask=0x2, val=?)
+  0004494c  phy_reg_mod(reg=0xae1, mask=0x8, val=?)
+  00044968  phy_reg_mod(reg=0xae1, mask=0x4, val=0x4)
+  00044a9c  mod_radio_reg(reg=?, mask=0x300, val=?)
+  00044b18  phy_reg_mod(reg=0x6e1, mask=0x8, val=0x8)
+  00044b38  phy_reg_mod(reg=0x6e1, mask=0x8, val=?)
+  00044ba8  mod_radio_reg(reg=?, mask=0x40, val=?)
+  00044c24  phy_reg_mod(reg=0x8e1, mask=?, val=?)
+  00044c48  phy_reg_mod(reg=0x8e1, mask=0x8, val=0x8)
+
+wlc_phy_radio2069_mini_pwron_seq_rev16:
+  00044d84  mod_radio_reg(reg=0x80c, mask=0x80, val=0x80)
+  00044fa4  mod_radio_reg(reg=0x80b, mask=0x80, val=0x80)
+
+wlc_phy_radio2069_pwron_seq:
+  0004517c  phy_reg_read(reg=0x728)
+  00045194  phy_reg_write(reg=0x415, val=?)
+  000452a0  mod_radio_reg(reg=0x97f, mask=0x800, val=0x800)
+  00045754  mod_radio_reg(reg=0x8f2, mask=0x100, val=0x100)
+
+wlc_phy_switch_radio_acphy:
+  000458dc  mod_radio_reg(reg=0x8f2, mask=0x40, val=0x40)
+  000459bc  write_radio_reg(reg=0x95c, val=?)
+  00045acc  read_radio_reg(reg=?)
+  00045c6c  phy_reg_write(reg=0x73e, val=?)
+  00045e00  phy_reg_write(reg=0x173e, val=?)
+  00045ef0  phy_reg_mod(reg=0x830, mask=0x7, val=0x3)
+
+wlc_phy_attach_acphy:
+  00046908  phy_reg_read(reg=0xb)
+
+wlc_phy_set_reg_on_reset_acphy:
+  000476d0  phy_reg_or(reg=0x19e, val=0x1c0)
+  000476e8  phy_reg_write(reg=0x3c4, val=0x668)
+  00047700  phy_reg_mod(reg=0x19e, mask=0x200, val=0x200)
+  00047c48  wlc_phy_table_write_acphy(id=0x2, len=0x28, off=?, width=0x8, arrptr=?)
+
+wlc_phy_set_bt_on_core1_acphy:
+  00047ccc  phy_reg_mod(reg=0x40a, mask=0x100, val=0x100)
+  00047ce4  phy_reg_write(reg=0x414, val=0x555)
+
+wlc_phy_set_regtbl_on_femctrl:
+  000484dc  phy_reg_read(reg=0x19e)
+  000484f8  phy_reg_mod(reg=0x19e, mask=0x2, val=0x2)
+  00048548  wlc_phy_table_write_acphy(id=0xa, len=0x20, off=?, width=0x8, arrptr=?)
+  00048634  wlc_phy_table_write_acphy(id=0xa, len=0x1, off=?, width=&.rodata+0x7188, arrptr=?)
+  000486cc  wlc_phy_table_write_acphy(id=0xa, len=0x20, off=?, width=0x8, arrptr=?)
+  00048778  wlc_phy_table_write_acphy(id=0xa, len=0x1, off=?, width=?, arrptr=?)
+  00048854  wlc_phy_table_write_acphy(id=0xa, len=0x20, off=?, width=0x8, arrptr=?)
+  000488c8  wlc_phy_table_write_acphy(id=0xa, len=0x20, off=?, width=0x8, arrptr=?)
+  000489e0  wlc_phy_table_write_acphy(id=0xa, len=0x1, off=?, width=?, arrptr=?)
+  00048aa0  wlc_phy_table_write_acphy(id=0xa, len=0x1, off=?, width=?, arrptr=?)
+  00048b80  wlc_phy_table_write_acphy(id=0xa, len=0x20, off=?, width=0x8, arrptr=?)
+  00048c90  wlc_phy_table_write_acphy(id=0xa, len=0x20, off=?, width=0x8, arrptr=?)
+
+wlc_phy_set_tbl_on_reset_acphy:
+  00048d68  phy_reg_read(reg=0x19e)
+  00048d84  phy_reg_mod(reg=0x19e, mask=0x2, val=0x2)
+  00048e64  wlc_phy_table_write_acphy(id=0x7, len=0x10, off=0x20, width=0x10, arrptr=&.data+0x1c0)
+
+T.1954:
+  00049130  phy_reg_and(reg=0x471, mask=0xfffe)
+  0004914c  phy_reg_write(reg=0x463, val=?)
+  00049184  phy_reg_read(reg=0x400)
+  0004919c  phy_reg_or(reg=0x400, val=0x1)
+  00049284  phy_reg_or(reg=0x471, val=0x1)
+
+wlc_phy_tx_tone_acphy:
+  00049638  phy_reg_read(reg=0x19e)
+  00049658  phy_reg_mod(reg=0x19e, mask=0x2, val=0x2)
+  000496e8  wlc_phy_table_write_acphy(id=0xe, len=?, off=?, width=0x20, arrptr=?)
+  00049728  phy_reg_mod(reg=0x19e, mask=0x2, val=?)
+
+wlc_phy_poll_samps_WAR_acphy:
+  000497c8  phy_reg_read(reg=0x19e)
+  00049a60  phy_reg_write(reg=0x394, val=?)
+  00049e18  wlc_phy_table_read_acphy(id=0xa, len=0x1, off=0x29, width=0x10, arrptr=?)
+  00049e7c  wlc_phy_table_write_acphy(id=0xa, len=0x1, off=0x29, width=0x10, arrptr=?)
+  00049f60  wlc_phy_table_write_acphy(id=0xa, len=0x1, off=0x29, width=0x10, arrptr=?)
+
+wlc_phy_tempsense_acphy:
+  0004a0a8  phy_reg_read(reg=0x19e)
+  0004a0c8  phy_reg_mod(reg=0x19e, mask=0x40, val=?)
+  0004a604  read_radio_reg(reg=?)
+  0004a954  read_radio_reg(reg=0x182)
+  0004ae84  mod_radio_reg(reg=?, mask=0x2, val=0x2)
+  0004af60  mod_radio_reg(reg=0x182, mask=0x2, val=0x2)
+  0004af98  mod_radio_reg(reg=?, mask=0x2, val=?)
+  0004b3c8  write_radio_reg(reg=?, val=?)
+
+wlc_phy_freq_accuracy_acphy:
+  0004b954  phy_reg_read(reg=0x1)
+  0004b974  phy_reg_mod(reg=0x1, mask=0x8000, val=?)
+  0004b9d8  phy_reg_write(reg=0x1, val=?)
+
+wlc_phy_rxcal_loopback_gainctrl_acphy:
+  0004bae0  read_radio_reg(reg=?)
+  0004bb10  phy_reg_read(reg=0x19e)
+  0004bb2c  phy_reg_mod(reg=0x19e, mask=0x2, val=0x2)
+  0004be60  phy_reg_write(reg=?, val=?)
+  0004beb0  phy_reg_write(reg=?, val=?)
+  0004c040  wlc_phy_table_write_acphy(id=0x7, len=0x1, off=?, width=0x10, arrptr=?)
+  0004c070  wlc_phy_table_write_acphy(id=0x7, len=0x1, off=?, width=?, arrptr=?)
+  0004c09c  wlc_phy_table_write_acphy(id=0x7, len=0x1, off=?, width=?, arrptr=0x6)
+  0004c114  phy_reg_write(reg=?, val=?)
+  0004c174  phy_reg_write(reg=?, val=0x4)
+
+wlc_phy_cal_rx_fdiqi_acphy:
+  0004c1c8  read_radio_reg(reg=?)
+  0004c2ac  phy_reg_read(reg=0x19e)
+  0004c2c8  phy_reg_mod(reg=0x19e, mask=0x2, val=0x2)
+  0004c6ec  wlc_phy_table_read_acphy(id=0x7, len=0x1, off=?, width=0x10, arrptr=?)
+  0004c71c  wlc_phy_table_read_acphy(id=0x7, len=0x1, off=?, width=0x10, arrptr=?)
+  0004c74c  wlc_phy_table_read_acphy(id=0x7, len=0x1, off=?, width=0x10, arrptr=?)
+  0004ccc0  wlc_phy_table_read_acphy(id=0x7, len=0x1, off=?, width=0x10, arrptr=?)
+  0004d42c  wlc_phy_table_read_acphy(id=0x7, len=0x1, off=?, width=0x2, arrptr=?)
+  0004e198  phy_reg_mod(reg=0x728, mask=0x2, val=?)
+
+T.1955:
+  0004e300  phy_reg_read(reg=0x140)
+  0004e36c  phy_reg_mod(reg=0x19e, mask=0x2, val=0x2)
+  0004ef58  read_radio_reg(reg=?)
+
+wlc_phy_cals_acphy:
+  00050364  phy_reg_mod(reg=0xb10, mask=0xff00, val=?)
+
+wlc_phy_txpwrctrl_idle_tssi_meas_acphy:
+  0005085c  phy_reg_mod(reg=0xb27, mask=?, val=?)
+  000509a0  mod_radio_reg(reg=0x95b, mask=0x1, val=0x1)
+  000509d0  write_radio_reg(reg=0x95c, val=?)
+  00050b74  mod_radio_reg(reg=0x184, mask=0x100, val=0x100)
+  00050c58  mod_radio_reg(reg=0x548, mask=0x1, val=0x1)
+  00050c80  write_radio_reg(reg=0x549, val=?)
+
+wlc_phy_chanspec_set_acphy:
+  00050e9c  phy_reg_mod(reg=0x3, mask=0x100, val=?)
+  00050ee8  read_radio_reg(reg=?)
+  00050f34  write_radio_reg(reg=0x8e8, val=?)
+  000517a4  mod_radio_reg(reg=0x4c, mask=0x7000, val=0x7000)
+  000519f8  phy_reg_read(reg=0xb)
+  00051ac8  phy_reg_write(reg=0x19a, val=?)
+  00051c0c  phy_reg_read(reg=0x601)
+  00051f64  phy_reg_mod(reg=0x3, mask=0x100, val=0x100)
+  000520ac  mod_radio_reg(reg=0x89a, mask=0xff00, val=0xa000)
+  0005285c  phy_reg_read(reg=0x601)
+  00052a98  write_radio_reg(reg=0x8e8, val=?)
+
+wlc_phy_init_acphy:
+  000532d4  phy_reg_read(reg=?)
+  0005331c  phy_reg_write(reg=0x410, val=0x77)
+  000535d0  phy_reg_mod(reg=0x19e, mask=0x2, val=0x2)
+  00053664  phy_reg_mod(reg=0x19e, mask=0x2, val=?)
+
+and_radio_reg:
+  000543a4  read_radio_reg(reg=?)
+
+or_radio_reg:
+  00054400  read_radio_reg(reg=?)
+
+xor_radio_reg:
+  00054460  read_radio_reg(reg=?)
+
+mod_radio_reg:
+  000544c8  read_radio_reg(reg=?)
+
+gen_radio_reg:
+  00054548  read_radio_reg(reg=?)
+
+phy_reg_write_array:
+  00054be4  phy_reg_mod(reg=?, mask=?, val=?)
+  00054c58  mod_radio_reg(reg=?, mask=?, val=?)
+  00054cb8  or_radio_reg(reg=?, val=?)
+  00054cd0  write_radio_reg(reg=?, val=?)
+  00054cec  and_radio_reg(reg=?, mask=?)
+  00054d08  phy_reg_write(reg=?, val=?)
+  00054d38  phy_reg_or(reg=?, val=?)
+
+phy_reg_gen:
+  00054d80  phy_reg_read(reg=?)
+
+wlc_phy_table_addr:
+  000552a4  phy_reg_write(reg=?, val=?)
+
+wlc_phy_table_data_write:
+  000553c4  phy_reg_read(reg=?)
+  000553f0  phy_reg_write(reg=?, val=?)
+
+wlc_phy_write_table:
+  000554bc  phy_reg_write(reg=?, val=?)
+  00055568  phy_reg_read(reg=?)
+
+wlc_phy_read_table:
+  0005568c  phy_reg_write(reg=?, val=?)
+  000556d4  phy_reg_read(reg=?)
+  0005574c  phy_reg_write(reg=?, val=?)
+
+wlc_phy_write_table_ext:
+  0005585c  phy_reg_write(reg=?, val=?)
+
+wlc_phy_read_table_ext:
+  00055b58  phy_reg_write(reg=?, val=?)
+  00055bd0  phy_reg_read(reg=?)
+  00055cdc  phy_reg_read(reg=?)
+  00055da0  phy_reg_read(reg=?)
+  00055dcc  phy_reg_read(reg=?)
+  00055de8  phy_reg_read(reg=?)
+  00055e34  phy_reg_read(reg=?)
+
+wlc_phy_init_radio_regs_allbands:
+  00055f78  write_radio_reg(reg=?, val=?)
+
+wlc_phy_init_radio_regs_allbands_20671:
+  00056008  write_radio_reg(reg=?, val=?)
+
+wlc_phy_init_radio_prefregs_allbands:
+  0005607c  write_radio_reg(reg=?, val=?)
+
+wlc_phy_init_radio_regs:
+  00056154  write_radio_reg(reg=?, val=?)
+
+wlc_phy_runbist_config:
+  000567f0  phy_reg_read(reg=0xa0)
+  0005682c  phy_reg_write(reg=0xa0, val=?)
+
+wlc_phy_test_stop:
+  0005696c  phy_reg_write(reg=0x58, val=?)
+  000569a4  phy_reg_and(reg=0xc0a, mask=0xfc00)
+  000569c8  phy_reg_write(reg=0x23e, val=?)
+  000569f4  phy_reg_write_array(count=&.rodata+-0x6108, arrptr=0x6)
+  00056a10  phy_reg_write(reg=0xc58, val=?)
+
+wlc_beacon_loss_war_lcnxn:
+  000577b0  phy_reg_mod(reg=0x371, mask=0x1, val=?)
+
+wlc_phyregs_bulkread:
+  000578b8  phy_reg_read(reg=?)
+
+wlc_phyregs_bulkwrite:
+  00057934  phy_reg_write(reg=?, val=?)
+
+wlc_radioregs_bulkread:
+  000579a0  read_radio_reg(reg=?)
+
+wlc_radioregs_bulkwrite:
+  00057a1c  write_radio_reg(reg=?, val=?)
+
+wlc_mod_phyreg_bulk:
+  00057ab8  phy_reg_mod(reg=?, mask=?, val=?)
+
+wlc_phy_radio_2063_vco_cal:
+  000586f4  mod_radio_reg(reg=0x1a, mask=0x40, val=?)
+  00058708  read_radio_reg(reg=0x64)
+  00058728  write_radio_reg(reg=0x64, val=?)
+
+wlc_lcnphy_epa_switch:
+  0005ad50  phy_reg_mod(reg=0x44c, mask=0x4, val=?)
+  0005adf0  phy_reg_mod(reg=0x44d, mask=0x4, val=0x4)
+
+wlc_phy_resetcntrl_regwrite:
+  0005ae40  phy_reg_write(reg=0x44a, val=0x88)
+
+wlc_phy_table_read_lpphy:
+  0005c4e0  phy_reg_write(reg=0x455, val=?)
+  0005c54c  phy_reg_read(reg=0x456)
+
+wlc_phy_iovar_oclscd:
+  0005d4d4  phy_reg_read(reg=0x245)
+
+wlc_phy_clear_deaf:
+  0005e664  phy_reg_mod(reg=0x4de, mask=0x200, val=?)
+
+wlc_phy_set_deaf:
+  0005e780  phy_reg_read(reg=0x4de)
+  0005e7b8  phy_reg_mod(reg=0x4de, mask=0xf0, val=?)
+
+wlc_phy_radar_detect_init:
+  0005e944  phy_reg_write(reg=0xee, val=?)
+  0005ea30  phy_reg_write_array(count=&.rodata+-0x62c0, arrptr=0x6)
+  0005eb30  phy_reg_write(reg=0x25b, val=0x1f)
+  0005ec4c  phy_reg_write_array(count=&.rodata+-0x62fc, arrptr=0x9)
+  0005ec94  phy_reg_write_array(count=&.rodata+-0x62d4, arrptr=0x9)
+  0005ed50  phy_reg_write(reg=0xee, val=?)
+  0005ee28  phy_reg_write_array(count=&.rodata+-0x6308, arrptr=0x6)
+  0005ef50  phy_reg_write(reg=0x25b, val=0x10)
+  0005eff4  phy_reg_write(reg=0x25b, val=0x8)
+
+wlc_phy_ant_rxdiv_set:
+  0005f2c4  phy_reg_mod(reg=0x410, mask=0x2, val=0x2)
+  0005f32c  phy_reg_mod(reg=0x410, mask=0x2, val=0x2)
+  0005f360  phy_reg_write_array(count=&.rodata+-0x6114, arrptr=0x6)
+  0005f3ac  phy_reg_mod(reg=0x410, mask=0x2, val=0x2)
+  0005f460  phy_reg_mod(reg=0x410, mask=0x2, val=?)
+  0005f494  phy_reg_mod(reg=0x410, mask=0x2, val=?)
+  0005f4dc  phy_reg_write_array(count=&.rodata+-0x6204, arrptr=0x3a)
+  0005f540  phy_reg_mod(reg=0x710, mask=0x2, val=0x2)
+  0005f578  phy_reg_mod(reg=0x410, mask=0x2, val=?)
+  0005f5cc  phy_reg_write_array(count=&.rodata+-0x6230, arrptr=0x16)
+  0005f6b4  phy_reg_mod(reg=0x710, mask=0x2, val=?)
+  0005f718  phy_reg_write_array(count=&.rodata+-0x6190, arrptr=0x3e)
+
+wlc_phy_noise_sample_intr:
+  000612d0  phy_reg_read(reg=0x434)
+
+wlc_phy_test_carrier_suppress:
+  00061824  phy_reg_write(reg=0x44b, val=?)
+  0006183c  phy_reg_and(reg=0xa, mask=?)
+  00061894  phy_reg_read(reg=0xc0a)
+  00061954  phy_reg_write(reg=0xc0a, val=?)
+  00061978  phy_reg_write(reg=0x44b, val=?)
+  00061990  phy_reg_and(reg=0xa, mask=?)
+  00061a3c  phy_reg_read(reg=0xa)
+  00061abc  phy_reg_write_array(count=&.rodata+-0x6358, arrptr=0x6)
+  00061b54  phy_reg_write_array(count=&.rodata+-0x634c, arrptr=0x6)
+  00061b8c  phy_reg_write_array(count=&.rodata+-0x6364, arrptr=0x6)
+  00061bd4  phy_reg_read(reg=0xa)
+
+wlc_phy_ioctl:
+  00061efc  phy_reg_write(reg=?, val=?)
+  00061f68  phy_reg_mod(reg=0x682, mask=0x1, val=0x1)
+  000622b4  phy_reg_read(reg=0x114)
+  000623a8  phy_reg_read(reg=?)
+  00062588  write_radio_reg(reg=?, val=?)
+  00062604  read_radio_reg(reg=?)
+  000626a0  phy_reg_mod(reg=0x682, mask=0x1, val=0x1)
+  00062a98  phy_reg_read(reg=0xa)
+  00062ab4  phy_reg_write(reg=0x44b, val=0xffff)
+  00062c54  phy_reg_or(reg=0xa, val=0x128)
+  00062ce4  phy_reg_write(reg=0xc0a, val=?)
+  00062d04  phy_reg_write(reg=0xa, val=?)
+  00062d48  phy_reg_write(reg=0xa, val=?)
+  00062de4  phy_reg_write(reg=0xa, val=?)
+  00062e9c  or_radio_reg(reg=0x51, val=0x4)
+  00062f28  phy_reg_write(reg=0xa, val=?)
+  00062fd4  phy_reg_read(reg=0xa)
+  00062ff0  phy_reg_write(reg=0x44b, val=0xffff)
+  00063034  phy_reg_and(reg=0xc0a, mask=0xffc0)
+  0006304c  phy_reg_or(reg=0xc0a, val=?)
+  00063068  and_radio_reg(reg=0x51, mask=0xfffb)
+  000630bc  phy_reg_read(reg=0xc0a)
+
+wlc_phy_txpower_hw_ctrl_set:
+  0006323c  phy_reg_mod(reg=0x1e7, mask=0x7f, val=?)
+
+wlc_phy_pkteng_stats_get:
+  00064e60  phy_reg_read(reg=0xa52)
+  00065130  phy_reg_read(reg=0xa53)
+
+wlc_phy_switch_radio:
+  000653e0  phy_reg_write_array(count=&.rodata+-0x6034, arrptr=0x6)
+  00065448  phy_reg_write_array(count=&.rodata+-0x604c, arrptr=0xc)
+  00065480  phy_reg_write_array(count=&.rodata+-0x608c, arrptr=0x9)
+  000654f4  phy_reg_write_array(count=&.rodata+-0x6078, arrptr=0xf)
+  00065508  phy_reg_or(reg=0x4fa, val=0x8)
+
+T.2411:
+  0006b3b0  phy_reg_read(reg=?)
+  0006b3d0  phy_reg_mod(reg=0x401, mask=0x180, val=?)
+  0006b3f0  phy_reg_write(reg=0x401, val=?)
+  0006b40c  phy_reg_write(reg=0x401, val=?)
+  0006b424  phy_reg_write(reg=0x435, val=?)
+  0006b58c  phy_reg_write(reg=0x401, val=?)
+  0006b5a8  phy_reg_write(reg=0x401, val=?)
+
+wlc_phy_iovar_dispatch:
+  0006d960  phy_reg_read(reg=0x63e)
+  0006da54  phy_reg_mod(reg=0x4d0, mask=0x7fc0, val=?)
+  0006ed2c  wlc_phy_table_write_acphy(id=?, len=0x1, off=?, width=?, arrptr=?)
+  0006ee04  wlc_phy_table_read_acphy(id=?, len=0x1, off=?, width=0xf, arrptr=?)
+  0006f608  phy_reg_read(reg=0x123)
+  0006fcb8  phy_reg_read(reg=0x410)
+  00070144  phy_reg_read(reg=0x410)
+  00070874  phy_reg_read(reg=0x1ed)
+
+wlc_phy_radar_detect_run:
+  00074090  phy_reg_read(reg=0xef)
+  000742a0  phy_reg_read(reg=0xef)
+  000762e0  phy_reg_read(reg=0x251)
+  00076428  phy_reg_read(reg=0xef)
+
+wlc_phy_tx_digi_filts_htphy_war:
+  0007707c  phy_reg_write(reg=0x186, val=?)
+
+wlc_phy_update_radar_detect_param_htphy:
+  00077128  phy_reg_write(reg=0x1df, val=0x1591)
+
+wlc_phy_anacore_htphy:
+  000771f0  phy_reg_write(reg=0x919, val=0xcd)
+
+wlc_phy_txpwrctrl_get_cur_index_htphy:
+  000772e8  phy_reg_read(reg=?)
+  0007730c  phy_reg_read(reg=0x1ed)
+
+wlc_phy_clip_det_htphy:
+  00077394  phy_reg_read(reg=0x40e)
+
+wlc_phy_test_tssi_htphy:
+  0007746c  phy_reg_read(reg=0x114)
+
+wlc_phy_agc_rxgain_config_htphy:
+  00077510  phy_reg_read(reg=0x880)
+  0007763c  phy_reg_write(reg=0x880, val=?)
+
+wlc_phy_dig_lpf_override_htphy:
+  00077790  phy_reg_write(reg=0x267, val=0x2d4)
+  00077848  phy_reg_read(reg=0x53)
+  00077860  phy_reg_write(reg=0x267, val=?)
+  00077984  phy_reg_read(reg=0x267)
+  00077a48  phy_reg_write(reg=0x267, val=?)
+
+wlc_phy_txpwr_idx_get_htphy:
+  00077b1c  phy_reg_read(reg=0x1e7)
+
+wlc_phy_idletssi_get_htphy:
+  00077c28  phy_reg_read(reg=0x1e9)
+
+wlc_phy_txpwr_est_pwr_htphy:
+  00077cf4  phy_reg_read(reg=0x118)
+
+wlc_phy_rx_iq_comp_htphy:
+  00077e1c  phy_reg_read(reg=0x9a)
+  00077e74  phy_reg_write(reg=0x9e, val=?)
+  00077eb0  phy_reg_read(reg=0x9e)
+  00077eec  phy_reg_write(reg=0x9a, val=?)
+  00077f14  phy_reg_write(reg=0x9e, val=?)
+  00077f48  phy_reg_read(reg=0x9c)
+  00077f64  phy_reg_write(reg=0x9a, val=?)
+  00077f80  phy_reg_write(reg=0x9b, val=?)
+  00077f98  phy_reg_write(reg=0x9c, val=?)
+
+wlc_phy_rxcore_getstate_htphy:
+  00077fc0  phy_reg_read(reg=0x801)
+
+wlc_phy_pa_override_htphy:
+  00078064  phy_reg_read(reg=0x88c)
+
+wlc_phy_update_rxldpc_htphy:
+  0007816c  phy_reg_read(reg=0x217)
+
+wlc_phy_rfctrl_override_rxgain_htphy:
+  00078264  phy_reg_read(reg=0x880)
+  00078578  phy_reg_write(reg=0x880, val=?)
+
+wlc_phy_noise_raise_MFthresh_htphy:
+  00078664  phy_reg_mod(reg=0x273, mask=0xff, val=0x51)
+
+wlc_phy_lpf_hpc_override_htphy:
+  000787b8  phy_reg_read(reg=0x882)
+  000788f8  phy_reg_write(reg=0x882, val=?)
+
+wlc_phy_txpwrctrl_enable_htphy:
+  00078a58  phy_reg_read(reg=0x1e7)
+  00078abc  phy_reg_mod(reg=0x1e7, mask=0xe000, val=0xe000)
+
+wlc_phy_classifier_htphy:
+  00078c68  phy_reg_read(reg=0xb0)
+  00078c9c  phy_reg_mod(reg=0xb0, mask=0x7, val=?)
+
+wlc_phy_get_deaf_htphy:
+  00078cf4  phy_reg_read(reg=0xb0)
+
+wlc_phy_rx_iq_est_htphy:
+  00078ea0  phy_reg_write(reg=0x12b, val=?)
+  00078eb8  phy_reg_mod(reg=0x12a, mask=0xff, val=?)
+
+wlc_phy_rxcore_setstate_htphy:
+  00079294  phy_reg_write(reg=0xc6, val=?)
+
+wlc_phy_tssi_radio_setup_htphy:
+  00079484  mod_radio_reg(reg=0x8bf, mask=0x1, val=0x1)
+
+wlc_phy_auxadc_sel_htphy:
+  0007956c  phy_reg_mod(reg=0x919, mask=0x300, val=?)
+
+wlc_phy_poll_auxadc_htphy:
+  00079b7c  phy_reg_read(reg=0x919)
+  00079c68  phy_reg_read(reg=0x219)
+  00079d64  phy_reg_write(reg=0x919, val=?)
+  00079f10  phy_reg_read(reg=0x219)
+
+wlc_phy_rxcal_radio_config_htphy:
+  00079fc8  read_radio_reg(reg=?)
+  00079ff8  read_radio_reg(reg=?)
+  0007a028  read_radio_reg(reg=?)
+  0007a054  read_radio_reg(reg=?)
+  0007a080  read_radio_reg(reg=?)
+  0007a0ac  read_radio_reg(reg=?)
+  0007a0d8  read_radio_reg(reg=?)
+  0007a104  read_radio_reg(reg=?)
+  0007a138  read_radio_reg(reg=?)
+  0007a16c  write_radio_reg(reg=?, val=0x3)
+  0007a198  mod_radio_reg(reg=?, mask=0x2, val=?)
+  0007a23c  write_radio_reg(reg=?, val=?)
+  0007a384  write_radio_reg(reg=?, val=0x3)
+
+wlc_phy_radio2059_vcocal:
+  0007a3c8  mod_radio_reg(reg=0x2b, mask=0x1, val=?)
+
+wlc_phy_gpiosel_htphy:
+  0007a4bc  phy_reg_write(reg=0xc8, val=?)
+
+wlc_phy_force_rfseq_htphy:
+  0007a670  phy_reg_read(reg=0x800)
+  0007a68c  phy_reg_or(reg=0x800, val=0x3)
+
+wlc_phy_resetcca_htphy:
+  0007a794  phy_reg_read(reg=0x1)
+  0007a7b4  phy_reg_write(reg=0x1, val=?)
+
+wlc_phy_bphy_testpattern_htphy:
+  0007aa94  phy_reg_mod(reg=0x918, mask=?, val=?)
+  0007ab30  phy_reg_write(reg=0x23e, val=?)
+  0007ac28  phy_reg_write(reg=0xc3, val=0x1)
+  0007ac38  phy_reg_read(reg=0xc0a)
+  0007ac68  phy_reg_and(reg=0xc0a, mask=0xfc00)
+  0007ac80  phy_reg_or(reg=0xc0a, val=0x228)
+  0007acd0  phy_reg_mod(reg=0x918, mask=?, val=?)
+  0007ad38  phy_reg_and(reg=0xc0a, mask=0xffc0)
+  0007ad50  phy_reg_or(reg=0xc0a, val=?)
+
+wlc_phy_switch_radio_htphy:
+  0007b614  phy_reg_and(reg=0x810, mask=0xfffd)
+  0007b688  mod_radio_reg(reg=?, mask=0x3, val=0x3)
+  0007b740  write_radio_reg(reg=0xa, val=?)
+  0007b7e4  phy_reg_and(reg=0x810, mask=0xfffd)
+  0007b98c  write_radio_reg(reg=0x17f, val=0x61)
+  0007bae4  phy_reg_and(reg=0x810, mask=0xfffd)
+  0007baf8  phy_reg_or(reg=0x810, val=0x1)
+
+wlc_phy_aci_noise_shared_hw_set_htphy:
+  0007bde4  phy_reg_mod(reg=0x280, mask=0xff, val=?)
+  0007be2c  phy_reg_read(reg=0x451)
+  0007be4c  phy_reg_write(reg=0x410, val=0x6c)
+  0007bfd8  phy_reg_write(reg=0x410, val=?)
+  0007c094  phy_reg_mod(reg=0x280, mask=0xff, val=?)
+  0007c0c8  phy_reg_mod(reg=0x280, mask=0xff, val=?)
+  0007c148  phy_reg_read(reg=0x451)
+  0007c178  phy_reg_mod(reg=0x280, mask=0xff, val=?)
+  0007c1ac  phy_reg_mod(reg=0x280, mask=0xff, val=?)
+
+wlc_phy_aci_noise_shared_reset_htphy:
+  0007c3b0  phy_reg_write(reg=0x410, val=?)
+  0007c448  phy_reg_mod(reg=0x280, mask=0xff, val=?)
+
+wlc_phy_stopplayback_htphy:
+  0007c738  phy_reg_read(reg=0xc7)
+  0007c760  phy_reg_and(reg=0xc3, mask=0xfffb)
+  0007c7fc  phy_reg_or(reg=0xc3, val=0x2)
+  0007c818  phy_reg_and(reg=0xc2, mask=0x7fff)
+
+wlc_phy_txpwrctrl_pwr_setup_htphy:
+  0007c86c  phy_reg_mod(reg=0x122, mask=0x1, val=0x1)
+
+wlc_phy_subband_cust_rev0_5g_htphy:
+  0007cdf8  phy_reg_write(reg=0x40d, val=0xff)
+  0007d280  phy_reg_mod(reg=0x283, mask=0xff, val=0x40)
+  0007d42c  phy_reg_mod(reg=0x283, mask=0xff, val=0x43)
+  0007d5cc  phy_reg_mod(reg=0x283, mask=0xff, val=0x3d)
+  0007d74c  phy_reg_mod(reg=0x283, mask=0xff, val=0x3b)
+  0007d8c8  phy_reg_mod(reg=0x283, mask=0xff, val=0x3e)
+  0007da64  phy_reg_mod(reg=0x283, mask=0xff, val=0x3f)
+
+wlc_phy_subband_cust_rev0_2g_htphy:
+  0007dc2c  phy_reg_mod(reg=0x541, mask=0xff, val=0x46)
+  0007dc40  phy_reg_write(reg=0x411, val=0x614)
+
+wlc_phy_subband_cust_rev1_5g_htphy:
+  0007e110  phy_reg_write(reg=0x40d, val=0xb4)
+  0007e5c8  phy_reg_mod(reg=0x283, mask=0xff, val=0x3f)
+  0007e774  phy_reg_mod(reg=0x283, mask=0xff, val=0x41)
+  0007e914  phy_reg_mod(reg=0x283, mask=0xff, val=0x3c)
+  0007ea94  phy_reg_mod(reg=0x283, mask=0xff, val=0x3c)
+  0007ec10  phy_reg_mod(reg=0x283, mask=0xff, val=0x3f)
+  0007edac  phy_reg_mod(reg=0x283, mask=0xff, val=0x3f)
+
+wlc_phy_subband_cust_rev1_2g_htphy:
+  0007ef78  phy_reg_mod(reg=0x541, mask=0xff, val=0x46)
+  0007ef8c  phy_reg_write(reg=0x410, val=0x7e)
+
+wlc_phy_subband_cust_rev1_4706nrh_5g_htphy:
+  0007f61c  phy_reg_write(reg=0x412, val=0x4d)
+  0007fb14  phy_reg_mod(reg=0x283, mask=0xff, val=0x31)
+  0007fcf8  phy_reg_mod(reg=0x283, mask=0xff, val=0x32)
+  0007fec8  phy_reg_mod(reg=0x283, mask=0xff, val=0x32)
+  00080080  phy_reg_mod(reg=0x283, mask=0xff, val=0x34)
+  00080234  phy_reg_mod(reg=0x283, mask=0xff, val=0x35)
+  00080400  phy_reg_mod(reg=0x283, mask=0xff, val=0x34)
+
+wlc_phy_subband_cust_rev1_4706nrh_2g_htphy:
+  000805f0  phy_reg_mod(reg=0x541, mask=0xff, val=0x46)
+  0008066c  phy_reg_write(reg=0x40d, val=0xbd)
+
+wlc_phy_subband_cust_rev1_asus_5g_htphy:
+  00080dac  phy_reg_write(reg=0x412, val=0x96)
+  000812a4  phy_reg_mod(reg=0x283, mask=0xff, val=0x46)
+  00081488  phy_reg_mod(reg=0x283, mask=0xff, val=0x4b)
+  00081658  phy_reg_mod(reg=0x283, mask=0xff, val=0x48)
+  00081810  phy_reg_mod(reg=0x283, mask=0xff, val=0x4b)
+  000819c4  phy_reg_mod(reg=0x283, mask=0xff, val=0x4f)
+  00081b90  phy_reg_mod(reg=0x283, mask=0xff, val=0x4b)
+
+wlc_phy_subband_cust_rev1_asus_2g_htphy:
+  00081d90  phy_reg_mod(reg=0x541, mask=0xff, val=0x46)
+  00081da4  phy_reg_write(reg=0x412, val=0x6c)
+
+wlc_phy_subband_cust_rev1_pciedual_old_5g_htphy:
+  000825d8  phy_reg_write(reg=0x40d, val=0xff)
+  00082ad0  phy_reg_mod(reg=0x283, mask=0xff, val=0x3e)
+  00082c7c  phy_reg_mod(reg=0x283, mask=0xff, val=0x40)
+  00082e1c  phy_reg_mod(reg=0x283, mask=0xff, val=0x3d)
+  00082f9c  phy_reg_mod(reg=0x283, mask=0xff, val=0x3d)
+  00083118  phy_reg_mod(reg=0x283, mask=0xff, val=0x40)
+  000832b4  phy_reg_mod(reg=0x283, mask=0xff, val=0x40)
+
+wlc_phy_subband_cust_rev1_pciedual_old_2g_htphy:
+  00083484  phy_reg_mod(reg=0x541, mask=0xff, val=0x46)
+  00083498  phy_reg_write(reg=0x412, val=0x6c)
+
+wlc_phy_subband_cust_rev1_pciedual_5g_htphy:
+  00083c58  phy_reg_write(reg=0x412, val=0x96)
+  00084150  phy_reg_mod(reg=0x283, mask=0xff, val=0x3a)
+  00084330  phy_reg_mod(reg=0x283, mask=0xff, val=0x3c)
+  00084500  phy_reg_mod(reg=0x283, mask=0xff, val=0x38)
+  000846b4  phy_reg_mod(reg=0x283, mask=0xff, val=0x3a)
+  00084864  phy_reg_mod(reg=0x283, mask=0xff, val=0x3f)
+  00084a30  phy_reg_mod(reg=0x283, mask=0xff, val=0x3d)
+
+wlc_phy_subband_cust_rev1_pciedual_2g_htphy:
+  00084c30  phy_reg_mod(reg=0x541, mask=0xff, val=0x46)
+  00084c44  phy_reg_write(reg=0x412, val=0x6c)
+
+wlc_phy_subband_cust_rev1_x33_5g_htphy:
+  00085484  phy_reg_mod(reg=0x283, mask=0xff, val=0x3c)
+  00085528  phy_reg_write(reg=0x40d, val=0xa1)
+
+wlc_phy_subband_cust_rev1_x33_2g_htphy:
+  00085f08  phy_reg_mod(reg=0x541, mask=0xff, val=0x46)
+  00085fc0  phy_reg_write(reg=0x40d, val=0x84)
+
+wlc_phy_subband_cust_rev1_cs_5g_htphy:
+  000866a4  phy_reg_mod(reg=0x283, mask=0xff, val=0x37)
+  00086748  phy_reg_write(reg=0x40d, val=0xa1)
+
+wlc_phy_subband_cust_rev1_cs_2g_htphy:
+  000876ac  phy_reg_mod(reg=0x541, mask=0xff, val=0x46)
+  00087764  phy_reg_write(reg=0x40d, val=0x9b)
+
+wlc_phy_subband_cust_rev1_mch5_5g_htphy:
+  00087e3c  phy_reg_write(reg=0x40d, val=0xff)
+  00088334  phy_reg_mod(reg=0x283, mask=0xff, val=0x43)
+  000884e4  phy_reg_mod(reg=0x283, mask=0xff, val=0x46)
+  00088684  phy_reg_mod(reg=0x283, mask=0xff, val=0x43)
+  00088808  phy_reg_mod(reg=0x283, mask=0xff, val=0x3f)
+  00088988  phy_reg_mod(reg=0x283, mask=0xff, val=0x43)
+  00088b24  phy_reg_mod(reg=0x283, mask=0xff, val=0x45)
+
+wlc_phy_subband_cust_rev1_mch5_2g_htphy:
+  00088cf4  phy_reg_mod(reg=0x541, mask=0xff, val=0x64)
+  00088d08  phy_reg_write(reg=0x412, val=0x6c)
+
+wlc_phy_acimode_set_htphy:
+  0008a6c8  read_radio_reg(reg=0xab)
+  0008a6e8  write_radio_reg(reg=0xab, val=?)
+  0008a98c  phy_reg_read(reg=0x412)
+  0008a9f8  phy_reg_write(reg=0x412, val=0x2c)
+  0008ad80  write_radio_reg(reg=0xab, val=?)
+  0008af14  phy_reg_mod(reg=0x424, mask=0x3f, val=0x15)
+  0008b08c  phy_reg_write(reg=0x412, val=?)
+
+wlc_phy_acimode_upd_htphy:
+  0008b74c  phy_reg_read(reg=0x280)
+  0008b93c  phy_reg_mod(reg=?, mask=?, val=?)
+
+wlc_phy_noisemode_set_htphy:
+  0008c724  phy_reg_read(reg=0x280)
+
+wlc_phy_bphynoisemode_set_htphy:
+  0008cca8  phy_reg_read(reg=0x547)
+  0008ceb4  phy_reg_mod(reg=0x547, mask=0xffff, val=?)
+  0008d048  phy_reg_read(reg=0x280)
+
+wlc_phy_rxgaincode_to_dB_htphy:
+  0008d3e0  phy_reg_read(reg=0x520)
+
+wlc_phy_sample_collect_htphy:
+  0008d5e4  phy_reg_write(reg=0x34a, val=?)
+  0008d604  phy_reg_mod(reg=0x34a, mask=0x8, val=0x8)
+  0008da14  phy_reg_write(reg=0x34a, val=?)
+  0008da3c  phy_reg_mod(reg=0x34a, mask=0x6, val=?)
+  0008dd28  phy_reg_read(reg=0x9a)
+  0008dff8  phy_reg_read(reg=0x34a)
+  0008e3cc  phy_reg_write(reg=0x34a, val=?)
+  0008e3f4  phy_reg_mod(reg=0x34a, mask=0x6, val=?)
+
+wlc_phy_txpwr_by_index_htphy:
+  0008e540  phy_reg_mod(reg=0x908, mask=0x7, val=?)
+  0008e5f4  phy_reg_mod(reg=0x908, mask=0x700, val=?)
+  0008e61c  phy_reg_mod(reg=0x908, mask=0x70, val=?)
+
+wlc_phy_rxcal_phy_config_htphy:
+  0008e848  phy_reg_read(reg=0x1)
+  0008e868  phy_reg_mod(reg=0x1, mask=0x8000, val=?)
+  0008ecf0  phy_reg_write(reg=0x1, val=?)
+
+wlc_phy_tempsense_htphy:
+  0008f6b4  read_radio_reg(reg=0xc)
+  0008f764  phy_reg_read(reg=0x911)
+  0008f848  phy_reg_write(reg=0x1ae, val=?)
+  0008f860  phy_reg_mod(reg=0x911, mask=0x80, val=?)
+  0008f8b4  write_radio_reg(reg=0xc, val=0x1)
+
+wlc_phy_btc_restage_rxgain_htphy:
+  0008ff20  phy_reg_read(reg=0x410)
+  00090008  phy_reg_write(reg=0x410, val=0x2e)
+  00090190  phy_reg_write(reg=0x410, val=?)
+  000904bc  phy_reg_read(reg=0x410)
+  00090804  phy_reg_write(reg=0x410, val=0x4c)
+  00090a38  phy_reg_write(reg=0x410, val=?)
+
+wlc_phy_spurwar_htphy:
+  00091028  phy_reg_mod(reg=0x411, mask=0xf00, val=?)
+
+wlc_phy_aci_noise_store_values_htphy:
+  000910e0  phy_reg_read(reg=0x410)
+  00091318  read_radio_reg(reg=0xab)
+
+wlc_phy_scanroam_cache_cal_htphy:
+  00091630  phy_reg_write(reg=0x9e, val=?)
+  000917dc  phy_reg_read(reg=0x9e)
+
+T.1992:
+  00091a90  phy_reg_write(reg=0xc6, val=?)
+  00091ac8  phy_reg_read(reg=0x800)
+  00091ae8  phy_reg_or(reg=0x800, val=0x1)
+
+wlc_phy_tx_tone_htphy:
+  00091ff8  phy_reg_read(reg=0x1)
+
+wlc_phy_freq_accuracy_htphy:
+  00092070  phy_reg_read(reg=0x1)
+  00092090  phy_reg_mod(reg=0x1, mask=0x8000, val=?)
+  000920f4  phy_reg_write(reg=0x1, val=?)
+
+wlc_phy_cal_dac_adc_decouple_war_htphy:
+  000921b0  phy_reg_read(reg=0x2a9)
+  00092380  phy_reg_write(reg=0x2a9, val=?)
+  00092444  phy_reg_read(reg=0xc7)
+  00092468  phy_reg_mod(reg=0x2a3, mask=0x40, val=0x40)
+  00092558  phy_reg_mod(reg=0x2a3, mask=0x40, val=0x40)
+
+wlc_phy_cal_txiqlo_htphy:
+  000929d4  phy_reg_read(reg=0x919)
+  00093148  phy_reg_write(reg=0xc2, val=0x8ad9)
+  000934b8  write_radio_reg(reg=?, val=?)
+
+wlc_phy_txpwrctrl_idle_tssi_meas_htphy:
+  000940fc  phy_reg_read(reg=0x886)
+  000945fc  phy_reg_write(reg=0x880, val=?)
+
+wlc_phy_chanspec_set_htphy:
+  00094920  write_radio_reg(reg=0x16, val=?)
+  00094c30  phy_reg_write(reg=0x1ce, val=?)
+  00094dcc  phy_reg_mod(reg=0x1, mask=0x8000, val=0x8000)
+  00095128  phy_reg_and(reg=0xa0, mask=0xffef)
+  00095398  phy_reg_mod(reg=0x1, mask=0x8000, val=?)
+  0009560c  phy_reg_read(reg=0x410)
+  00095780  phy_reg_or(reg=0xc0a, val=0x800)
+  00095824  phy_reg_or(reg=0xc01, val=0xc000)
+  00095998  phy_reg_read(reg=0x411)
+  00095b28  phy_reg_or(reg=0xa0, val=0x10)
+
+wlc_phy_init_htphy:
+  00095f10  phy_reg_mod(reg=0xbe, mask=0x2, val=?)
+  00095f40  phy_reg_write(reg=0x880, val=?)
+  00096068  phy_reg_and(reg=0x800, mask=0xfffc)
+  0009627c  phy_reg_or(reg=0xb1, val=0x91)
+  00096380  phy_reg_mod(reg=0x919, mask=0x1, val=?)
+  000967d0  phy_reg_read(reg=0x1)
+  00096954  phy_reg_mod(reg=0x919, mask=0x1, val=0x1)
+  000969e8  phy_reg_mod(reg=0x911, mask=0x1, val=?)
+  00096a48  phy_reg_mod(reg=0x911, mask=0x1, val=0x1)
+  00096a64  phy_reg_mod(reg=0x915, mask=0x1, val=?)
+  00096a84  phy_reg_write(reg=0xc38, val=0x668)
+  00096f78  phy_reg_mod(reg=0x915, mask=0x1, val=0x1)
+  00097058  mod_radio_reg(reg=0x185, mask=0x8, val=0x8)
+  00097128  write_radio_reg(reg=0xd82, val=0x2)
+
+T.1993:
+  0009740c  phy_reg_read(reg=0xb1)
+
+wlc_phy_cal_rxiq_htphy:
+  000976ac  phy_reg_read(reg=0x410)
+  000977bc  phy_reg_write(reg=0x885, val=?)
+  000977e4  phy_reg_write(reg=0x887, val=?)
+  00097a10  phy_reg_write(reg=0x845, val=?)
+  00097a38  phy_reg_write(reg=0x847, val=?)
+  00097b40  phy_reg_write(reg=0x885, val=?)
+  00097b68  phy_reg_write(reg=0x887, val=?)
+  00097f94  phy_reg_write(reg=0x865, val=?)
+  00097fbc  phy_reg_write(reg=0x867, val=?)
+  000980e8  phy_reg_write(reg=0x845, val=?)
+  00098110  phy_reg_write(reg=0x847, val=?)
+  0009819c  phy_reg_write(reg=0x865, val=?)
+  000981c4  phy_reg_write(reg=0x867, val=?)
+
+wlc_lcnphy_rx_gain_override_enable:
+  00098ea8  phy_reg_mod(reg=0x4b0, mask=0x100, val=?)
+
+wlc_lcnphy_set_tx_gain_override:
+  00099024  phy_reg_mod(reg=0x4b0, mask=0x80, val=?)
+
+wlc_lcnphy_set_pa_gain:
+  000990a0  phy_reg_mod(reg=0x4fb, mask=0x7f00, val=?)
+
+wlc_lcnphy_set_rx_iq_comp:
+  00099108  phy_reg_mod(reg=0x645, mask=0x3ff, val=?)
+
+wlc_lcnphy_get_tx_pwr_ctrl:
+  000991a0  phy_reg_read(reg=0x4a4)
+
+wlc_lcnphy_get_tx_gain:
+  00099228  phy_reg_read(reg=0x439)
+
+wlc_lcnphy_set_tx_gain:
+  000992b8  phy_reg_read(reg=0x4fb)
+  000992e8  phy_reg_mod(reg=0x4b5, mask=0xffff, val=?)
+
+wlc_phy_tpc_iovar_isenabled_lcnphy:
+  000993e0  phy_reg_read(reg=0x4a4)
+
+wlc_lcnphy_rfseq_tbl_adc_pwrup:
+  000994c0  phy_reg_read(reg=0x4a5)
+
+wlc_lcnphy_get_current_tx_pwr_idx:
+  000995d4  phy_reg_read(reg=0x4a4)
+
+wlc_lcnphy_set_rx_gain_by_distribution:
+  000996d8  phy_reg_mod(reg=0x4b6, mask=0xffff, val=?)
+  00099740  phy_reg_write_array(count=&.rodata+-0x4178, arrptr=0x8)
+
+wlc_lcnphy_rx_iq_est:
+  000998dc  phy_reg_write_array(count=&.rodata+-0x3d74, arrptr=0x8)
+  000998f8  phy_reg_mod(reg=0x482, mask=0xffff, val=?)
+
+wlc_lcnphy_toggle_afe_pwdn:
+  00099a84  phy_reg_read(reg=0x43c)
+  00099ab4  phy_reg_write(reg=0x43c, val=?)
+
+wlc_lcnphy_afe_clk_init:
+  00099b5c  phy_reg_mod(reg=0x6d1, mask=0x80, val=0x80)
+  00099b8c  phy_reg_write(reg=0x6d0, val=0xf)
+
+wlc_lcnphy_noise_restore_phy_regs:
+  00099c0c  phy_reg_mod(reg=0x434, mask=0xff, val=?)
+  00099c38  phy_reg_write(reg=0x550, val=?)
+  00099c54  phy_reg_write_array(count=&.rodata+-0x3de8, arrptr=0x6)
+
+wlc_phy_lcn_updatemac_rssi:
+  00099d0c  phy_reg_write(reg=0x5aa, val=?)
+  00099d20  phy_reg_read(reg=0x5ab)
+
+wlc_lcnphy_agc_reset:
+  00099dc0  phy_reg_read(reg=0x44a)
+  00099de0  phy_reg_write(reg=0x44a, val=?)
+
+wlc_lcnphy_force_adj_gain:
+  00099e6c  phy_reg_mod(reg=0x423, mask=0xff, val=?)
+  00099e98  phy_reg_write(reg=0x550, val=?)
+  00099f1c  phy_reg_mod(reg=0x423, mask=0xff, val=?)
+  00099f58  phy_reg_write(reg=0x550, val=?)
+
+wlc_lcnphy_get_radio_loft:
+  0009a1dc  read_radio_reg(reg=?)
+
+wlc_lcnphy_reset_radio_loft:
+  0009a374  write_radio_reg(reg=?, val=0x88)
+
+wlc_2064_vco_cal:
+  0009a42c  mod_radio_reg(reg=0x57, mask=0x8, val=0x8)
+  0009a440  read_radio_reg(reg=0x56)
+  0009a460  write_radio_reg(reg=0x56, val=?)
+
+wlc_lcnphy_tx_iqlo_loopback_cleanup:
+  0009a51c  phy_reg_write_array(count=&.rodata+-0x2718, arrptr=0x6)
+  0009a544  write_radio_reg(reg=?, val=?)
+
+wlc_lcnphy_set_tssi_mux:
+  0009a64c  write_radio_reg(reg=0x7d, val=0x3)
+  0009a668  mod_radio_reg(reg=0x28, mask=0xf, val=0x1)
+  0009a6d4  phy_reg_write_array(count=&.rodata+-0x237c, arrptr=0x8)
+  0009a6fc  mod_radio_reg(reg=0x86, mask=0x4, val=0x4)
+  0009a744  mod_radio_reg(reg=0x3a, mask=0x1, val=?)
+  0009a778  phy_reg_write_array(count=&.rodata+-0x2304, arrptr=0x8)
+  0009a7a0  mod_radio_reg(reg=0x86, mask=0x4, val=0x4)
+  0009a7b8  write_radio_reg(reg=0x7d, val=?)
+  0009a7f4  write_radio_reg(reg=0x7d, val=0x2)
+  0009a810  write_radio_reg(reg=0x7f, val=0x1)
+  0009a828  mod_radio_reg(reg=0x28, mask=0x1f, val=0x3)
+
+wlc_lcnphy_set_radio_loft:
+  0009a8d4  write_radio_reg(reg=?, val=?)
+
+wlc_lcnphy_noise_ucode_ctrl:
+  0009ab44  phy_reg_write_array(count=&.rodata+-0x3e18, arrptr=0x18)
+
+wlc_lcnphy_noise_reset:
+  0009abc8  phy_reg_mod(reg=0x87a, mask=0x3, val=0x3)
+
+wlc_lcnphy_tx_pwr_update_npt:
+  0009ad20  phy_reg_read(reg=0x4a5)
+  0009ae08  phy_reg_mod(reg=0x4a5, mask=0x700, val=?)
+
+wlc_lcnphy_temp_sense_vbatTemp_on:
+  0009aea0  read_radio_reg(reg=0x7)
+  0009aed8  phy_reg_read(reg=0x43b)
+  0009af28  phy_reg_write_array(count=&.rodata+-0x2034, arrptr=0x20)
+  0009af58  phy_reg_mod(reg=0x4d0, mask=0x20, val=0x20)
+  0009afb4  write_radio_reg(reg=0x7, val=?)
+  0009afec  phy_reg_write(reg=0x43b, val=?)
+  0009b0cc  read_radio_reg(reg=0x476)
+
+wlc_lcnphy_noise_metric:
+  0009b334  phy_reg_write_array(count=&.rodata+-0x3ddc, arrptr=0x7)
+  0009b344  phy_reg_read(reg=0x456)
+  0009b368  phy_reg_write(reg=0x455, val=0x5401)
+  0009b590  phy_reg_write(reg=0x455, val=0x5400)
+
+wlc_lcnphy_deaf_mode:
+  0009b620  phy_reg_mod(reg=0x4b0, mask=0x20, val=?)
+
+wlc_lcnphy_aci:
+  0009b81c  phy_reg_or(reg=0x55d, val=0x1)
+  0009b878  phy_reg_mod(reg=0x423, mask=0xff, val=?)
+  0009b8ac  phy_reg_write_array(count=&.rodata+-0x21bc, arrptr=0x6)
+
+wlc_lcnphy_aci_init:
+  0009b8f0  phy_reg_or(reg=0x55d, val=0x2)
+
+wlc_lcnphy_set_trsw_override:
+  0009b970  phy_reg_mod(reg=0x44d, mask=0x3, val=?)
+
+wlc_lcnphy_tx_pu:
+  0009b9c8  phy_reg_write_array(count=&.rodata+-0x1e9c, arrptr=0x18)
+
+wlc_lcnphy_crsuprs:
+  0009baa8  phy_reg_read(reg=0x43b)
+  0009badc  phy_reg_write_array(count=&.rodata+-0x1bc0, arrptr=0x6)
+  0009baf4  phy_reg_write(reg=0x43b, val=?)
+  0009bb40  phy_reg_write_array(count=&.rodata+-0x1ba0, arrptr=0x13)
+
+wlc_lcnphy_tssi_ucode_setup:
+  0009bd94  phy_reg_read(reg=0x4f9)
+  0009bddc  phy_reg_gen(reg=0x476, mask=0x1ff, val=?)
+
+wlc_phy_txpwr_srom_read_lcnphy:
+  0009e638  phy_reg_write_array(count=&.rodata+-0x3008, arrptr=0x8)
+  0009e694  phy_reg_write_array(count=&.rodata+-0x2ff8, arrptr=0x8)
+  0009e6cc  phy_reg_write_array(count=&.rodata+-0x3018, arrptr=0x8)
+
+wlc_lcnphy_tx_iqlo_loopback:
+  0009f110  read_radio_reg(reg=?)
+  0009f13c  phy_reg_write_array(count=&.rodata+-0x2768, arrptr=0x20)
+  0009f174  or_radio_reg(reg=0xc0, val=0x1)
+  0009f234  mod_radio_reg(reg=0x36, mask=0x1, val=?)
+  0009f2ac  and_radio_reg(reg=0x3a, mask=?)
+  0009f2d8  and_radio_reg(reg=0x3a, mask=0xf9)
+  0009f3c8  write_radio_reg(reg=0x25, val=0xe)
+  0009f5cc  write_radio_reg(reg=0x25, val=0xe)
+
+wlc_lcnphy_get_tssi:
+  0009f7d4  phy_reg_read(reg=0x4ab)
+
+wlc_lcnphy_tx_pwr_limit_check:
+  0009fa0c  phy_reg_read(reg=0x63e)
+  0009fadc  phy_reg_mod(reg=0x4a7, mask=0xff, val=?)
+
+wlc_lcnphy_txrx_spur_avoidance_mode:
+  0009fe4c  phy_reg_write_array(count=&.rodata+-0x1f7c, arrptr=0x6)
+  0009fe84  phy_reg_write(reg=0x94a, val=0xa7)
+  0009fedc  phy_reg_write_array(count=&.rodata+-0x1fc8, arrptr=0xf)
+  0009ff1c  phy_reg_write(reg=0x94a, val=0x14f)
+
+wlc_lcnphy_set_chanspec_tweaks:
+  0009ff98  phy_reg_write_array(count=&.rodata+-0x1c64, arrptr=0x8)
+  000a0048  phy_reg_read(reg=0x942)
+  000a00dc  phy_reg_mod(reg=0x448, mask=0x300, val=0x100)
+  000a01ac  phy_reg_write(reg=0x942, val=?)
+  000a02d4  phy_reg_write(reg=0x942, val=?)
+  000a0410  phy_reg_mod(reg=0x4de, mask=0x2000, val=0x2000)
+  000a0458  phy_reg_mod(reg=0x448, mask=0x300, val=0x200)
+  000a04f0  phy_reg_mod(reg=0x424, mask=0xff00, val=?)
+  000a0570  phy_reg_mod(reg=0x4de, mask=0x2000, val=?)
+
+wlc_lcnphy_save_papd_calibration_results:
+  000a0cac  phy_reg_mod(reg=0x676, mask=0x80, val=0x80)
+
+wlc_lcnphy_rx_signal_power:
+  000a0e20  phy_reg_read(reg=0x4b0)
+  000a0e48  phy_reg_write_array(count=&.rodata+-0x3db4, arrptr=0x18)
+  000a1268  phy_reg_write(reg=0x4b0, val=?)
+  000a1290  phy_reg_read(reg=0x425)
+
+wlc_lcnphy_adjust_frame_based_lo_coeffs:
+  000a14f4  phy_reg_mod(reg=0x952, mask=0xff, val=?)
+
+wlc_lcnphy_load_tx_iir_filter:
+  000a16ac  phy_reg_write(reg=0x910, val=0x1)
+  000a1774  phy_reg_write_array(count=&.rodata+-0x3efc, arrptr=0x10)
+  000a17c8  phy_reg_write(reg=0x90f, val=?)
+
+wlc_lcnphy_save_restore_dig_filt_state:
+  000a1934  phy_reg_read(reg=?)
+  000a19dc  phy_reg_write(reg=?, val=?)
+
+wlc_lcnphy_set_tx_idx_raw:
+  000a276c  phy_reg_mod(reg=0x478, mask=0xc, val=0x8)
+  000a287c  phy_reg_mod(reg=0x478, mask=0xc, val=?)
+
+wlc_lcnphy_stop_tx_tone:
+  000a311c  phy_reg_read(reg=0x644)
+  000a3240  and_radio_reg(reg=0x112, mask=0xfff9)
+  000a3278  phy_reg_mod(reg=0x63f, mask=0x2, val=0x2)
+  000a3298  phy_reg_write_array(count=&.rodata+-0x1fdc, arrptr=0x9)
+  000a32cc  phy_reg_mod(reg=0x453, mask=0x8000, val=?)
+
+wlc_lcnphy_set_tx_iqcc:
+  000a3368  phy_reg_mod(reg=0x946, mask=0x3ff, val=?)
+
+wlc_lcnphy_set_cc:
+  000a34ec  write_radio_reg(reg=?, val=?)
+  000a3610  write_radio_reg(reg=?, val=?)
+
+wlc_lcnphy_force_pwr_index:
+  000a36f8  phy_reg_mod(reg=0x478, mask=0xc, val=?)
+  000a382c  phy_reg_read(reg=0x525)
+  000a3850  phy_reg_mod(reg=0x525, mask=0x100, val=?)
+  000a393c  phy_reg_mod(reg=0x6a6, mask=0x1fff, val=?)
+  000a395c  phy_reg_mod(reg=0x478, mask=0xc, val=0x8)
+
+wlc_lcnphy_txpower_recalc_target:
+  000a3af0  phy_reg_mod(reg=0x4a7, mask=0xff, val=?)
+
+wlc_lcnphy_pll_reset_war:
+  000a3d84  phy_reg_write(reg=0x44a, val=0x88)
+
+wlc_lcnphy_vbat_temp_sense_setup:
+  000a42c4  phy_reg_read(reg=?)
+  000a4368  phy_reg_write_array(count=&.rodata+-0x20dc, arrptr=0x54)
+  000a43a8  phy_reg_mod(reg=0x4a5, mask=0xff, val=0xff)
+  000a44ec  write_radio_reg(reg=0x7, val=?)
+  000a457c  phy_reg_write(reg=?, val=?)
+  000a4660  or_radio_reg(reg=0x112, val=0x6)
+  000a46b0  mod_radio_reg(reg=0x82, mask=0x20, val=0x20)
+
+wlc_lcnphy_vbatsense:
+  000a4760  phy_reg_read(reg=0x475)
+  000a4794  phy_reg_read(reg=0x475)
+
+wlc_lcnphy_tempsense:
+  000a4874  phy_reg_read(reg=0x476)
+  000a4988  phy_reg_mod(reg=0x448, mask=0x4000, val=0x4000)
+
+wlc_lcnphy_set_tx_pwr_ctrl:
+  000a4f30  phy_reg_mod(reg=0x6da, mask=0x40, val=?)
+  000a4fd8  phy_reg_read(reg=0x4a4)
+  000a5064  phy_reg_mod(reg=0x6da, mask=0x40, val=0x40)
+  000a50f8  phy_reg_write_array(count=&.rodata+-0x1dac, arrptr=0xb)
+  000a51c8  phy_reg_read(reg=0x4a9)
+  000a52bc  mod_radio_reg(reg=0x11f, mask=0x4, val=?)
+
+wlc_lcnphy_baseband_init:
+  000a55e8  phy_reg_mod(reg=0x4d0, mask=0x10, val=0x10)
+  000a5898  phy_reg_mod(reg=0x4d0, mask=0x10, val=?)
+  000a5bc0  phy_reg_write_array(count=&.rodata+-0x2f90, arrptr=0x27)
+  000a5d64  phy_reg_read(reg=0x4df)
+  000a5dd8  phy_reg_write(reg=0x4df, val=?)
+  000a6048  phy_reg_write(reg=0x550, val=?)
+  000a62f8  phy_reg_write_array(count=&.rodata+-0x2f40, arrptr=0x6)
+  000a658c  write_radio_reg(reg=0x9c, val=0x20)
+
+wlc_lcnphy_btc_adjust:
+  000a67e8  phy_reg_write_array(count=&.rodata+-0x3d44, arrptr=0x9)
+  000a67fc  phy_reg_read(reg=0x423)
+  000a6820  phy_reg_mod(reg=0x423, mask=0xff, val=?)
+  000a68dc  phy_reg_write_array(count=&.rodata+-0x3d58, arrptr=0x9)
+  000a68f0  phy_reg_read(reg=0x423)
+
+wlc_lcnphy_tssi_cal_sweep:
+  000a6974  phy_reg_read(reg=0x43b)
+  000a6abc  phy_reg_mod(reg=0x4a4, mask=0x8000, val=0x8000)
+
+wlc_lcnphy_idle_tssi_est:
+  000a6f7c  read_radio_reg(reg=0x112)
+  000a6fc4  phy_reg_read(reg=0x4ab)
+  000a7094  phy_reg_write_array(count=&.rodata+-0x2484, arrptr=0xc)
+  000a71c0  phy_reg_mod(reg=0x4a5, mask=0xff, val=0xff)
+  000a7240  mod_radio_reg(reg=0x28, mask=0xf, val=0x1)
+  000a7774  mod_radio_reg(reg=0x28, mask=0x1e, val=?)
+  000a7930  write_radio_reg(reg=0x112, val=0x6)
+  000a794c  phy_reg_write_array(count=&.rodata+-0x2484, arrptr=0xc)
+
+wlc_lcnphy_tx_power_adjustment:
+  000a7ac8  phy_reg_mod(reg=0x4a9, mask=0x1ff, val=?)
+  000a7adc  phy_reg_read(reg=0x4a9)
+
+wlc_lcnphy_tx_pwr_ctrl_init:
+  000a7bd4  phy_reg_read(reg=0x476)
+  000a7ccc  phy_reg_write_array(count=&.rodata+-0x1e04, arrptr=0x14)
+  000a7dc4  phy_reg_mod(reg=0x4d1, mask=0xff, val=?)
+
+wlc_lcnphy_idle_tssi_est_iovar:
+  000a7e54  phy_reg_read(reg=0x4a6)
+
+wlc_lcnphy_restore_calibration_results:
+  000a81ec  phy_reg_write(reg=0x671, val=?)
+  000a831c  phy_reg_mod(reg=0x524, mask=0x8000, val=?)
+
+wlc_phy_papd_txiqlo_rxiq_enable:
+  000a83ac  phy_reg_mod(reg=0x6d1, mask=0x4, val=?)
+  000a8404  phy_reg_mod(reg=0x6d1, mask=0x4, val=0x4)
+
+wlc_lcnphy_iovar_samp_cap:
+  000a856c  phy_reg_mod(reg=0x448, mask=0x4000, val=0x4000)
+  000a857c  phy_reg_read(reg=0x44e)
+  000a85e0  phy_reg_write_array(count=&.rodata+-0x4198, arrptr=0xf)
+  000a8710  phy_reg_write(reg=0x87a, val=0x3)
+
+T.1141:
+  000a8c80  phy_reg_write_array(count=&.rodata+-0x3edc, arrptr=0xc)
+
+wlc_lcnphy_rx_power:
+  000a8d78  phy_reg_read(reg=0x4b0)
+  000a8d90  read_radio_reg(reg=0xad)
+  000a8dec  phy_reg_write_array(count=&.rodata+-0x2190, arrptr=0x28)
+  000a8e24  write_radio_reg(reg=0xad, val=?)
+  000a8f2c  phy_reg_write_array(count=&.rodata+-0x21a0, arrptr=0x8)
+  000a8f58  phy_reg_write_array(count=&.rodata+-0x21b0, arrptr=0x8)
+  000a8ff0  phy_reg_read(reg=0x4b6)
+  000a9008  phy_reg_read(reg=0x4b7)
+  000a902c  phy_reg_read(reg=0x4b1)
+  000a904c  phy_reg_read(reg=0x4b1)
+  000a906c  phy_reg_read(reg=0x44d)
+  000a9340  phy_reg_read(reg=0x4b1)
+  000a9360  phy_reg_read(reg=0x4b1)
+  000a9488  phy_reg_mod(reg=0x44c, mask=0x800, val=?)
+  000a94c8  phy_reg_and(reg=0x44c, mask=0xfffc)
+  000a94e0  phy_reg_write(reg=0x4b0, val=?)
+  000a94f8  write_radio_reg(reg=0xad, val=?)
+  000a9588  write_radio_reg(reg=0xad, val=?)
+
+T.1142:
+  000a96a4  phy_reg_or(reg=0x6da, val=0x8080)
+  000a96ec  phy_reg_mod(reg=0x642, mask=0xff, val=?)
+  000a9734  phy_reg_write_array(count=&.rodata+-0x3d64, arrptr=0x6)
+  000a9778  phy_reg_write(reg=0x63f, val=0x1)
+  000a97dc  phy_reg_read(reg=0x4eb)
+  000a9810  phy_reg_read(reg=0x952)
+  000a982c  phy_reg_mod(reg=0x948, mask=0xff, val=?)
+
+wlc_lcnphy_start_tx_tone:
+  000a9b08  phy_reg_write_array(count=&.rodata+-0x1f70, arrptr=0x8)
+  000a9c58  phy_reg_write_array(count=&.rodata+-0x1f60, arrptr=0x9)
+
+wlc_lcnphy_cw_tx_pwr_ctrl:
+  000a9d30  phy_reg_mod(reg=0x4d7, mask=0x40, val=0x40)
+  000a9e58  mod_radio_reg(reg=0x113, mask=0x80, val=0x80)
+  000a9e98  mod_radio_reg(reg=0x7d, mask=0x3, val=?)
+  000a9eb4  mod_radio_reg(reg=0x28, mask=0xf, val=0xe)
+  000aa08c  phy_reg_write(reg=0x4d7, val=?)
+  000aa128  phy_reg_mod(reg=0x4d7, mask=0x40, val=?)
+  000aa1b8  phy_reg_write_array(count=&.rodata+-0x2654, arrptr=0xc)
+  000aa1d8  mod_radio_reg(reg=0x7d, mask=0x3, val=0x3)
+  000aa1f4  mod_radio_reg(reg=0x28, mask=0xf, val=0x1)
+  000aa228  mod_radio_reg(reg=0x7d, mask=0x3, val=?)
+  000aa244  mod_radio_reg(reg=0x28, mask=0xf, val=0xc)
+  000aa284  phy_reg_write(reg=0x4d7, val=?)
+  000aa2dc  mod_radio_reg(reg=0x7d, mask=0x3, val=0x2)
+  000aa2f8  mod_radio_reg(reg=0x28, mask=0xf, val=0x1)
+
+wlc_lcnphy_set_tx_tone_and_gain_idx:
+  000aa444  phy_reg_write(reg=0x6da, val=0xffff)
+
+T.1140:
+  000aa604  phy_reg_read(reg=0x6db)
+  000aa634  phy_reg_write_array(count=&.rodata+-0x2848, arrptr=0x6)
+  000aa8e4  phy_reg_mod(reg=0x4a4, mask=0x1000, val=0x1000)
+  000aab80  phy_reg_write(reg=0x453, val=0x7a4)
+
+T.1145:
+  000ab248  read_radio_reg(reg=?)
+  000ab270  phy_reg_read(reg=0x631)
+  000ab28c  phy_reg_or(reg=0x631, val=0x15)
+  000ab2a0  phy_reg_read(reg=0x44c)
+  000ab2b8  phy_reg_read(reg=0x44d)
+  000ab2d0  phy_reg_read(reg=0x4b0)
+  000ab2e8  phy_reg_read(reg=0x4b1)
+  000ab300  phy_reg_read(reg=0x4f9)
+  000ab318  phy_reg_read(reg=0x4fa)
+  000ab330  phy_reg_read(reg=0x938)
+  000ab348  phy_reg_read(reg=0x939)
+  000ab360  phy_reg_read(reg=0x43b)
+  000ab378  phy_reg_read(reg=0x43c)
+  000ab390  phy_reg_read(reg=0x6da)
+  000ab3a8  phy_reg_read(reg=0x6db)
+  000ab3c0  phy_reg_read(reg=0x4b7)
+  000ab3d8  phy_reg_read(reg=0x43b)
+  000ab41c  phy_reg_write_array(count=&.rodata+-0x2214, arrptr=0x8)
+  000ab444  write_radio_reg(reg=0xed, val=0x3)
+  000ab470  phy_reg_write_array(count=&.rodata+-0x2258, arrptr=0x22)
+  000ab48c  phy_reg_write_array(count=&.rodata+-0x2298, arrptr=0x20)
+  000ab5ec  write_radio_reg(reg=0x112, val=?)
+  000ab69c  phy_reg_mod(reg=0x6d1, mask=0x4, val=?)
+  000ab6c4  phy_reg_read(reg=0x645)
+  000ab6dc  phy_reg_read(reg=0x646)
+  000ab6fc  phy_reg_write_array(count=&.rodata+-0x21f4, arrptr=0x8)
+  000ab834  phy_reg_write_array(count=&.rodata+-0x2204, arrptr=0x8)
+  000ab868  phy_reg_write(reg=0x631, val=?)
+  000abaa0  write_radio_reg(reg=0x98, val=0x3)
+  000abac8  phy_reg_mod(reg=0x6d1, mask=0x4, val=?)
+
+T.1146:
+  000abbe8  phy_reg_read(reg=0x6da)
+  000abd10  phy_reg_write_array(count=&.rodata+-0x24d0, arrptr=0x6)
+  000abd24  phy_reg_write(reg=0x5a2, val=0x82)
+
+wlc_lcnphy_tx_iqlo_soft_cal:
+  000ac1b4  phy_reg_read(reg=0x6da)
+  000ac1cc  phy_reg_read(reg=0x6db)
+  000ac1e4  read_radio_reg(reg=0x26)
+  000ac200  phy_reg_write(reg=0x93d, val=0xc0)
+  000ac23c  phy_reg_write_array(count=&.rodata+-0x2508, arrptr=0x6)
+  000ac274  phy_reg_read(reg=0x938)
+  000ac28c  phy_reg_read(reg=0x4d7)
+  000ac2a4  phy_reg_read(reg=0x4d8)
+  000ac3f0  phy_reg_read(reg=0x93d)
+  000ac42c  write_radio_reg(reg=0x26, val=?)
+  000ac80c  phy_reg_write(reg=0x6da, val=?)
+  000ac824  phy_reg_write(reg=0x6db, val=?)
+  000ac83c  phy_reg_write(reg=0x938, val=?)
+  000ac854  phy_reg_write(reg=0x4d7, val=?)
+  000ac86c  phy_reg_write(reg=0x4d8, val=?)
+  000ac884  write_radio_reg(reg=0x26, val=?)
+
+wlc_lcnphy_txpwrtbl_iqlo_cal:
+  000acc08  write_radio_reg(reg=0x26, val=0x77)
+  000acefc  phy_reg_write(reg=0x4d7, val=?)
+  000acf98  mod_radio_reg(reg=0x12, mask=0x1, val=?)
+  000ad008  phy_reg_mod(reg=0x4eb, mask=0x200, val=?)
+
+T.1147:
+  000ad5d0  phy_reg_mod(reg=0x448, mask=0x4000, val=?)
+  000adbe8  phy_reg_write_array(count=&.rodata+-0x1be0, arrptr=0x10)
+
+wlc_lcnphy_noise_measure:
+  000ae0c0  phy_reg_read(reg=0x423)
+  000ae178  phy_reg_mod(reg=0x423, mask=0xff, val=?)
+  000ae194  phy_reg_write_array(count=&.rodata+-0x3dcc, arrptr=0x6)
+  000ae2dc  phy_reg_mod(reg=0x434, mask=0xff, val=?)
+  000ae35c  phy_reg_write(reg=0x550, val=?)
+
+wlc_lcnphy_aci_noise_measure:
+  000ae478  phy_reg_mod(reg=0x423, mask=0xff, val=?)
+  000ae4fc  phy_reg_read(reg=0x55b)
+
+T.1149:
+  000ae85c  phy_reg_write_array(count=&.rodata+-0x3eac, arrptr=0x6)
+  000ae8c4  phy_reg_write(reg=0x689, val=0x30)
+  000aec00  phy_reg_write(reg=0x689, val=0x23)
+  000aec5c  phy_reg_write(reg=0x689, val=0x23)
+
+T.1143:
+  000aeda0  phy_reg_read(reg=0x4d7)
+  000aede0  phy_reg_write_array(count=&.rodata+-0x3f90, arrptr=0x8)
+  000aef24  phy_reg_mod(reg=0x4eb, mask=0x38, val=?)
+  000af044  phy_reg_write(reg=0x671, val=?)
+  000af084  read_radio_reg(reg=?)
+  000af0bc  write_radio_reg(reg=0x116, val=0x7)
+  000af1ac  mod_radio_reg(reg=0x120, mask=0x40, val=0x40)
+  000af89c  phy_reg_write(reg=0x4ea, val=?)
+  000af8b4  phy_reg_write(reg=0x4eb, val=?)
+  000af8e4  phy_reg_write(reg=0x49c, val=?)
+  000af8fc  phy_reg_write(reg=0x631, val=?)
+  000af914  phy_reg_write(reg=0x6d6, val=?)
+  000af934  phy_reg_write(reg=0x6da, val=?)
+  000af994  phy_reg_and(reg=0x44c, mask=0xfffc)
+  000afb1c  mod_radio_reg(reg=0x4, mask=0x4, val=0x4)
+  000afbb4  mod_radio_reg(reg=0x121, mask=0x8, val=0x8)
+  000afc18  phy_reg_write(reg=0x49c, val=0x1)
+
+wlc_lcnphy_papd_recal:
+  000b01ec  phy_reg_read(reg=0x4a5)
+  000b0270  phy_reg_mod(reg=0x4a7, mask=0xff, val=?)
+  000b0530  phy_reg_write_array(count=&.rodata+-0x4134, arrptr=0x6)
+
+wlc_phy_watchdog_lcnphy:
+  000b0968  phy_reg_read(reg=0x476)
+  000b0a14  phy_reg_read(reg=0x476)
+
+wlc_lcnphy_periodic_cal:
+  000b0c64  phy_reg_write_array(count=&.rodata+-0x22dc, arrptr=0x14)
+  000b1020  phy_reg_read(reg=0x525)
+  000b10a8  phy_reg_write(reg=0x671, val=?)
+  000b1300  phy_reg_mod(reg=0x524, mask=0x8000, val=?)
+
+wlc_phy_init_lcnphy:
+  000b15cc  phy_reg_write_array(count=&.rodata+-0x2fdc, arrptr=0x6)
+  000b16a4  write_radio_reg(reg=?, val=?)
+  000b1780  phy_reg_write(reg=0x4ea, val=0x4688)
+  000b18f0  phy_reg_read(reg=0x4eb)
+  000b1e94  read_radio_reg(reg=0x5c)
+  000b1eb4  read_radio_reg(reg=0x5c)
+  000b1f3c  read_radio_reg(reg=0x57)
+  000b1f54  read_radio_reg(reg=0x17)
+  000b1f68  read_radio_reg(reg=0x18)
+  000b1fc0  and_radio_reg(reg=0x105, mask=0xfd)
+  000b1fd8  or_radio_reg(reg=0x106, val=0x1)
+  000b2028  read_radio_reg(reg=0x10a)
+  000b2048  read_radio_reg(reg=0x10a)
+  000b2070  or_radio_reg(reg=0x18, val=?)
+  000b209c  read_radio_reg(reg=0x19)
+  000b2104  read_radio_reg(reg=0x10a)
+  000b2124  read_radio_reg(reg=0x10a)
+  000b216c  and_radio_reg(reg=0x106, mask=0xfe)
+  000b2184  and_radio_reg(reg=0x105, mask=0xfb)
+  000b2240  mod_radio_reg(reg=0x77, mask=0xf, val=0xf)
+  000b2260  mod_radio_reg(reg=0x11d, mask=0x4, val=0x4)
+  000b2364  read_radio_reg(reg=0x5c)
+  000b2438  phy_reg_mod(reg=0x663, mask=0xff, val=0x50)
+  000b25ac  and_radio_reg(reg=0x57, mask=0xfd)
+  000b25c8  read_radio_reg(reg=0x110)
+  000b25f4  read_radio_reg(reg=0x10f)
+
+wlc_phy_chanspec_set_lcnphy:
+  000b27a0  phy_reg_write_array(count=&.rodata+-0x1d54, arrptr=0x6)
+  000b2864  phy_reg_mod(reg=0x448, mask=0x8000, val=0x8000)
+  000b28b4  phy_reg_write(reg=0x657, val=?)
+  000b2c20  phy_reg_mod(reg=0x448, mask=0x8000, val=?)
+  000b2c50  mod_radio_reg(reg=0x9d, mask=0x4, val=0x4)
+  000b2c64  write_radio_reg(reg=0x9e, val=0xf)
+  000b2d68  write_radio_reg(reg=0x91, val=?)
+  000b2df8  mod_radio_reg(reg=0x2a, mask=0x18, val=?)
+  000b2eac  mod_radio_reg(reg=0x30, mask=0x3, val=?)
+  000b30a4  read_radio_reg(reg=0x44)
+  000b30dc  or_radio_reg(reg=0x44, val=0x7)
+  000b3898  read_radio_reg(reg=0x44)
+  000b38c8  or_radio_reg(reg=0x44, val=0x7)
+  000b3dd0  mod_radio_reg(reg=0xaf, mask=0xf, val=?)
+  000b3f38  read_radio_reg(reg=0x44)
+  000b3f70  or_radio_reg(reg=0x44, val=0x7)
+  000b404c  and_radio_reg(reg=0x4a, mask=0xfd)
+
+wlc_lcn40phy_set_rx_gain_by_distribution:
+  000b46c8  phy_reg_mod(reg=0x44d, mask=0x1, val=?)
+
+wlc_lcn40phy_rx_gain_override_enable:
+  000b480c  phy_reg_mod(reg=0x44c, mask=0x1, val=?)
+
+wlc_lcn40phy_set_tx_gain_override:
+  000b491c  phy_reg_mod(reg=0x4b0, mask=0x80, val=?)
+
+wlc_lcn40phy_amuxsel_set:
+  000b4998  phy_reg_mod(reg=0x4d7, mask=0x8, val=?)
+
+wlc_lcn40phy_papd_block_enable:
+  000b49fc  phy_reg_mod(reg=0x676, mask=0x80, val=?)
+
+wlc_lcn40phy_epa_pd:
+  000b4a9c  phy_reg_mod(reg=0x44f, mask=0x3ff, val=?)
+
+wlc_lcn40phy_set_rx_iq_comp:
+  000b4b28  phy_reg_mod(reg=0x645, mask=0x3ff, val=?)
+
+wlc_lcn40phy_filt_bw_set:
+  000b4be4  phy_reg_mod(reg=0x4eb, mask=0x3f, val=?)
+
+wlc_lcn40phy_load_tx_iir_filter:
+  000b4d4c  phy_reg_mod(reg=0x6da, mask=0x8000, val=0x8000)
+  000b4e38  phy_reg_write(reg=?, val=?)
+  000b4e5c  phy_reg_mod(reg=0x6da, mask=0x8000, val=0x8000)
+
+wlc_lcn40phy_agc_reset:
+  000b4f0c  phy_reg_write(reg=0xa00, val=?)
+  000b4f24  phy_reg_mod(reg=0x440, mask=0x1, val=?)
+  000b4f3c  phy_reg_or(reg=0x44a, val=0x47)
+
+wlc_lcn40phy_aci:
+  000b5040  phy_reg_mod(reg=0x472, mask=0xff, val=?)
+
+wlc_lcn40phy_deaf_mode:
+  000b5130  phy_reg_write(reg=0xa00, val=0xff)
+  000b5148  phy_reg_or(reg=0x440, val=0x1)
+  000b519c  phy_reg_write(reg=0xa00, val=?)
+  000b51b4  phy_reg_mod(reg=0x440, mask=0x1, val=?)
+  000b51cc  phy_reg_or(reg=0x440, val=0x1)
+
+wlc_lcn40phy_aci_init:
+  000b5314  phy_reg_mod(reg=0x788, mask=0x80, val=?)
+  000b53f4  phy_reg_read(reg=0x786)
+
+wlc_lcn40phy_get_tx_gain:
+  000b5524  phy_reg_read(reg=0x439)
+
+wlc_lcn40phy_set_tx_gain:
+  000b55b0  phy_reg_read(reg=0x4fb)
+  000b55e0  phy_reg_mod(reg=0x4b5, mask=0xffff, val=?)
+
+wlc_lcn40phy_save_restore_dig_filt_state:
+  000b5700  phy_reg_read(reg=?)
+  000b5760  phy_reg_write(reg=?, val=?)
+
+wlc_lcn40phy_avg_tssi_reg_iovar:
+  000b57a4  phy_reg_read(reg=0x63e)
+
+wlc_lcn40phy_idle_tssi_reg_iovar:
+  000b57ec  phy_reg_read(reg=0x4ae)
+  000b5880  phy_reg_mod(reg=0x4a6, mask=0x1ff, val=?)
+
+wlc_phy_tpc_iovar_isenabled_lcn40phy:
+  000b58a0  phy_reg_read(reg=0x4a4)
+
+wlc_lcn40phy_read_tempsense_regs:
+  000b58e4  phy_reg_read(reg=0x476)
+
+wlc_lcn40phy_get_current_tx_pwr_idx:
+  000b5a44  phy_reg_read(reg=0x4a4)
+
+wlc_lcn40phy_tx_pwr_update_npt:
+  000b5b4c  phy_reg_read(reg=0x4a4)
+  000b5cf8  phy_reg_mod(reg=0x4a5, mask=0x1c00, val=?)
+  000b5d1c  phy_reg_mod(reg=0x4a5, mask=0x1c00, val=?)
+
+wlc_lcn40phy_aci_upd:
+  000b5eb4  phy_reg_mod(reg=0x472, mask=0xff, val=?)
+
+wlc_lcn40phy_noise_restore_phy_regs:
+  000b61e0  phy_reg_mod(reg=0x472, mask=0xff, val=?)
+
+wlc_lcn40phy_rx_iq_est:
+  000b653c  phy_reg_mod(reg=0x6da, mask=0x20, val=0x20)
+
+wlc_lcn40phy_force_digigain_zerodB_WAR:
+  000b672c  phy_reg_mod(reg=0x4de, mask=0x200, val=0x200)
+
+wlc_lcn40phy_noise_measure:
+  000b6b88  phy_reg_read(reg=0x534)
+  000b6c38  phy_reg_mod(reg=0xa53, mask=0xff, val=?)
+
+wlc_lcn40phy_switch_radio:
+  000b6d08  phy_reg_and(reg=0x44d, mask=0x9b87)
+  000b6d1c  phy_reg_or(reg=0x44c, val=0x1978)
+  000b6db8  phy_reg_or(reg=0x44a, val=0x47)
+  000b6dd8  phy_reg_and(reg=0x44c, mask=0xe687)
+
+wlc_lcn40phy_anacore:
+  000b6e64  phy_reg_and(reg=0x576, mask=0xbfe0)
+  000b6ea0  phy_reg_or(reg=0x44a, val=0x47)
+
+wlc_lcn40phy_set_trsw_override:
+  000b6f24  phy_reg_mod(reg=0x44d, mask=0x3, val=?)
+  000b6f6c  mod_radio_reg(reg=0xcd, mask=0x40, val=0x40)
+
+wlc_lcn40phy_tx_pu:
+  000b7050  phy_reg_mod(reg=0x576, mask=0x4000, val=0x4000)
+  000b7168  phy_reg_mod(reg=0x577, mask=0x400, val=?)
+  000b717c  phy_reg_and(reg=0x44c, mask=0xefd0)
+
+wlc_lcn40phy_crsuprs:
+  000b71d0  phy_reg_read(reg=0x577)
+  000b7200  phy_reg_and(reg=0xa, mask=0xfdd7)
+  000b7228  phy_reg_write(reg=0x577, val=?)
+  000b7274  phy_reg_mod(reg=0x577, mask=0x400, val=0x400)
+  000b72a0  phy_reg_write(reg=0x44b, val=0xffff)
+  000b72e0  phy_reg_or(reg=0x6da, val=0x80)
+
+wlc_lcn40phy_stop_tx_tone:
+  000b7358  phy_reg_read(reg=0x644)
+  000b73cc  phy_reg_write(reg=0x6d6, val=0x1)
+
+wlc_lcn40phy_clear_trsw_override:
+  000b74e0  mod_radio_reg(reg=0xcd, mask=0x40, val=?)
+
+wlc_lcn40phy_get_radio_loft:
+  000b7d7c  read_radio_reg(reg=0x5c)
+
+wlc_lcn40phy_set_radio_loft:
+  000b7ecc  write_radio_reg(reg=0x5c, val=?)
+
+wlc_lcn40phy_rev0_agc_tweaks:
+  000b8190  write_radio_reg(reg=0x51, val=0x36e2)
+  000b8570  phy_reg_write(reg=0xa57, val=0x5858)
+
+wlc_lcn40phy_set_tssi_mux:
+  000b8768  or_radio_reg(reg=0x1c, val=0x4)
+  000b8798  mod_radio_reg(reg=0x1c, mask=0xf0, val=0x30)
+  000b87dc  phy_reg_mod(reg=0x4d9, mask=0x4, val=0x4)
+  000b8844  phy_reg_mod(reg=0x4d9, mask=0x4, val=?)
+  000b8874  mod_radio_reg(reg=0x1c, mask=0x4, val=?)
+  000b8918  phy_reg_mod(reg=0x4d9, mask=0xc000, val=0x4)
+
+wlc_lcn40phy_get_tssi:
+  000b89c8  phy_reg_read(reg=0x4ab)
+
+wlc_lcn40phy_rev3_agc_tweaks:
+  000b8f44  phy_reg_mod(reg=0x420, mask=0xff, val=0xf)
+  000b8f60  mod_radio_reg(reg=0x50, mask=0xff03, val=0x303)
+  000b8f74  write_radio_reg(reg=0x51, val=0x36e2)
+  000b903c  phy_reg_write(reg=0x41f, val=0x3f)
+  000b92f0  phy_reg_write(reg=0x41f, val=0x2d)
+
+wlc_lcn40phy_rc_cal:
+  000b93e4  read_radio_reg(reg=0x40)
+  000b9400  or_radio_reg(reg=0x11, val=0x2)
+  000b9428  mod_radio_reg(reg=0x12, mask=0x1, val=?)
+  000b97a4  phy_reg_write(reg=0x933, val=?)
+  000b9984  and_radio_reg(reg=0xc2, mask=0xfd7f)
+  000b9a28  phy_reg_read(reg=0x964)
+
+wlc_lcn40phy_write_table:
+  000b9d5c  phy_reg_read(reg=0x44b)
+  000b9d7c  phy_reg_mod(reg=0x44b, mask=0x8, val=0x8)
+  000b9d94  phy_reg_read(reg=0x450)
+  000b9db4  phy_reg_mod(reg=0x450, mask=0x1, val=0x1)
+
+wlc_lcn40phy_sw_ctrl_tbl_init:
+  000ba1a8  phy_reg_mod(reg=0x4e2, mask=0x7ff, val=?)
+
+wlc_radio_2065_init:
+  000ba944  write_radio_reg(reg=?, val=?)
+  000ba9c0  mod_radio_reg(reg=0x3f, mask=0x7, val=0x4)
+  000baa74  mod_radio_reg(reg=0x3f, mask=0x7, val=0x4)
+
+wlc_lcn40phy_set_txpwr_clamp:
+  000bab50  phy_reg_read(reg=0x4a7)
+  000bac94  phy_reg_read(reg=0x4ae)
+  000bad50  phy_reg_read(reg=0x4a6)
+
+wlc_lcn40phy_txpower_recalc_target:
+  000baf58  phy_reg_mod(reg=0x4a7, mask=0xff, val=?)
+  000bafcc  phy_reg_mod(reg=0x4a7, mask=0xff, val=?)
+  000bb084  phy_reg_mod(reg=0x4a7, mask=0xff, val=?)
+
+wlc_lcn40phy_set_tx_pwr_ctrl:
+  000bb780  phy_reg_read(reg=0x4a4)
+  000bb7bc  phy_reg_mod(reg=0x6da, mask=0x40, val=?)
+  000bb88c  phy_reg_mod(reg=0x6da, mask=0x40, val=0x40)
+  000bb940  phy_reg_write(reg=0x46e, val=0x1)
+  000bb9f8  phy_reg_write(reg=0x46e, val=?)
+
+wlc_lcn40phy_set_tx_pwr_by_index:
+  000bbb1c  phy_reg_mod(reg=0x4fb, mask=0xff00, val=?)
+
+wlc_lcn40phy_tssi_setup:
+  000bbe80  phy_reg_mod(reg=0x4a4, mask=0x4000, val=?)
+  000bc104  phy_reg_read(reg=0x4a5)
+  000bc260  and_radio_reg(reg=0xd8, mask=0xfffe)
+  000bc374  mod_radio_reg(reg=0xc8, mask=0x100, val=0x1)
+  000bc3f4  or_radio_reg(reg=0x1f, val=0x1)
+  000bc41c  and_radio_reg(reg=0x20, mask=0xfffe)
+  000bc49c  or_radio_reg(reg=0x18, val=0x1)
+  000bc564  or_radio_reg(reg=0x20, val=0x1)
+  000bc58c  and_radio_reg(reg=0x1f, mask=0xfffe)
+
+wlc_lcn40phy_idle_tssi_est:
+  000bc67c  phy_reg_read(reg=0x4a4)
+  000bc6a8  read_radio_reg(reg=0xc6)
+  000bc7bc  phy_reg_mod(reg=0x4d7, mask=0x1, val=0x1)
+  000bca08  mod_radio_reg(reg=0xc6, mask=0x1, val=?)
+  000bca60  phy_reg_write(reg=0x410, val=?)
+
+wlc_lcn40phy_tx_pwr_ctrl_init:
+  000bcf9c  phy_reg_write(reg=0x4a8, val=0xa)
+  000bd264  phy_reg_read(reg=0x4a4)
+  000bd290  read_radio_reg(reg=0xc6)
+  000bd324  phy_reg_mod(reg=0x637, mask=0xc000, val=?)
+  000bd3bc  mod_radio_reg(reg=0xc6, mask=0x1, val=?)
+
+wlc_lcn40phy_idle_tssi_est_iovar:
+  000bd558  phy_reg_read(reg=0x4a6)
+
+wlc_phy_carrier_suppress_lcn40phy:
+  000bd5ac  write_radio_reg(reg=0x5c, val=0x88)
+
+wlc_lcn40phy_rev4_agc_tweaks:
+  000bd97c  phy_reg_mod(reg=0x420, mask=0xff, val=0xf)
+  000bd9e8  mod_radio_reg(reg=0x50, mask=0xff03, val=0x303)
+  000bda00  write_radio_reg(reg=0x51, val=0x36e2)
+  000bdc50  phy_reg_write(reg=0x41f, val=0x46)
+  000bdcdc  write_radio_reg(reg=0x32, val=0x51d1)
+  000bdf3c  write_radio_reg(reg=0x32, val=0x71f1)
+  000bdf80  phy_reg_write(reg=0x41f, val=0x46)
+  000bdff4  write_radio_reg(reg=0x2b, val=0x51f1)
+  000be71c  phy_reg_write(reg=0x41f, val=0x37)
+  000be738  phy_reg_write(reg=0xa4f, val=0x37)
+
+wlc_lcn40phy_papd_set_bbmult0:
+  000bef58  phy_reg_mod(reg=0x682, mask=0x1, val=0x1)
+  000befa0  phy_reg_read(reg=0x682)
+  000befd4  phy_reg_mod(reg=0x682, mask=0x1fe, val=?)
+
+wlc_phy_attach_lcn40phy:
+  000c0e60  phy_reg_mod(reg=0x410, mask=0x2, val=?)
+  000c0fbc  phy_reg_mod(reg=0x410, mask=0x2, val=?)
+  000c1134  phy_reg_mod(reg=0x410, mask=0x2, val=0x2)
+  000c1150  phy_reg_mod(reg=0x410, mask=0x1, val=?)
+  000c116c  phy_reg_mod(reg=0x4b0, mask=0x20, val=0x20)
+  000c1188  phy_reg_mod(reg=0x4b1, mask=0x200, val=?)
+
+wlc_lcn40phy_tx_init:
+  000c13ac  phy_reg_write(reg=0x959, val=?)
+  000c1530  mod_radio_reg(reg=0xa7, mask=0x9000, val=?)
+  000c15c4  write_radio_reg(reg=0x7a, val=0xf0)
+  000c161c  phy_reg_write(reg=0x960, val=?)
+  000c1674  or_radio_reg(reg=0xa7, val=0x1000)
+  000c1704  mod_radio_reg(reg=0x61, mask=0xff0, val=0xff0)
+  000c17c8  and_radio_reg(reg=0xa7, mask=0xefff)
+  000c18f8  and_radio_reg(reg=0xce, mask=0xfffb)
+  000c1938  mod_radio_reg(reg=0x58, mask=0x3700, val=0x2300)
+  000c1964  write_radio_reg(reg=0xa2, val=0x7332)
+  000c19a0  mod_radio_reg(reg=0x58, mask=0x3700, val=?)
+  000c1b2c  or_radio_reg(reg=0xa7, val=0x1000)
+  000c1c2c  and_radio_reg(reg=0xa7, mask=0xefff)
+  000c1c6c  mod_radio_reg(reg=0xa7, mask=0x9000, val=0x9000)
+  000c1ca0  mod_radio_reg(reg=0xa7, mask=0x9000, val=0x1000)
+
+wlc_phy_init_lcn40phy:
+  000c1f10  phy_reg_mod(reg=0x550, mask=0x3ff, val=?)
+  000c1f50  phy_reg_read(reg=0x550)
+  000c2014  and_radio_reg(reg=0xa, mask=0xdfff)
+  000c2028  or_radio_reg(reg=0xa, val=0x4000)
+  000c233c  phy_reg_or(reg=0x44a, val=0x100)
+  000c2354  phy_reg_and(reg=0x44a, mask=0xfeff)
+  000c2390  phy_reg_mod(reg=0x44b, mask=0x8, val=0x8)
+  000c23b4  phy_reg_write(reg=0x450, val=?)
+  000c23cc  phy_reg_mod(reg=0x6da, mask=0x800, val=?)
+  000c24c4  mod_radio_reg(reg=0xca, mask=0x8, val=0x8)
+  000c24ec  write_radio_reg(reg=0x83, val=0x750)
+  000c26e4  write_radio_reg(reg=0x83, val=0x740)
+  000c2720  phy_reg_write(reg=0x44a, val=0x47)
+  000c2738  phy_reg_mod(reg=0x440, mask=0x1, val=?)
+  000c2820  mod_radio_reg(reg=0xca, mask=0x8, val=0x8)
+  000c2848  write_radio_reg(reg=0x83, val=0x750)
+  000c2908  write_radio_reg(reg=0x83, val=0x740)
+
+wlc_lcn40phy_rx_farrow_init:
+  000c2ab4  phy_reg_mod(reg=0x6f2, mask=0x1fff, val=?)
+  000c2e34  or_radio_reg(reg=0xab, val=0x2000)
+  000c2e48  phy_reg_or(reg=0x576, val=0xc00)
+  000c2e8c  phy_reg_and(reg=0x576, mask=0xf3ff)
+  000c2eac  mod_radio_reg(reg=0xac, mask=0x400, val=?)
+  000c2ec4  write_radio_reg(reg=0xad, val=0x2)
+  000c2f60  and_radio_reg(reg=0xc3, mask=0xdbff)
+  000c30d8  write_radio_reg(reg=0xad, val=?)
+
+wlc_lcn40phy_tempsense:
+  000c3224  read_radio_reg(reg=0x18)
+  000c328c  phy_reg_read(reg=0x577)
+  000c334c  phy_reg_mod(reg=0x40d, mask=0x3ff, val=0x40)
+  000c345c  mod_radio_reg(reg=0x18, mask=0x70, val=0x10)
+  000c3470  or_radio_reg(reg=0xcd, val=0x8000)
+  000c350c  mod_radio_reg(reg=0x42, mask=0x3000, val=0x2000)
+  000c3538  mod_radio_reg(reg=0x42, mask=0xc000, val=0x4000)
+  000c3564  mod_radio_reg(reg=0x42, mask=0xc00, val=0xc00)
+  000c35e0  write_radio_reg(reg=0x18, val=?)
+  000c35fc  write_radio_reg(reg=0xcd, val=?)
+  000c3618  write_radio_reg(reg=0x24, val=?)
+  000c3630  write_radio_reg(reg=0x42, val=?)
+  000c3648  write_radio_reg(reg=0xc2, val=?)
+  000c3664  write_radio_reg(reg=0xc8, val=?)
+  000c3680  phy_reg_write(reg=0x577, val=?)
+  000c369c  write_radio_reg(reg=0xd8, val=?)
+  000c36b8  write_radio_reg(reg=0xf, val=?)
+
+T.1058:
+  000c3a70  mod_radio_reg(reg=0x90, mask=0x10, val=?)
+
+wlc_lcn40phy_restore_calibration_results:
+  000c3d64  phy_reg_write(reg=0x671, val=?)
+
+wlc_lcn40phy_papd_txiqlo_rxiq_enable:
+  000c3ed0  phy_reg_mod(reg=0x6d1, mask=0x4, val=0x4)
+  000c3f54  phy_reg_mod(reg=0x6d1, mask=0x4, val=?)
+
+T.1063:
+  000c3fe0  phy_reg_mod(reg=0x44d, mask=0x2000, val=0x2000)
+  000c40a4  phy_reg_mod(reg=0x44d, mask=0x40, val=0x40)
+
+wlc_lcn40phy_rx_power:
+  000c419c  phy_reg_read(reg=0x4b0)
+  000c420c  phy_reg_write_array(count=&.rodata+-0x1a64, arrptr=0x10)
+  000c4228  phy_reg_mod(reg=0x939, mask=0x1, val=?)
+  000c4244  phy_reg_mod(reg=0x938, mask=0x1, val=0x1)
+  000c4260  phy_reg_mod(reg=0x572, mask=0xe0, val=0x60)
+  000c427c  phy_reg_mod(reg=0x573, mask=0x8, val=0x8)
+  000c4298  phy_reg_mod(reg=0x44b, mask=0x4, val=0x4)
+  000c42b4  phy_reg_mod(reg=0x576, mask=0x2000, val=0x2000)
+  000c42d0  phy_reg_mod(reg=0x577, mask=0x200, val=0x200)
+  000c42ec  phy_reg_mod(reg=0x6da, mask=0x8000, val=0x8000)
+  000c4308  phy_reg_mod(reg=0x6da, mask=0x80, val=0x80)
+  000c4320  phy_reg_write(reg=0x4f1, val=?)
+  000c4488  phy_reg_write_array(count=&.rodata+-0x1a74, arrptr=0x8)
+  000c44b4  phy_reg_write_array(count=&.rodata+-0x1a84, arrptr=0x8)
+  000c4a28  phy_reg_mod(reg=0x44c, mask=0x800, val=?)
+  000c4a44  phy_reg_mod(reg=0x577, mask=0x1, val=?)
+  000c4a80  phy_reg_write(reg=0x4b0, val=?)
+
+wlc_phy_sample_collect_lcn40phy:
+  000c4c14  phy_reg_read(reg=0x6da)
+  000c4cd8  phy_reg_mod(reg=0x939, mask=0x1, val=?)
+  000c4da0  phy_reg_write(reg=0x6da, val=?)
+  000c4eec  phy_reg_write_array(count=&.rodata+-0x1a94, arrptr=0x8)
+  000c4ff8  phy_reg_or(reg=0x6da, val=0x2008)
+  000c5068  phy_reg_and(reg=0x54e, mask=0x43ff)
+  000c5090  phy_reg_and(reg=0x556, mask=0x3f)
+  000c517c  phy_reg_and(reg=0x87a, mask=0xfffc)
+
+wlc_phy_txpower_recalc_target_lcn40phy:
+  000c58f8  phy_reg_read(reg=0x4a4)
+
+wlc_lcn40phy_btc_adjust:
+  000c5bf0  phy_reg_mod(reg=0x44c, mask=0x4, val=?)
+  000c5c88  phy_reg_mod(reg=0x44c, mask=0x4, val=0x4)
+
+T.1065:
+  000c5db4  phy_reg_read(reg=0x645)
+  000c5de8  phy_reg_mod(reg=0x6d1, mask=0x4, val=?)
+
+T.1066:
+  000c6074  phy_reg_or(reg=0x6da, val=0x8080)
+  000c6090  phy_reg_mod(reg=0x642, mask=0xff, val=?)
+
+wlc_lcn40phy_start_tx_tone:
+  000c6324  phy_reg_mod(reg=0x49c, mask=0x1, val=0x1)
+
+wlc_lcn40phy_set_tx_tone_and_gain_idx:
+  000c64c0  phy_reg_read(reg=0x4a4)
+  000c6508  phy_reg_write(reg=0x6da, val=0xffff)
+
+T.1060:
+  000c671c  phy_reg_read(reg=0x6db)
+  000c6798  phy_reg_or(reg=0x6da, val=0x40)
+  000c6890  phy_reg_write(reg=0x6da, val=0xffff)
+  000c68ac  phy_reg_mod(reg=0x503, mask=0x8, val=0x8)
+  000c68e8  phy_reg_mod(reg=0x4a4, mask=0x1000, val=0x1000)
+  000c6928  phy_reg_mod(reg=0x4db, mask=0x3ff, val=0x2a6)
+  000c6944  phy_reg_mod(reg=0x4db, mask=0x7000, val=0x2000)
+  000c6960  phy_reg_mod(reg=0x59a, mask=0x3ff, val=0xd7)
+  000c697c  phy_reg_mod(reg=0x59b, mask=0x3ff, val=0x5c)
+  000c6998  phy_reg_mod(reg=0x59c, mask=0x3ff, val=0x5d)
+  000c69b4  phy_reg_mod(reg=0x59c, mask=0xfc00, val=0x1400)
+  000c69d0  phy_reg_mod(reg=0x59d, mask=0x3c00, val=0x3800)
+  000c69f4  phy_reg_mod(reg=0x59d, mask=0x3ff, val=0x5f)
+  000c6a14  read_radio_reg(reg=?)
+  000c6a40  phy_reg_mod(reg=0x44d, mask=0x4000, val=0x4000)
+  000c6a5c  phy_reg_mod(reg=0x44c, mask=0x1000, val=0x1000)
+  000c6a78  phy_reg_mod(reg=0x44d, mask=0x2000, val=?)
+  000c6a94  phy_reg_mod(reg=0x44c, mask=0x800, val=0x800)
+  000c6ab0  phy_reg_mod(reg=0x576, mask=0x4000, val=0x4000)
+  000c6acc  phy_reg_mod(reg=0x577, mask=0x400, val=0x400)
+  000c6ae8  phy_reg_mod(reg=0x576, mask=0x1f, val=0x1f)
+  000c6b04  phy_reg_mod(reg=0x577, mask=0x1, val=0x1)
+  000c6b34  phy_reg_mod(reg=0x44b, mask=0x4, val=0x4)
+  000c6b50  phy_reg_mod(reg=0x576, mask=0x2000, val=0x2000)
+  000c6b6c  phy_reg_mod(reg=0x577, mask=0x200, val=0x200)
+  000c6b88  phy_reg_mod(reg=0x6da, mask=0x8000, val=0x8000)
+  000c6ba8  phy_reg_mod(reg=0x6da, mask=0x80, val=0x80)
+  000c6bc0  or_radio_reg(reg=0xc2, val=0x8000)
+  000c6bd8  mod_radio_reg(reg=0x1f, mask=0x5, val=0x5)
+  000c70d8  phy_reg_or(reg=0x6d6, val=0x4)
+  000c7340  phy_reg_mod(reg=0x44c, mask=0x1000, val=?)
+  000c735c  phy_reg_mod(reg=0x44c, mask=0x800, val=?)
+  000c7378  phy_reg_mod(reg=0x577, mask=0x400, val=?)
+  000c7394  phy_reg_mod(reg=0x577, mask=0x1, val=?)
+  000c73b4  phy_reg_mod(reg=0x577, mask=0x200, val=?)
+  000c73dc  write_radio_reg(reg=?, val=?)
+  000c7408  phy_reg_mod(reg=0x4fb, mask=0xff00, val=?)
+  000c77e0  phy_reg_mod(reg=0x63f, mask=0x20, val=?)
+  000c78d0  phy_reg_mod(reg=0x63f, mask=0x20, val=0x20)
+  000c78f4  phy_reg_mod(reg=0x642, mask=0xff00, val=?)
+  000c79bc  phy_reg_mod(reg=0x63f, mask=0x20, val=0x20)
+  000c79d8  phy_reg_mod(reg=0x642, mask=0xff00, val=0x100)
+
+wlc_lcn40phy_txpwrtbl_iqlo_cal:
+  000c7abc  phy_reg_read(reg=0x4a4)
+  000c7bb4  phy_reg_write(reg=0x682, val=0x1ff)
+  000c825c  phy_reg_mod(reg=0x68d, mask=0x1, val=0x1)
+
+T.1068:
+  000c85e8  phy_reg_or(reg=0x6a3, val=0x1)
+  000c8600  phy_reg_and(reg=0x6a3, mask=0xfffe)
+  000c863c  phy_reg_write(reg=0x67a, val=0x3)
+  000c89e8  phy_reg_mod(reg=0x6d3, mask=0x8000, val=0x8000)
+
+T.1061:
+  000c8ae4  phy_reg_read(reg=0x86d)
+  000c8b00  phy_reg_mod(reg=0x86d, mask=0x1, val=?)
+  000c8e08  phy_reg_or(reg=0x631, val=0x15)
+  000c8e98  phy_reg_write(reg=0x671, val=?)
+  000c8f14  read_radio_reg(reg=?)
+  000c8fec  mod_radio_reg(reg=0xcd, mask=0x10, val=0x10)
+  000c9050  write_radio_reg(reg=0x21, val=0xd3)
+  000c9104  or_radio_reg(reg=0xb8, val=0x1)
+  000c9e0c  write_radio_reg(reg=0x22, val=0xd3)
+  000c9ed0  mod_radio_reg(reg=0xce, mask=0x2000, val=0x2000)
+
+wlc_lcn40phy_papd_recal:
+  000ca76c  phy_reg_read(reg=0x4a5)
+  000ca7ec  phy_reg_mod(reg=0x4a7, mask=0xff, val=?)
+  000caaa8  phy_reg_or(reg=0x44a, val=0x47)
+  000caac0  phy_reg_write(reg=0x44a, val=?)
+
+wlc_lcn40phy_calib_modes:
+  000cabd8  phy_reg_read(reg=0x4a4)
+  000caddc  read_radio_reg(reg=?)
+  000cae58  mod_radio_reg(reg=0x24, mask=0x3031, val=0x10)
+  000cae70  or_radio_reg(reg=0xc2, val=0x8000)
+  000cae88  phy_reg_or(reg=0x631, val=0x15)
+  000caf18  mod_radio_reg(reg=0x42, mask=0xcec0, val=0x8a00)
+  000caf34  mod_radio_reg(reg=0xc8, mask=0xd4, val=0x14)
+  000caf78  mod_radio_reg(reg=0x43, mask=0x7f, val=0x1b)
+  000caf94  mod_radio_reg(reg=0xc7, mask=0x43e0, val=0x43e0)
+  000cafb0  mod_radio_reg(reg=0xc6, mask=0x12, val=0x12)
+  000cafdc  mod_radio_reg(reg=0x48, mask=0x7, val=0x2)
+  000caff8  mod_radio_reg(reg=0x49, mask=0x7, val=0x2)
+  000cb010  write_radio_reg(reg=0x4e, val=0x2)
+  000cb034  or_radio_reg(reg=0xcd, val=0x10)
+  000cb04c  or_radio_reg(reg=0xcc, val=0x8000)
+  000cb064  or_radio_reg(reg=0xc3, val=0x20)
+  000cb080  mod_radio_reg(reg=0x21, mask=0x303, val=0x103)
+  000cb174  phy_reg_or(reg=0x574, val=0x4002)
+  000cb18c  phy_reg_or(reg=0x575, val=0x2002)
+  000cb1f4  phy_reg_write(reg=0x6da, val=0xffff)
+  000cb20c  phy_reg_or(reg=0x6db, val=0x3)
+  000cb3b8  phy_reg_mod(reg=0x938, mask=0x800, val=0x800)
+  000cb3d4  phy_reg_mod(reg=0x939, mask=0x800, val=?)
+  000cb9e8  or_radio_reg(reg=0xce, val=0x2000)
+  000cba00  or_radio_reg(reg=0xcc, val=0x4000)
+  000cba18  or_radio_reg(reg=0xc3, val=0x10)
+  000cba34  mod_radio_reg(reg=0x22, mask=0xf03, val=0x303)
+  000cba7c  phy_reg_mod(reg=0x537, mask=0x2000, val=?)
+  000cbbf0  phy_reg_write(reg=0x682, val=0x1ff)
+  000cbc2c  mod_radio_reg(reg=0x48, mask=0x7, val=?)
+  000cbc48  mod_radio_reg(reg=0x49, mask=0x7, val=?)
+
+wlc_phy_chanspec_set_lcn40phy:
+  000cbf40  phy_reg_mod(reg=0x657, mask=0xfff, val=?)
+  000cbfac  phy_reg_write(reg=0x701, val=?)
+  000cbff0  and_radio_reg(reg=0x7e, mask=0xfffe)
+  000cc03c  mod_radio_reg(reg=0x95, mask=0xff, val=0x5)
+  000cc1bc  write_radio_reg(reg=0x9a, val=?)
+  000cc4c8  or_radio_reg(reg=0xc4, val=0x400)
+  000cc8c8  and_radio_reg(reg=0xc4, mask=0xfbff)
+  000ccd18  mod_radio_reg(reg=0x9d, mask=0x7, val=?)
+  000ccd38  or_radio_reg(reg=0xc2, val=0x800)
+  000cd508  phy_reg_write(reg=0xa57, val=0x4747)
+
+wlc_lpphy_set_rc_cap:
+  000cf41c  write_radio_reg(reg=0x3a, val=?)
+
+wlc_phy_set_radio_loft_lpphy:
+  000cf4f4  write_radio_reg(reg=0x48, val=?)
+  000cf598  write_radio_reg(reg=0x48, val=?)
+
+wlc_lpphy_set_tx_gain_override:
+  000cf8fc  phy_reg_mod(reg=0x4b0, mask=0x100, val=?)
+
+wlc_lpphy_rx_gain_override_enable:
+  000cf95c  phy_reg_mod(reg=0x44c, mask=0x1, val=?)
+
+wlc_lpphy_set_rx_gain:
+  000cf9fc  phy_reg_mod(reg=0x44d, mask=0x1, val=?)
+
+wlc_lpphy_set_trsw_override:
+  000cfb68  phy_reg_mod(reg=0x44d, mask=0x3, val=?)
+
+wlc_phy_tx_pu_lpphy:
+  000cfbc0  phy_reg_write_array(count=&.rodata+-0x640, arrptr=0x18)
+  000cfc28  phy_reg_and(reg=0x44c, mask=0xfff0)
+
+wlc_phy_get_current_tx_pwr_idx_lpphy:
+  000d031c  phy_reg_read(reg=0x4ab)
+
+wlc_phy_tpc_isenabled_lpphy:
+  000d0348  phy_reg_read(reg=0x4a4)
+
+wlc_phy_carrier_suppress_lpssnphy:
+  000d03a8  write_radio_reg(reg=0x48, val=?)
+
+wlc_lpphy_get_tx_gain:
+  000d05a4  phy_reg_read(reg=0x439)
+
+wlc_lpphy_set_dac_gain:
+  000d061c  phy_reg_read(reg=0x439)
+
+wlc_lpphy_set_tx_gain:
+  000d06a0  phy_reg_mod(reg=0x4b5, mask=0x7ff, val=?)
+
+wlc_phy_get_tssi_lpphy:
+  000d070c  phy_reg_read(reg=0x4a4)
+
+wlc_phy_txpower_recalc_target2_lpphy:
+  000d09b4  phy_reg_read(reg=0x4a7)
+  000d09f8  phy_reg_mod(reg=0x4a7, mask=0xff, val=?)
+
+wlc_phy_get_radio_loft_lpphy:
+  000d0ae0  read_radio_reg(reg=0x48)
+
+wlc_2062_reset_pll_bias:
+  000d0bf0  write_radio_reg(reg=0x4036, val=0xff)
+
+wlc_2062_vco_cal:
+  000d0c9c  write_radio_reg(reg=0x4049, val=0x42)
+
+wlc_radio_2062_channel_tune:
+  000d0d50  or_radio_reg(reg=0x4042, val=0x4)
+  000d0d68  write_radio_reg(reg=0x1e, val=?)
+
+wlc_phy_radio_2062_check_vco_cal:
+  000d1094  read_radio_reg(reg=0x4037)
+
+wlc_phy_stop_tx_tone_lpphy:
+  000d123c  phy_reg_and(reg=0x4a0, mask=0xf000)
+
+wlc_lpphy_aci_tweaks:
+  000d160c  phy_reg_or(reg=?, val=?)
+  000d166c  phy_reg_and(reg=?, mask=?)
+  000d1694  phy_reg_or(reg=?, val=?)
+  000d16b8  phy_reg_write_array(count=&.rodata+0x210, arrptr=0x6)
+
+wlc_phy_aci_init_lpphy:
+  000d183c  phy_reg_read(reg=?)
+
+wlc_phy_tx_pwr_update_npt_lpphy:
+  000d1b94  phy_reg_read(reg=0x4a5)
+  000d1c14  phy_reg_mod(reg=0x4a5, mask=0x700, val=?)
+
+wlc_phy_set_tx_pwr_ctrl_lpphy:
+  000d1c4c  phy_reg_read(reg=0x4a4)
+  000d1c9c  phy_reg_mod(reg=0x4a4, mask=0x2000, val=?)
+  000d1d7c  phy_reg_mod(reg=0x4a4, mask=0x7f, val=?)
+
+wlc_phy_txpower_recalc_target_lpphy:
+  000d1df8  phy_reg_read(reg=0x4a4)
+
+wlc_phy_set_tx_pwr_by_index_lpphy:
+  000d1eac  phy_reg_read(reg=0x4a4)
+  000d1f54  phy_reg_mod(reg=0x4b5, mask=0x7ff, val=?)
+
+wlc_phy_vbatsense_lpphy:
+  000d20e0  phy_reg_read(reg=0x43e)
+  000d21a0  mod_radio_reg(reg=0x121, mask=0xf, val=0x4)
+  000d21bc  phy_reg_write_array(count=&.rodata+-0x610, arrptr=0x8)
+  000d2294  phy_reg_write(reg=0x43e, val=?)
+
+T.717:
+  000d23a0  phy_reg_mod(reg=0x4a1, mask=0x3f, val=?)
+
+wlc_lpphy_tx_iqlo_cal:
+  000d27e4  phy_reg_read(reg=0x4a4)
+  000d291c  phy_reg_write_array(count=&.rodata+-0x46c, arrptr=0x8)
+  000d295c  phy_reg_mod(reg=0x43d, mask=0xff, val=0x59)
+  000d2970  read_radio_reg(reg=0x16)
+  000d298c  and_radio_reg(reg=0x16, mask=0xf3)
+  000d29b8  phy_reg_write(reg=0x43f, val=?)
+  000d2b3c  read_radio_reg(reg=0x5a)
+  000d2b68  mod_radio_reg(reg=0x5a, mask=0x77, val=0x77)
+  000d2c84  mod_radio_reg(reg=0x5a, mask=0x77, val=?)
+  000d2e28  or_radio_reg(reg=0x12, val=0x10)
+  000d2e54  write_radio_reg(reg=0x16, val=?)
+  000d2fc8  phy_reg_or(reg=0x453, val=0x8000)
+
+wlc_phy_papd_cal_txpwr_lpphy:
+  000d34c0  phy_reg_read(reg=0x4a4)
+  000d34fc  read_radio_reg(reg=0x4c)
+  000d352c  mod_radio_reg(reg=0xf3, mask=0x18, val=0x10)
+  000d3580  phy_reg_write_array(count=&.rodata+-0x26c, arrptr=0x8)
+  000d3774  phy_reg_and(reg=0x44c, mask=0xfffc)
+  000d378c  write_radio_reg(reg=0x4c, val=?)
+  000d37b8  phy_reg_mod(reg=0x44c, mask=0x800, val=?)
+
+T.718:
+  000d3ad4  phy_reg_mod(reg=0x410, mask=0x8, val=?)
+  000d3b24  phy_reg_write_array(count=&.rodata+-0x2cc, arrptr=0x8)
+
+wlc_phy_rx_signal_power_lpphy:
+  000d3d34  phy_reg_read(reg=0x425)
+
+wlc_lpphy_rx_iq_cal:
+  000d3edc  phy_reg_mod(reg=0x49e, mask=0xff, val=?)
+  000d3f0c  phy_reg_read(reg=0x49e)
+  000d3f58  phy_reg_read(reg=0x4d0)
+  000d3f78  phy_reg_mod(reg=0x4d0, mask=0x8, val=?)
+  000d3fd8  phy_reg_write_array(count=&.rodata+-0x2fc, arrptr=0x8)
+  000d4004  phy_reg_write(reg=0x4b2, val=0x8e38)
+  000d4088  write_radio_reg(reg=0x124, val=0x4c)
+  000d4370  phy_reg_and(reg=0x44c, mask=0xfffc)
+  000d4424  phy_reg_write_array(count=&.rodata+-0x2ec, arrptr=0x8)
+  000d4454  write_radio_reg(reg=0x124, val=?)
+
+wlc_phy_periodic_cal_lpphy:
+  000d45ac  phy_reg_read(reg=0x4a4)
+  000d4660  phy_reg_write_array(count=&.rodata+-0x518, arrptr=0x10)
+  000d46e4  phy_reg_and(reg=0x44c, mask=0xffd7)
+  000d4870  phy_reg_write_array(count=&.rodata+-0x518, arrptr=0x10)
+  000d48e8  phy_reg_mod(reg=0x4eb, mask=0x7, val=?)
+
+wlc_phy_chanspec_set_lpphy:
+  000d4ba0  phy_reg_mod(reg=0x448, mask=0x300, val=?)
+  000d4be4  write_phy_channel_reg(reg=?, val=?)
+  000d4dd8  phy_reg_write(reg=0x49e, val=?)
+  000d4e2c  phy_reg_mod(reg=0x448, mask=0x300, val=0x200)
+
+T.720:
+  000d4ea0  phy_reg_write_array(count=&.rodata+0x1b8, arrptr=0x8)
+  000d4ed0  phy_reg_mod(reg=0x4b9, mask=0x7f, val=?)
+
+wlc_lpphy_rc_cal_rev0:
+  000d4fc0  phy_reg_read(reg=0x43b)
+  000d50c4  phy_reg_write_array(count=&.rodata+0xa4, arrptr=0x56)
+  000d50fc  phy_reg_write_array(count=&.rodata+0x160, arrptr=0x18)
+  000d5114  write_radio_reg(reg=0x4f, val=0x80)
+  000d5144  phy_reg_write_array(count=&.rodata+0x150, arrptr=0x8)
+  000d51e8  phy_reg_write_array(count=&.rodata+0x1b8, arrptr=0x8)
+  000d5210  phy_reg_write_array(count=&.rodata+0x84, arrptr=0x10)
+  000d5244  write_radio_reg(reg=0x3a, val=?)
+  000d5348  phy_reg_write_array(count=&.rodata+0x1b8, arrptr=0x8)
+  000d5374  phy_reg_and(reg=0x44c, mask=0xff80)
+  000d539c  phy_reg_write(reg=0x44d, val=?)
+  000d54f4  phy_reg_write_array(count=&.rodata+0x1b8, arrptr=0x8)
+
+wlc_phy_init_lpphy:
+  000d5624  phy_reg_write_array(count=&.rodata+-0x20, arrptr=0xf)
+  000d5654  phy_reg_mod(reg=0x436, mask=0x7, val=0x4)
+  000d5794  phy_reg_write(reg=0x43d, val=?)
+  000d5964  phy_reg_and(reg=0x4a2, mask=0xfffd)
+  000d59a0  write_radio_reg(reg=0x48, val=?)
+  000d5a24  read_radio_reg(reg=0x2)
+  000d5a64  or_radio_reg(reg=0x57, val=0x1)
+  000d5aa0  or_radio_reg(reg=0x4035, val=0x4)
+  000d5d84  phy_reg_or(reg=0x410, val=0x6)
+  000d5e04  phy_reg_read(reg=0x44e)
+  000d5e90  and_radio_reg(reg=0x4035, mask=0xfffb)
+  000d5eac  and_radio_reg(reg=0x57, mask=0xfffe)
+
+T.721:
+  000d6268  phy_reg_write(reg=?, val=?)
+
+wlc_phy_dynamic_rflo_ucode_war_nphy:
+  000d7510  read_radio_reg(reg=0xb0)
+  000d7680  write_radio_reg(reg=0xb0, val=?)
+  000d76f4  read_radio_reg(reg=0xb4)
+  000d7778  read_radio_reg(reg=0xb0)
+  000d78dc  write_radio_reg(reg=0xb0, val=?)
+
+wlc_phy_ipa_internal_tssi_setup_nphy:
+  000d7a2c  read_radio_reg(reg=0x178)
+  000d7bc0  write_radio_reg(reg=0x1f, val=?)
+
+wlc_phy_papd_cal_set_txrx_atten:
+  000d83e4  mod_radio_reg(reg=0x24, mask=0xf0, val=?)
+  000d842c  mod_radio_reg(reg=0x25, mask=0xf0, val=?)
+  000d846c  mod_radio_reg(reg=0x24, mask=0xf0, val=?)
+  000d84b0  mod_radio_reg(reg=0x25, mask=0xf0, val=?)
+
+wlc_phy_set_rssi_2055_vcm:
+  000d854c  mod_radio_reg(reg=0x76, mask=0xc, val=?)
+
+wlc_phy_txpower_est_power_nphy:
+  000d8644  phy_reg_read(reg=0x118)
+
+wlc_phy_txpower_est_power_lcnxn_rev3:
+  000d8784  phy_reg_read(reg=0x118)
+
+wlc_phy_test_tssi_nphy:
+  000d88dc  phy_reg_read(reg=0x115)
+
+wlc_phy_cal_sanity_nphy:
+  000d8940  phy_reg_read(reg=0x1a6)
+
+wlc_phy_txpwr_idx_cur_get_nphy:
+  000d8d00  phy_reg_read(reg=?)
+
+wlc_phy_txpwr_ison_nphy:
+  000d8dcc  phy_reg_read(reg=0x1e7)
+
+wlc_phy_rxcore_getstate_nphy:
+  000d8ff0  phy_reg_read(reg=0xa2)
+
+wlc_phy_bist_check_phy:
+  000d906c  phy_reg_read(reg=0xe)
+
+wlc_phy_intpa_set_tx_digi_filts_nphy:
+  000d9160  phy_reg_write(reg=?, val=?)
+
+wlc_phy_rx_iq_coeffs_nphy:
+  000d940c  phy_reg_read(reg=0x9a)
+  000d946c  phy_reg_write(reg=0x9a, val=?)
+
+wlc_phy_clip_det_nphy:
+  000d94ec  phy_reg_write(reg=0x2c, val=?)
+  000d9524  phy_reg_read(reg=0x2c)
+
+wlc_phy_txlpfbw_nphy:
+  000d95d8  phy_reg_write(reg=0xe8, val=?)
+
+wlc_phy_update_radar_detect_param_nphy:
+  000d96e8  phy_reg_write(reg=0x1df, val=?)
+
+wlc_phy_war_force_trsw_to_R_cliplo_nphy:
+  000d979c  phy_reg_write(reg=0x38, val=0x4)
+  000d9800  phy_reg_write(reg=0x2ae, val=0x4)
+
+wlc_phy_pa_override_nphy:
+  000d9864  phy_reg_read(reg=0x91)
+  000d98c0  phy_reg_write(reg=0x91, val=?)
+  000d9904  phy_reg_write(reg=0x91, val=0x1480)
+
+wlc_phy_nphy_tkip_rifs_war:
+  000d998c  phy_reg_write(reg=0x77, val=?)
+
+wlc_phy_rev3_pwrctrl_rfctrl_override_signals_nphy:
+  000d9ac4  phy_reg_mod(reg=?, mask=0xffc, val=?)
+  000d9b34  phy_reg_mod(reg=?, mask=0x7000, val=?)
+  000d9b90  phy_reg_mod(reg=?, mask=0x8000, val=?)
+  000d9bc8  phy_reg_mod(reg=?, mask=0x8000, val=?)
+  000d9c00  phy_reg_mod(reg=?, mask=0x7000, val=?)
+  000d9c38  phy_reg_mod(reg=?, mask=0xf00, val=?)
+
+wlc_phy_bphynoisemode_set_nphy:
+  000da17c  phy_reg_read(reg=0x2e6)
+  000da22c  phy_reg_mod(reg=0x2e6, mask=0xff, val=?)
+
+wlc_phy_txpwr_idx_cur_set_nphy:
+  000da3d0  phy_reg_mod(reg=0x1e7, mask=0x7f, val=?)
+
+wlc_phy_init_hw_antsel:
+  000da484  phy_reg_mod(reg=0x2ff, mask=0x400, val=?)
+  000da4c4  phy_reg_mod(reg=0x2ff, mask=0x400, val=0x400)
+  000da568  phy_reg_write(reg=0x2fc, val=0x54)
+
+wlc_phy_nphy_afectrl_override:
+  000da66c  phy_reg_mod(reg=0xd1, mask=0xf80, val=?)
+  000da6ec  phy_reg_mod(reg=0x185, mask=0x200, val=?)
+  000da75c  phy_reg_mod(reg=0x185, mask=0x200, val=?)
+  000da788  phy_reg_mod(reg=0xd1, mask=0xf80, val=?)
+  000da7b8  phy_reg_mod(reg=0xff, mask=0xf80, val=?)
+  000da7f0  phy_reg_mod(reg=0x182, mask=0x200, val=?)
+  000da80c  phy_reg_mod(reg=?, mask=0x200, val=0x200)
+  000da834  phy_reg_mod(reg=0x182, mask=0x200, val=?)
+  000da864  phy_reg_mod(reg=0xff, mask=0xf80, val=?)
+  000da88c  phy_reg_mod(reg=0x182, mask=0x200, val=0x200)
+
+wlc_phy_rx_clipiq_est_nphy:
+  000da8f4  read_radio_reg(reg=0x16f)
+  000da924  mod_radio_reg(reg=0x16f, mask=0x40, val=?)
+  000da994  phy_reg_read(reg=0x3b9)
+  000daa04  phy_reg_mod(reg=0x4af, mask=0xff, val=0xa)
+  000daa24  phy_reg_mod(reg=0x4ae, mask=0x2, val=?)
+  000daa40  phy_reg_mod(reg=0x4bf, mask=0x3, val=?)
+  000daa5c  phy_reg_mod(reg=0x4bf, mask=0xc, val=?)
+  000daa78  phy_reg_mod(reg=0x4bf, mask=0x30, val=?)
+  000daa94  phy_reg_mod(reg=0x4ae, mask=0x1, val=0x1)
+  000dabdc  write_radio_reg(reg=0x16f, val=?)
+
+wlc_phy_rx_iq_est_nphy:
+  000dac68  phy_reg_write(reg=0x12b, val=?)
+  000dac80  phy_reg_mod(reg=0x12a, mask=0xff, val=?)
+
+wlc_phy_papd_enable_nphy:
+  000dae9c  phy_reg_read(reg=0x297)
+  000daef4  phy_reg_write(reg=0x297, val=?)
+
+wlc_phy_rssisel_nphy:
+  000dafc8  phy_reg_mod(reg=0x8f, mask=0x200, val=0x200)
+  000db0b8  phy_reg_mod(reg=0xa6, mask=0xf000, val=?)
+  000db1d4  write_radio_reg(reg=?, val=?)
+  000db20c  phy_reg_mod(reg=0xa6, mask=0xf000, val=?)
+  000db320  write_radio_reg(reg=?, val=0x11)
+
+wlc_phy_poll_rssi_nphy:
+  000db4f8  phy_reg_read(reg=0xa6)
+  000db894  phy_reg_write(reg=0xca, val=0x5)
+
+wlc_phy_sparse_table_init:
+  000dba88  phy_reg_write(reg=0x72, val=?)
+  000dbaec  phy_reg_write_array(count=&.rodata+0x3690, arrptr=0x6)
+  000dbbac  phy_reg_write_array(count=&.rodata+0x3684, arrptr=0x6)
+
+wlc_phy_compact_table_init:
+  000dbc44  phy_reg_write(reg=0x72, val=0x4000)
+
+wlc_phy_rfctrl_override_nphy_rev19:
+  000dbee8  phy_reg_or(reg=?, val=?)
+  000dbf1c  phy_reg_mod(reg=?, mask=?, val=?)
+  000dbf78  phy_reg_and(reg=?, mask=?)
+  000dbf94  phy_reg_and(reg=?, mask=?)
+
+wlc_phy_lcnxn_rev3_adc_init_nphy:
+  000dc88c  mod_radio_reg(reg=0xb9, mask=0x2000, val=0x2000)
+  000dc97c  write_radio_reg(reg=0x158, val=0x2)
+  000dcac0  write_radio_reg(reg=0xbb, val=?)
+  000dcb1c  write_radio_reg(reg=0xbb, val=0x2)
+  000dcb4c  mod_radio_reg(reg=0x156, mask=0x2000, val=0x2000)
+  000dcd70  write_radio_reg(reg=0x158, val=?)
+
+wlc_phy_lpf_hpc_override_nphy:
+  000dcf5c  write_radio_reg(reg=?, val=?)
+  000dcf8c  phy_reg_write(reg=0xe7, val=?)
+  000dd030  phy_reg_read(reg=0xe7)
+  000dd09c  read_radio_reg(reg=0x6062)
+
+wlc_phy_rfctrl_override_nphy:
+  000dd280  phy_reg_or(reg=?, val=?)
+  000dd2b0  phy_reg_mod(reg=?, mask=?, val=?)
+  000dd30c  phy_reg_or(reg=0xec, val=?)
+  000dd440  phy_reg_and(reg=?, mask=?)
+  000dd45c  phy_reg_and(reg=?, mask=?)
+  000dd478  phy_reg_and(reg=0xec, mask=?)
+  000dd570  phy_reg_write_array(count=&.rodata+0xde4, arrptr=0x6)
+
+wlc_phy_rfctrl_override_nphy_rev7:
+  000ddac0  phy_reg_or(reg=?, val=?)
+  000ddaf4  phy_reg_mod(reg=?, mask=?, val=?)
+  000ddbb0  phy_reg_and(reg=?, mask=?)
+  000ddbcc  phy_reg_and(reg=?, mask=?)
+
+wlc_phy_force_rfseq_nphy:
+  000de3b0  phy_reg_read(reg=0xa1)
+  000de3cc  phy_reg_or(reg=0xa1, val=0x3)
+
+wlc_phy_resetcca_nphy:
+  000de4e0  phy_reg_read(reg=0x1)
+  000de500  phy_reg_write(reg=0x1, val=?)
+
+wlc_phy_rfctrlintc_override_nphy:
+  000de658  phy_reg_mod(reg=?, mask=0x400, val=0x400)
+  000de680  phy_reg_write(reg=?, val=?)
+  000de748  phy_reg_and(reg=0x2ff, mask=0xdfff)
+  000de790  phy_reg_or(reg=0x91, val=0x400)
+  000de7ac  phy_reg_write_array(count=&.rodata+0x1fd8, arrptr=0x9)
+  000de920  phy_reg_or(reg=0x92, val=0x1000)
+
+wlc_phy_rxcal_physetup_nphy:
+  000debcc  phy_reg_read(reg=0xa2)
+  000deca0  phy_reg_write_array(count=&.rodata+0x1fc8, arrptr=0x8)
+  000decd0  phy_reg_mod(reg=0xa2, mask=0xf, val=?)
+  000def70  phy_reg_mod(reg=0xa2, mask=0xf000, val=?)
+
+wlc_phy_stf_chain_upd_nphy:
+  000df140  phy_reg_mod(reg=0xa2, mask=0xff, val=0x11)
+  000df188  phy_reg_mod(reg=0xa2, mask=0xff, val=0x33)
+  000df1c8  phy_reg_and(reg=0xa0, mask=0xffdf)
+  000df200  phy_reg_or(reg=0xa0, val=0x20)
+
+wlc_phy_get_deaf_nphy:
+  000df244  phy_reg_read(reg=0xb0)
+
+wlc_phy_classifier_nphy:
+  000df340  phy_reg_read(reg=0xb0)
+  000df374  phy_reg_mod(reg=0xb0, mask=0x7, val=?)
+
+wlc_phy_bphy_testpattern_nphy:
+  000df518  phy_reg_write(reg=0xc3, val=0x1)
+  000df59c  phy_reg_write_array(count=&.rodata+0xdc0, arrptr=0x10)
+  000df5e4  phy_reg_write_array(count=&.rodata+0xd70, arrptr=0xb)
+  000df610  phy_reg_write(reg=0x23e, val=?)
+  000df6b4  phy_reg_write_array(count=&.rodata+0xd88, arrptr=0x10)
+  000df6c8  phy_reg_read(reg=0x21f)
+  000df6f4  phy_reg_mod(reg=0x21f, mask=0x1, val=0x1)
+  000df714  phy_reg_write_array(count=&.rodata+0xda8, arrptr=0xc)
+
+wlc_phy_sample_collect_end_nphy:
+  000df784  phy_reg_write(reg=0x47, val=?)
+
+wlc_phy_sample_collect_start_nphy:
+  000df894  phy_reg_read(reg=0x47)
+  000df8b4  phy_reg_write(reg=0x47, val=?)
+
+wlc_phy_set_oclscd_nphy:
+  000dfb78  phy_reg_mod(reg=0x3d4, mask=0x1, val=?)
+  000dfbb8  phy_reg_read(reg=0x1)
+  000dfbd8  phy_reg_write(reg=0x1, val=?)
+
+wlc_phy_ocl_enable_disable_nphy:
+  000dfcc4  phy_reg_mod(reg=0x3d4, mask=0x1, val=?)
+  000dfcf0  phy_reg_read(reg=0x1)
+  000dfd10  phy_reg_write(reg=0x1, val=?)
+
+wlc_phy_gpiosel_nphy:
+  000e00b4  phy_reg_write_array(count=&.rodata+0xd64, arrptr=0x6)
+  000e013c  phy_reg_write(reg=0xca, val=?)
+
+wlc_phy_sample_collect_nphy:
+  000e0360  phy_reg_write(reg=0x34a, val=?)
+  000e03b4  phy_reg_mod(reg=0x34a, mask=0x200, val=0x200)
+  000e05ec  phy_reg_mod(reg=0x34a, mask=0x4000, val=0x4000)
+  000e0610  phy_reg_write_array(count=&.rodata+0xdf4, arrptr=0x14)
+  000e0b54  phy_reg_read(reg=0x9a)
+  000e0f58  phy_reg_write_array(count=&.rodata+0xe44, arrptr=0x18)
+
+wlc_phy_workarounds_nphy_gainctrl_2057_rev11:
+  000e1e3c  write_radio_reg(reg=0x86, val=0xc0)
+  000e1e64  phy_reg_write(reg=0x20, val=0x9e)
+  000e1ffc  phy_reg_mod(reg=0x300, mask=0x3f, val=0x18)
+  000e2138  phy_reg_write(reg=0x37, val=0x74)
+
+wlc_phy_workarounds_nphy_rev17:
+  000e21d8  phy_reg_write_array(count=&.rodata+0x780, arrptr=0x7)
+
+wlc_phy_workarounds_nphy_rev18:
+  000e2484  phy_reg_write_array(count=&.rodata+0x85c, arrptr=0x8)
+  000e2550  write_radio_reg(reg=0x1b4, val=?)
+  000e2730  phy_reg_read(reg=0x245)
+  000e28fc  phy_reg_mod(reg=0xa0, mask=0x40, val=0x40)
+  000e2918  phy_reg_mod(reg=0x3d4, mask=0x40, val=0x40)
+  000e2954  phy_reg_mod(reg=0x3d4, mask=0x80, val=?)
+  000e2984  phy_reg_mod(reg=0x3d4, mask=0x1, val=0x1)
+  000e2ab8  phy_reg_mod(reg=0x3ec, mask=0x8, val=?)
+  000e2ad4  phy_reg_mod(reg=0x3d4, mask=0x400, val=0x400)
+  000e2c70  phy_reg_mod(reg=0x67, mask=0xffff, val=0x50)
+  000e2cb8  phy_reg_mod(reg=0x67, mask=0xffff, val=0x46)
+
+wlc_phy_workarounds_nphy_rev16:
+  000e39f8  phy_reg_write(reg=0x9f, val=0x1)
+  000e3a18  phy_reg_write_array(count=&.rodata+0xc74, arrptr=0x9)
+  000e3a30  write_radio_reg(reg=0xe, val=0x23)
+  000e3a7c  phy_reg_mod(reg=0x323, mask=0xff, val=0x40)
+  000e3bd8  phy_reg_write_array(count=&.rodata+0xc5c, arrptr=0xc)
+
+wlc_phy_adjust_lnagaintbl_nphy:
+  000e3c74  phy_reg_mod(reg=0x1e, mask=0xff, val=?)
+
+wlc_phy_aci_noise_shared_hw_set_nphy:
+  000e3ec8  phy_reg_write(reg=0x20, val=?)
+  000e3f4c  phy_reg_mod(reg=0x280, mask=0xff, val=?)
+  000e4028  phy_reg_mod(reg=0x21, mask=0xf00, val=?)
+  000e411c  phy_reg_mod(reg=0x280, mask=0xff, val=?)
+  000e4198  phy_reg_write(reg=0x20, val=0x826c)
+  000e42e8  phy_reg_mod(reg=0x280, mask=0xff, val=?)
+  000e437c  phy_reg_write(reg=0x20, val=?)
+  000e43e8  phy_reg_write(reg=0x20, val=0x426c)
+  000e4480  phy_reg_mod(reg=0x27d, mask=0xff, val=?)
+  000e44a0  phy_reg_mod(reg=0x27d, mask=0xff, val=?)
+  000e44b8  phy_reg_read(reg=0x21)
+  000e4510  phy_reg_read(reg=0x21)
+
+wlc_phy_aci_noise_shared_reset_nphy:
+  000e4714  phy_reg_write(reg=0x20, val=?)
+  000e479c  phy_reg_mod(reg=0x280, mask=0xff, val=?)
+  000e4844  phy_reg_write(reg=0x20, val=?)
+  000e48a8  phy_reg_mod(reg=0x27d, mask=0xff, val=?)
+
+wlc_phy_txpwrctrl_enable_nphy:
+  000e4b54  phy_reg_and(reg=0x1e7, mask=0x9fff)
+  000e4b80  phy_reg_write_array(count=&.rodata+0x116c, arrptr=0x6)
+  000e4c38  phy_reg_mod(reg=0x1e7, mask=0x6000, val=?)
+  000e4cfc  phy_reg_write_array(count=&.rodata+0x1150, arrptr=0x6)
+  000e4d48  phy_reg_write_array(count=&.rodata+0x1140, arrptr=0x8)
+  000e4d64  phy_reg_and(reg=0x1e7, mask=0x1fff)
+  000e4d8c  phy_reg_or(reg=0xa5, val=0x4000)
+  000e4e94  phy_reg_mod(reg=0x1e7, mask=0xc000, val=?)
+  000e4ed0  phy_reg_write_array(count=&.rodata+0x115c, arrptr=0x8)
+  000e4f10  phy_reg_and(reg=0xa5, mask=0xbfff)
+  000e4fe8  phy_reg_mod(reg=0xdc, mask=0xff, val=0x53)
+  000e5050  phy_reg_mod(reg=0xdc, mask=0xff, val=0x5a)
+
+wlc_phy_tempsense_nphy_rev19:
+  000e50e8  phy_reg_read(reg=0x3d4)
+  000e5144  phy_reg_write(reg=0x3b9, val=0x1f)
+  000e5154  read_radio_reg(reg=0x179)
+  000e5254  mod_radio_reg(reg=0x179, mask=0x8000, val=0x8000)
+  000e5528  phy_reg_mod(reg=0x8f, mask=0x4, val=0x4)
+  000e5864  write_radio_reg(reg=0x179, val=?)
+  000e5b80  phy_reg_read(reg=0x3d4)
+
+wlc_phy_txpwrctrl_pwr_setup_nphy:
+  000e5cc8  phy_reg_or(reg=0x122, val=0x1)
+  000e5cec  phy_reg_and(reg=0x1e7, mask=0x7fff)
+  000e5dd4  write_radio_reg(reg=?, val=0xe)
+  000e5e24  phy_reg_mod(reg=0x1e7, mask=0x7f, val=0x19)
+  000e5e80  phy_reg_write(reg=0x1e8, val=0x3f0)
+  000e6074  phy_reg_mod(reg=0x1e7, mask=0x7f, val=0x40)
+  000e62ac  write_radio_reg(reg=0x202d, val=0xe)
+  000e64cc  write_radio_reg(reg=0x202d, val=0x11)
+  000e66a4  write_radio_reg(reg=?, val=0xc)
+
+wlc_phy_txpower_recalc_target_nphy:
+  000e6880  phy_reg_read(reg=0x1ea)
+
+wlc_phy_txcal_phycleanup_nphy:
+  000e6ad4  phy_reg_write(reg=0xa6, val=?)
+  000e6c34  phy_reg_mod(reg=0xa6, mask=0xf000, val=?)
+  000e6c60  phy_reg_write(reg=0xa5, val=?)
+  000e6d9c  mod_radio_reg(reg=0x79, mask=0x1, val=0x1)
+  000e6e28  mod_radio_reg(reg=0x5e, mask=0x1, val=0x1)
+
+wlc_phy_stopplayback_nphy:
+  000e6e7c  phy_reg_read(reg=0xc7)
+  000e6ea4  phy_reg_and(reg=0xc3, mask=0xfffb)
+  000e6f20  phy_reg_or(reg=0xc3, val=0x2)
+  000e6f34  phy_reg_and(reg=0xc3, mask=0xfffb)
+  000e6fa4  phy_reg_and(reg=0xc2, mask=0x7fff)
+
+wlc_phy_papd_cal_cleanup_nphy:
+  000e705c  write_radio_reg(reg=0x17e, val=?)
+  000e7328  phy_reg_write(reg=?, val=?)
+  000e7474  write_radio_reg(reg=0x81, val=?)
+  000e75dc  write_radio_reg(reg=0x607a, val=?)
+  000e7698  write_radio_reg(reg=0x6079, val=?)
+  000e7780  write_radio_reg(reg=0x707a, val=?)
+  000e779c  write_radio_reg(reg=0x7079, val=?)
+  000e780c  write_radio_reg(reg=0x81, val=?)
+
+wlc_phy_antsel_init_nphy:
+  000e7a5c  phy_reg_write_array(count=&.rodata+0x23cc, arrptr=0x6)
+
+wlc_phy_subband_cust_43236B1_preproto_blu2o3_nphy:
+  000e7e80  phy_reg_mod(reg=0x289, mask=0xff, val=0x46)
+  000e8364  phy_reg_mod(reg=0x283, mask=0xff, val=0x42)
+  000e8714  write_radio_reg(reg=0x86, val=0xc0)
+
+wlc_phy_chanspec_war_nphy_rev16:
+  000e88b4  write_radio_reg(reg=0x7b, val=0x12)
+  000e8954  phy_reg_read(reg=0x20)
+  000e89e0  write_radio_reg(reg=0x7b, val=0x14)
+  000e8a08  write_radio_reg(reg=0x100, val=0x14)
+  000e8aa8  phy_reg_write_array(count=&.rodata+0x2734, arrptr=0x24)
+
+wlc_phy_workarounds_nphy_gainctrl_2057_rev3:
+  000e8b00  phy_reg_write_array(count=&.rodata+0x28b4, arrptr=0x8)
+
+wlc_phy_workarounds_nphy_gainctrl_2057_rev7:
+  000e8ff4  phy_reg_write_array(count=&.rodata+0x2998, arrptr=0x8)
+  000e905c  phy_reg_mod(reg=0x283, mask=0xff, val=0x48)
+  000e91d4  phy_reg_mod(reg=0x283, mask=0xff, val=?)
+  000e9348  write_radio_reg(reg=0x86, val=0xc0)
+  000e93d8  phy_reg_mod(reg=0x283, mask=0xff, val=?)
+
+wlc_phy_workarounds_nphy_gainctrl_2057_rev6:
+  000e94a8  phy_reg_write_array(count=&.rodata+0x29f8, arrptr=0x8)
+  000e94bc  phy_reg_read(reg=0x9)
+  000e95c4  phy_reg_write(reg=0x20, val=0x9e)
+  000e9718  phy_reg_mod(reg=0x283, mask=0xff, val=?)
+  000e9830  phy_reg_mod(reg=0x283, mask=0xff, val=0x40)
+
+wlc_phy_workarounds_nphy_gainctrl_2057_rev5:
+  000e9b44  phy_reg_write_array(count=&.rodata+0x2a68, arrptr=0x18)
+  000e9cc4  phy_reg_mod(reg=0x300, mask=0x3f, val=?)
+
+wlc_phy_tbl_init_nphy:
+  000eac40  phy_reg_write(reg=0x30e, val=0x3)
+  000ead54  phy_reg_write(reg=0x30e, val=0x1a)
+  000ead70  phy_reg_mod(reg=0x32b, mask=0x4, val=0x4)
+  000eb518  phy_reg_write(reg=0x30e, val=0x1a)
+
+wlc_phy_lcnxn_rev3_iqloCalCmd_war_nphy:
+  000ec390  phy_reg_write(reg=0x457, val=0xe2)
+  000ecbc4  read_radio_reg(reg=0x20)
+  000ecbe4  read_radio_reg(reg=0xe2)
+  000eccb0  write_radio_reg(reg=0x20, val=?)
+  000eccc8  write_radio_reg(reg=0xe2, val=?)
+  000ece80  write_radio_reg(reg=0x20, val=?)
+  000ece9c  write_radio_reg(reg=0xe2, val=?)
+  000ed11c  phy_reg_write(reg=0x457, val=0x20)
+
+wlc_phy_tempsense_nphy_rev18:
+  000ed9e4  read_radio_reg(reg=0xca)
+
+wlc_phy_tempsense_nphy_rev16:
+  000edd70  read_radio_reg(reg=0xca)
+  000ede0c  mod_radio_reg(reg=0xca, mask=0xc0, val=0x80)
+  000ede30  write_radio_reg(reg=0xc, val=0x19)
+  000edfdc  write_radio_reg(reg=0xc, val=0x1)
+
+wlc_phy_tempsense_nphy_rev17:
+  000ee35c  read_radio_reg(reg=0xca)
+  000ee3e8  mod_radio_reg(reg=0xca, mask=0xc0, val=0x80)
+  000ee40c  write_radio_reg(reg=0xc, val=0x19)
+
+wlc_phy_noise_sw_set_nphy:
+  000ee600  phy_reg_read(reg=0x280)
+  000ee70c  phy_reg_read(reg=0x27d)
+
+wlc_phy_acimode_set_nphy:
+  000ee868  phy_reg_write(reg=0x6a, val=?)
+  000ee988  write_radio_reg(reg=0xb4, val=?)
+  000eec70  phy_reg_read(reg=0x6a)
+  000eec8c  phy_reg_write(reg=0x6a, val=0x2)
+  000eee78  phy_reg_write_array(count=&.rodata+0xf64, arrptr=0x6)
+  000eeef8  read_radio_reg(reg=0xb4)
+  000eefb4  write_radio_reg(reg=0xb4, val=?)
+  000ef124  write_radio_reg(reg=0x66, val=?)
+  000ef16c  phy_reg_write(reg=0x153, val=?)
+  000ef330  phy_reg_read(reg=0x21)
+  000ef3b0  read_radio_reg(reg=0x66)
+  000ef3e4  write_radio_reg(reg=0x66, val=?)
+  000ef490  phy_reg_read(reg=0x153)
+  000ef4c0  phy_reg_write_array(count=&.rodata+0xed8, arrptr=0xb)
+  000ef6d4  phy_reg_write(reg=0x6a, val=0x2)
+  000ef798  write_radio_reg(reg=0x6023, val=?)
+  000ef7d8  phy_reg_read(reg=0x20)
+  000ef828  read_radio_reg(reg=0x6023)
+  000ef854  write_radio_reg(reg=0x6023, val=0x90)
+  000ef8a4  phy_reg_write_array(count=&.rodata+0xf58, arrptr=0x6)
+
+wlc_phy_aci_home_channel_nphy:
+  000efd10  phy_reg_mod(reg=0x280, mask=0xff, val=?)
+  000efd48  phy_reg_write(reg=0x20, val=?)
+  000efe70  phy_reg_write(reg=0x20, val=?)
+  000efea0  phy_reg_mod(reg=0x27d, mask=0xff, val=?)
+
+wlc_phy_aci_scan_nphy:
+  000f003c  phy_reg_read(reg=0xca)
+  000f0094  read_radio_reg(reg=0x66)
+  000f0250  phy_reg_write_array(count=&.rodata+0xf9c, arrptr=0x6)
+  000f0268  and_radio_reg(reg=0x66, mask=0xfffd)
+  000f0280  and_radio_reg(reg=0x95, mask=0xfffd)
+  000f02d8  phy_reg_write_array(count=&.rodata+0xf90, arrptr=0x6)
+  000f0860  phy_reg_mod(reg=0x280, mask=0xff, val=?)
+  000f0a0c  phy_reg_read(reg=0x280)
+  000f0c5c  phy_reg_write_array(count=&.rodata+0xfa8, arrptr=0x6)
+  000f1008  phy_reg_write(reg=0x1000, val=?)
+  000f1028  phy_reg_mod(reg=0x27d, mask=0xff, val=?)
+  000f1058  phy_reg_read(reg=0x27d)
+
+wlc_phy_acimode_upd_nphy:
+  000f1258  phy_reg_mod(reg=0x280, mask=0xff, val=?)
+  000f12a4  phy_reg_write(reg=0x20, val=?)
+  000f1490  phy_reg_read(reg=0x20)
+  000f1530  phy_reg_mod(reg=0x21, mask=0xf00, val=?)
+  000f169c  phy_reg_write(reg=0x20, val=?)
+  000f16c8  phy_reg_read(reg=0x21)
+  000f16f4  phy_reg_mod(reg=0x27d, mask=0xff, val=?)
+  000f172c  phy_reg_mod(reg=0x280, mask=0xff, val=?)
+  000f1778  phy_reg_write(reg=0x20, val=?)
+  000f1834  phy_reg_mod(reg=0x20, mask=0xf000, val=?)
+  000f1894  phy_reg_write(reg=0x20, val=?)
+  000f1904  phy_reg_mod(reg=0x27d, mask=0xff, val=?)
+
+wlc_phy_noise_adj_thresholds_nphy:
+  000f1a40  phy_reg_read(reg=0x21)
+  000f1b1c  phy_reg_read(reg=0x21)
+  000f1d20  phy_reg_read(reg=0x20)
+  000f1d8c  phy_reg_read(reg=0x20)
+
+wlc_phy_txpwr_index_nphy:
+  000f26cc  phy_reg_write(reg=0xaa, val=?)
+  000f2960  phy_reg_write(reg=0xab, val=&wlc_phy_txpwrctrl_enable_nphy)
+  000f2abc  phy_reg_mod(reg=0x8f, mask=0x100, val=?)
+  000f2ad8  phy_reg_mod(reg=0xa5, mask=0x100, val=?)
+  000f2af8  phy_reg_write(reg=0xaa, val=?)
+  000f2d48  phy_reg_mod(reg=0x8f, mask=0x100, val=?)
+  000f2d68  phy_reg_mod(reg=0xa5, mask=0x100, val=?)
+  000f2d8c  phy_reg_read(reg=0xaa)
+  000f2f40  phy_reg_read(reg=0xa5)
+  000f2f6c  phy_reg_read(reg=0xab)
+  000f300c  phy_reg_mod(reg=0xa5, mask=0x4000, val=?)
+  000f3034  phy_reg_write(reg=0xab, val=?)
+
+wlc_phy_txpwr_fixpower_nphy:
+  000f3498  phy_reg_write(reg=0xaa, val=?)
+  000f35f0  phy_reg_write(reg=0xab, val=?)
+  000f36d4  phy_reg_and(reg=0xbf, mask=0xffe0)
+
+wlc_phy_savecal_nphy:
+  000f3ca4  read_radio_reg(reg=0x171)
+  000f3db8  read_radio_reg(reg=0x2021)
+  000f3e4c  read_radio_reg(reg=0x2021)
+  000f3ef0  read_radio_reg(reg=0x8b)
+  000f3f3c  read_radio_reg(reg=0x8b)
+
+wlc_phy_est_tonepwr_nphy:
+  000f4228  phy_reg_read(reg=0x1e9)
+
+wlc_phy_get_tx_gain_nphy:
+  000f4520  phy_reg_read(reg=0x1ed)
+
+wlc_phy_tempsense_nphy:
+  000f477c  read_radio_reg(reg=0x25)
+  000f4790  phy_reg_read(reg=0xa6)
+  000f47f4  write_radio_reg(reg=0x25, val=0x1)
+  000f48a0  phy_reg_write(reg=0xca, val=?)
+  000f4990  read_radio_reg(reg=0x1f)
+  000f4a08  phy_reg_read(reg=0xa6)
+  000f4a54  write_radio_reg(reg=0x87, val=0x1)
+  000f4aec  xor_radio_reg(reg=0x2a, val=0x80)
+  000f4c78  phy_reg_write(reg=0xca, val=?)
+  000f4d24  read_radio_reg(reg=0xc)
+  000f4e5c  phy_reg_write(reg=0x1ae, val=?)
+  000f4ed4  write_radio_reg(reg=0xc, val=?)
+  000f4f1c  phy_reg_write_array(count=&.rodata+0x2334, arrptr=0x20)
+
+wlc_phy_tempsense_based_minpwr_change:
+  000f54a8  phy_reg_mod(reg=0x27d, mask=0xff, val=?)
+
+wlc_phy_workarounds_nphy_gainctrl_2057_rev9:
+  000f55e0  phy_reg_write_array(count=&.rodata+0x74c, arrptr=0x8)
+  000f5670  phy_reg_mod(reg=0xa0, mask=0x2000, val=?)
+  000f56ac  phy_reg_mod(reg=0xa0, mask=0x2000, val=0x2000)
+
+wlc_phycal_state_nphy:
+  000f5998  phy_reg_read(reg=0x27d)
+  000f5b2c  read_radio_reg(reg=0x2021)
+  000f5b44  read_radio_reg(reg=0x2022)
+  000f5b5c  read_radio_reg(reg=0x3021)
+  000f5b74  read_radio_reg(reg=0x3022)
+  000f5b8c  read_radio_reg(reg=0x2023)
+  000f5ba4  read_radio_reg(reg=0x2024)
+  000f5bbc  read_radio_reg(reg=0x3023)
+  000f5bd4  read_radio_reg(reg=0x3024)
+  000f5f4c  read_radio_reg(reg=0x8b)
+
+wlc_phy_txcal_physetup_nphy:
+  000f60d0  phy_reg_read(reg=0xa6)
+  000f6108  phy_reg_mod(reg=0xa6, mask=0xf00, val=0xa00)
+  000f6174  phy_reg_write(reg=0x8f, val=?)
+  000f6324  phy_reg_write_array(count=&.rodata+0x2134, arrptr=0x8)
+  000f63b4  phy_reg_read(reg=0xa6)
+  000f63ec  phy_reg_mod(reg=0xa6, mask=0xf000, val=0xa000)
+  000f6448  phy_reg_write(reg=0xa5, val=?)
+  000f6628  mod_radio_reg(reg=0x165, mask=0x10, val=0x10)
+
+wlc_phy_aci_noise_store_values_nphy:
+  000f6954  phy_reg_read(reg=0x20)
+  000f6a64  read_radio_reg(reg=0x66)
+  000f6ab4  phy_reg_read(reg=0x153)
+  000f6c3c  phy_reg_read(reg=0x20)
+  000f6e10  read_radio_reg(reg=0xb4)
+  000f7010  read_radio_reg(reg=0x6023)
+
+wlc_phy_compute_rssi_gainerror_nphy:
+  000f732c  phy_reg_read(reg=0x169)
+
+wlc_phy_backoff_initgain_elna:
+  000f74a8  phy_reg_read(reg=0x21)
+  000f7530  phy_reg_write(reg=0x21, val=?)
+  000f76c0  phy_reg_read(reg=0x20)
+  000f7750  phy_reg_write(reg=0x20, val=?)
+
+wlc_phy_workarounds_nphy_gainctrl:
+  000f7cec  phy_reg_write_array(count=&.rodata+0x2c20, arrptr=0xe)
+  000f7d40  phy_reg_write(reg=0x150, val=0x809c)
+  000f7d98  phy_reg_mod(reg=0x20, mask=0xf80, val=?)
+  000f7f2c  phy_reg_write_array(count=&.rodata+0x2e30, arrptr=0x18)
+  000f805c  phy_reg_read(reg=0x1d6)
+  000f8078  phy_reg_write(reg=0x1d6, val=?)
+  000f8144  phy_reg_write_array(count=&.rodata+0x2c3c, arrptr=0xc)
+  000f8158  phy_reg_read(reg=0x9)
+  000f81ec  write_radio_reg(reg=0x6037, val=0x17)
+  000f8448  phy_reg_write(reg=0x20, val=?)
+  000f851c  phy_reg_mod(reg=0x27d, mask=0xff, val=0x18)
+  000f87a8  phy_reg_write_array(count=&.rodata+0x2d9c, arrptr=0x20)
+  000f8910  phy_reg_or(reg=0x37, val=0x6)
+  000f8934  phy_reg_read(reg=0x1d6)
+  000f8950  phy_reg_write(reg=0x1d6, val=?)
+
+wlc_phy_workarounds_nphy_20671:
+  000f9628  read_radio_reg(reg=0x15)
+  000f9658  mod_radio_reg(reg=0x16d, mask=0x200, val=0x200)
+
+wlc_phy_workarounds_nphy:
+  000fa49c  phy_reg_or(reg=0xb1, val=0x11)
+  000fa544  or_radio_reg(reg=0x86, val=0x8)
+  000fa5d0  phy_reg_write_array(count=&.rodata+0x2ecc, arrptr=0xc)
+  000fa70c  write_radio_reg(reg=0x47, val=0x6)
+  000fa874  phy_reg_write_array(count=&.rodata+0x31ac, arrptr=0x12)
+  000fa8c0  phy_reg_mod(reg=0xbd, mask=0xff, val=0x72)
+  000fa914  phy_reg_write_array(count=&.rodata+0x2f68, arrptr=0x6)
+  000faa64  phy_reg_write(reg=0x6a, val=0x2)
+  000faa84  phy_reg_mod(reg=0x294, mask=0xf00, val=0x700)
+  000faea0  and_radio_reg(reg=0x86, mask=0xf7)
+  000faefc  phy_reg_mod(reg=0xbd, mask=0xff, val=0xa0)
+  000fb158  mod_radio_reg(reg=0x34, mask=0xc, val=0xc)
+  000fb1ac  read_radio_reg(reg=0x16b)
+  000fb860  write_radio_reg(reg=0x66, val=0xff)
+  000fbf88  phy_reg_mod(reg=0x221, mask=0x8, val=0x8)
+  000fc2ec  phy_reg_write(reg=0x6a, val=0x9c40)
+  000fc430  phy_reg_mod(reg=0x1e7, mask=0x200, val=0x200)
+  000fc51c  write_radio_reg(reg=0x5, val=0x5)
+  000fc560  or_radio_reg(reg=0x4f, val=0x1)
+  000fc5c8  write_radio_reg(reg=0x63, val=0x1f)
+  000fc6f4  phy_reg_mod(reg=0xbd, mask=0xff, val=0x64)
+  000fc740  phy_reg_read(reg=0xa0)
+  000fc774  phy_reg_mod(reg=0x90, mask=0x80, val=?)
+  000fc84c  write_radio_reg(reg=0x2067, val=0x70)
+  000fcb5c  write_radio_reg(reg=0x51, val=0x7f)
+  000fce04  phy_reg_write(reg=0x1dd, val=0x1c)
+  000fce24  phy_reg_mod(reg=0x245, mask=0x3, val=0x2)
+  000fcf20  write_radio_reg(reg=0x1a1, val=?)
+  000fd840  write_radio_reg(reg=0x63, val=0x14)
+  000fdda4  write_radio_reg(reg=0x63, val=0x14)
+  000fdea8  write_radio_reg(reg=?, val=0x14)
+  000fe1a8  write_radio_reg(reg=0x63, val=0x12)
+  000fe1f0  write_radio_reg(reg=0x63, val=0x12)
+  000fe38c  write_radio_reg(reg=0x5e, val=0x43)
+  000fe5f4  write_radio_reg(reg=0x66, val=0xff)
+  000fe7a8  write_radio_reg(reg=0xeb, val=0xff)
+  000fe7c8  write_radio_reg(reg=0x5e, val=0x3)
+  000fe820  write_radio_reg(reg=0xeb, val=0xff)
+
+wlc_phy_gain_from_code:
+  000fec40  phy_reg_read(reg=0x2a7)
+  000feca0  phy_reg_read(reg=0x37)
+  000fecc8  phy_reg_read(reg=0x24)
+  000fecf0  phy_reg_read(reg=0x22)
+  000fed10  phy_reg_read(reg=0x2a9)
+  000fed30  phy_reg_read(reg=0x2ab)
+  000fed50  phy_reg_read(reg=0x2ad)
+  000fed6c  phy_reg_read(reg=0x20)
+
+wlc_phy_calc_init_gain_nphy:
+  000fedc4  phy_reg_read(reg=0x20)
+
+wlc_phy_noise_measure_change_rxpo_nphy:
+  000ff2b4  phy_reg_mod(reg=0x27d, mask=0xff, val=?)
+  000ff2f0  phy_reg_read(reg=0x280)
+
+wlc_phy_noise_measure_chg_listen_gain_nphy:
+  000ff4fc  phy_reg_read(reg=0x21)
+  000ff524  phy_reg_write(reg=0x21, val=?)
+  000ff630  phy_reg_read(reg=0x2a8)
+  000ff658  phy_reg_write(reg=0x2a8, val=?)
+
+wlc_phy_noise_cal_measure_nphy:
+  000ff7a4  phy_reg_read(reg=0x21)
+
+wlc_phy_rxcore_setstate_nphy:
+  001004b4  phy_reg_read(reg=0xa2)
+  00100558  phy_reg_write_array(count=&.rodata+0x337c, arrptr=0x1d)
+  00100604  phy_reg_write(reg=0xa1, val=?)
+  00100748  phy_reg_read(reg=0xa2)
+  00100774  phy_reg_write(reg=0xa2, val=?)
+  00100858  and_radio_reg(reg=0x1bf, mask=0x7f)
+  001008e0  or_radio_reg(reg=0xd4, val=0x20)
+  00100908  and_radio_reg(reg=0x1b4, mask=0xfb)
+  00100920  or_radio_reg(reg=0x4f, val=0x20)
+  00100948  and_radio_reg(reg=0x1bf, mask=0x7f)
+
+wlc_phy_oclinit_nphy_rev19:
+  001009fc  phy_reg_write(reg=0x67, val=0x7d)
+  00100a28  phy_reg_mod(reg=0x168, mask=0x1, val=0x1)
+  00100a48  phy_reg_write_array(count=&.rodata+0xc10, arrptr=0x11)
+  00100bd4  phy_reg_write(reg=0x67, val=0x87)
+
+wlc_phy_workarounds_nphy_rev19:
+  00100d20  phy_reg_read(reg=0x245)
+  00100d80  phy_reg_write_array(count=&.rodata+0x670, arrptr=0x8)
+  00100d98  mod_radio_reg(reg=0x105, mask=0x3000, val=0x2000)
+
+wlc_phy_spurwar_nphy:
+  00100f28  phy_reg_read(reg=0x280)
+  00101290  phy_reg_read(reg=0x280)
+  00101358  write_radio_reg(reg=0x606b, val=?)
+  001015ec  write_radio_reg(reg=0x606b, val=?)
+  0010160c  phy_reg_read(reg=0x27d)
+  0010162c  phy_reg_write(reg=0x27d, val=?)
+  00101934  phy_reg_read(reg=0x27d)
+  00101958  phy_reg_write(reg=0x27d, val=?)
+
+wlc_phy_chanspec_nphy_setup:
+  001019b4  phy_reg_and(reg=0x9, mask=0xfffe)
+  00101a3c  phy_reg_write(reg=0x1ce, val=?)
+  00101c88  phy_reg_mod(reg=0x1, mask=0x8000, val=?)
+  00101dac  phy_reg_or(reg=0xc0a, val=0x800)
+  00101eac  phy_reg_mod(reg=?, mask=0x8000, val=0x8000)
+  00101f3c  phy_reg_and(reg=0x9, mask=0xfffe)
+  00101f90  phy_reg_or(reg=0xc01, val=0xc000)
+  001022cc  phy_reg_write_array(count=&.rodata+0x23f4, arrptr=0x40)
+  00102568  write_radio_reg(reg=0x86, val=0xc0)
+  0010271c  phy_reg_mod(reg=0x289, mask=0xff, val=0x46)
+  00102bc8  phy_reg_mod(reg=0x283, mask=0xff, val=0x47)
+  00102f54  write_radio_reg(reg=0x86, val=0xc0)
+  00103278  phy_reg_write_array(count=&.rodata+0x24a4, arrptr=0x3c)
+  00103754  phy_reg_write_array(count=&.rodata+0x23d8, arrptr=0x6)
+
+wlc_phy_chanspec_set_nphy:
+  00103a3c  mod_radio_reg(reg=0x11, mask=0x70, val=?)
+  00103ae0  phy_reg_and(reg=0xa0, mask=0xffef)
+  00103b2c  mod_radio_reg(reg=0x8, mask=0x4, val=?)
+  00103c08  mod_radio_reg(reg=0x8f, mask=0x2, val=?)
+  00103c48  phy_reg_or(reg=0xa0, val=0x10)
+  00103c88  mod_radio_reg(reg=0x8f, mask=0x2, val=?)
+
+T.2958:
+  00103e64  phy_reg_write(reg=0x1af, val=?)
+  00103e8c  phy_reg_write(reg=0x1b5, val=?)
+  00103eb4  phy_reg_write(reg=0x1a9, val=?)
+  00103f00  phy_reg_write(reg=0x1ba, val=?)
+  00103f4c  phy_reg_write(reg=0x1ae, val=?)
+  00103f98  phy_reg_write(reg=0x1b9, val=?)
+  00103fdc  phy_reg_write(reg=0x1b6, val=?)
+  00104024  phy_reg_write(reg=0x1b7, val=?)
+  00104070  phy_reg_write(reg=0x1b8, val=?)
+  001040bc  phy_reg_write(reg=0x1ad, val=?)
+  00104100  phy_reg_write(reg=0x1aa, val=?)
+  00104148  phy_reg_write(reg=0x1ab, val=?)
+  00104190  phy_reg_write(reg=0x1ac, val=?)
+  00104274  phy_reg_write(reg=0x1b0, val=?)
+  00104290  phy_reg_write(reg=0x1a4, val=?)
+  001042ac  phy_reg_write(reg=0x1a8, val=?)
+  001042c8  phy_reg_write(reg=0x1a5, val=?)
+  001042e4  phy_reg_write(reg=0x1b4, val=?)
+  00104300  phy_reg_write(reg=0x1a7, val=?)
+  0010431c  phy_reg_write(reg=0x1a6, val=?)
+  00104338  phy_reg_write(reg=0x1b1, val=?)
+  00104354  phy_reg_write(reg=0x1b2, val=?)
+  00104370  phy_reg_write(reg=0x1b3, val=?)
+
+wlc_phy_rssi_cal_nphy_rev2:
+  001044f4  phy_reg_read(reg=0x91)
+  00104508  read_radio_reg(reg=0x17)
+  00104524  phy_reg_write(reg=0x91, val=?)
+  0010453c  write_radio_reg(reg=0x17, val=0x4)
+  00104574  phy_reg_write(reg=0x92, val=?)
+  0010458c  write_radio_reg(reg=0x1b, val=0x4)
+  001045c8  mod_radio_reg(reg=0x18, mask=0x7, val=?)
+  001045e4  mod_radio_reg(reg=0x1c, mask=0x7, val=?)
+  0010495c  mod_radio_reg(reg=0x18, mask=0x7, val=?)
+  0010497c  mod_radio_reg(reg=0x1c, mask=0x7, val=?)
+  00104a20  phy_reg_write(reg=0x91, val=?)
+  00104a38  write_radio_reg(reg=0x17, val=?)
+  00104a50  phy_reg_write(reg=0x92, val=?)
+  00104a68  write_radio_reg(reg=0x1b, val=?)
+
+wlc_phy_rssi_cal_nphy:
+  00104d50  phy_reg_read(reg=0x91)
+  00104d68  phy_reg_read(reg=0x92)
+  00104d80  phy_reg_read(reg=0x8f)
+  00104d98  phy_reg_read(reg=0xa5)
+  00104db0  phy_reg_read(reg=0xa6)
+  00104dc8  phy_reg_read(reg=0xa7)
+  00104de0  phy_reg_read(reg=0xe7)
+  00104df8  phy_reg_read(reg=0xec)
+  00104e34  phy_reg_read(reg=0xe5)
+  00104e4c  phy_reg_read(reg=0xe6)
+  00104e64  phy_reg_read(reg=0x78)
+  00104e7c  phy_reg_read(reg=0xf9)
+  00104e94  phy_reg_read(reg=0xfb)
+  00104ecc  phy_reg_read(reg=0x7a)
+  00104ee4  phy_reg_read(reg=0x7d)
+  001053b0  phy_reg_write(reg=0x91, val=?)
+  001053f0  phy_reg_write_array(count=&.rodata+0x22ac, arrptr=0x18)
+  00105510  read_radio_reg(reg=0xb4)
+  00105540  phy_reg_read(reg=0x1a6)
+  0010555c  phy_reg_read(reg=0x1ac)
+  00105578  phy_reg_read(reg=0x1b2)
+  00105594  phy_reg_read(reg=0x1b8)
+  001055b0  phy_reg_read(reg=0x1a4)
+  001055cc  phy_reg_read(reg=0x1aa)
+  001055e8  phy_reg_read(reg=0x1b0)
+  00105604  phy_reg_read(reg=0x1b6)
+  00105620  phy_reg_read(reg=0x1a5)
+  0010563c  phy_reg_read(reg=0x1ab)
+  00105658  phy_reg_read(reg=0x1b1)
+  00105674  phy_reg_read(reg=0x1b7)
+  001059c4  read_radio_reg(reg=0xb4)
+  001059f4  phy_reg_read(reg=0x1a6)
+  00105a10  phy_reg_read(reg=0x1ac)
+  00105a2c  phy_reg_read(reg=0x1b2)
+  00105a48  phy_reg_read(reg=0x1b8)
+  00105a64  phy_reg_read(reg=0x1a4)
+  00105a80  phy_reg_read(reg=0x1aa)
+  00105a9c  phy_reg_read(reg=0x1b0)
+  00105ab8  phy_reg_read(reg=0x1b6)
+  00105ad4  phy_reg_read(reg=0x1a5)
+  00105af0  phy_reg_read(reg=0x1ab)
+  00105b0c  phy_reg_read(reg=0x1b1)
+  00105b28  phy_reg_read(reg=0x1b7)
+  00105b4c  phy_reg_read(reg=0x340)
+  00105b64  phy_reg_read(reg=0x341)
+  00105b7c  phy_reg_read(reg=0x344)
+  00105b94  phy_reg_read(reg=0x345)
+  00105bac  phy_reg_read(reg=0x342)
+  00105bc4  phy_reg_read(reg=0x343)
+  00105bdc  phy_reg_read(reg=0x346)
+  00105bf4  phy_reg_read(reg=0x347)
+  00105c0c  phy_reg_read(reg=0x2ff)
+  00105cbc  read_radio_reg(reg=0x602b)
+  00105cec  read_radio_reg(reg=0x602b)
+
+T.2959:
+  00105e6c  phy_reg_write(reg=0xc6, val=?)
+  00105eb4  phy_reg_or(reg=0xa1, val=0x1)
+  00105f74  phy_reg_read(reg=0x342)
+  00105fcc  phy_reg_write_array(count=&.rodata+0x2040, arrptr=0x6)
+
+wlc_phy_tx_tone_nphy:
+  001063e0  phy_reg_read(reg=0x1)
+
+wlc_phy_freq_accuracy_nphy:
+  001064c0  phy_reg_read(reg=0x1)
+  001064e0  phy_reg_mod(reg=0x1, mask=0x8000, val=?)
+  001064fc  phy_reg_write(reg=0x1, val=?)
+
+wlc_phy_cal_txgainctrl_nphy:
+  00106600  phy_reg_read(reg=0x91)
+  00106704  phy_reg_mod(reg=0x1, mask=0x8000, val=?)
+  001069a4  phy_reg_write(reg=0x1, val=?)
+
+wlc_phy_cal_txgainctrl_inttssi_nphy:
+  00106dc8  phy_reg_read(reg=0x1)
+  00106de8  phy_reg_mod(reg=0x1, mask=0x8000, val=?)
+  00107348  phy_reg_write(reg=0x1, val=?)
+  001073c8  write_radio_reg(reg=0x178, val=?)
+
+wlc_phy_cal_txiqlo_nphy:
+  00108328  read_radio_reg(reg=0x175)
+  00108570  phy_reg_write(reg=0xc2, val=0x8ad9)
+  0010922c  phy_reg_write(reg=0xc2, val=0x8aa9)
+  00109280  read_radio_reg(reg=?)
+  001098c4  read_radio_reg(reg=0x87)
+  001098e4  write_radio_reg(reg=0x87, val=0x29)
+  00109984  phy_reg_read(reg=0x9)
+  001099d8  and_radio_reg(reg=0x8d, mask=0xdf)
+  00109b98  or_radio_reg(reg=?, val=0x20)
+
+T.2961:
+  0010a28c  read_radio_reg(reg=?)
+  0010a2b4  phy_reg_read(reg=0x48)
+  0010a3c4  write_radio_reg(reg=?, val=0x80)
+  0010a3f4  phy_reg_write_array(count=&.rodata+0x1fec, arrptr=0x22)
+  0010a408  phy_reg_or(reg=0xec, val=0x100)
+  0010a458  phy_reg_mod(reg=0xf8, mask=0x1c00, val=0x1000)
+  0010a5e4  phy_reg_write(reg=0x267, val=?)
+  0010a730  write_radio_reg(reg=?, val=0x80)
+  0010a760  phy_reg_write_array(count=&.rodata+0x1fec, arrptr=0x22)
+  0010a774  phy_reg_or(reg=0xe7, val=0x100)
+  0010a7c4  phy_reg_mod(reg=0xfa, mask=0x1c00, val=0x1000)
+
+wlc_phy_cal_rxiq_nphy_rev3:
+  0010aa08  phy_reg_read(reg=0x1)
+  0010aa28  phy_reg_mod(reg=0x1, mask=0x8000, val=?)
+  0010b2c8  mod_radio_reg(reg=0x7034, mask=0xf0, val=0xf00)
+  0010b2fc  mod_radio_reg(reg=0x6034, mask=0xf0, val=0xf00)
+  0010b330  read_radio_reg(reg=0x607c)
+  0010b348  read_radio_reg(reg=0x307e)
+  0010b398  mod_radio_reg(reg=0x602d, mask=0xf0, val=0xf00)
+  0010b438  read_radio_reg(reg=0x707c)
+  0010b450  read_radio_reg(reg=0x207e)
+  0010b4a0  mod_radio_reg(reg=0x702d, mask=0xf0, val=0xf00)
+  0010b7b0  write_radio_reg(reg=0x606b, val=?)
+
+wlc_phy_cal_rxiq_nphy:
+  0010bc98  phy_reg_read(reg=0xa2)
+  0010bcb8  phy_reg_read(reg=0xa6)
+  0010bcd0  phy_reg_read(reg=0xa5)
+  0010bce8  phy_reg_read(reg=0x91)
+  0010bd10  phy_reg_read(reg=?)
+  0010bd44  phy_reg_mod(reg=0xa2, mask=0xf000, val=?)
+  0010bd60  phy_reg_mod(reg=0xa2, mask=0xf, val=?)
+  0010bd84  phy_reg_or(reg=?, val=0x6)
+  0010bd9c  phy_reg_or(reg=0xa5, val=0x6)
+  0010bdec  phy_reg_write(reg=?, val=?)
+  0010be28  phy_reg_write(reg=?, val=?)
+  0010c074  and_radio_reg(reg=0xd6, mask=0xfffc)
+  0010c08c  and_radio_reg(reg=0xe2, mask=0xfffc)
+  0010c0b0  phy_reg_write(reg=?, val=?)
+  0010c0d4  phy_reg_write(reg=0x91, val=?)
+  0010c0ec  phy_reg_write(reg=0xa5, val=?)
+  0010c10c  phy_reg_write(reg=0xa6, val=?)
+  0010c124  phy_reg_write(reg=0xa2, val=?)
+  0010c2d4  phy_reg_write(reg=0x92, val=?)
+  0010c2ec  phy_reg_write(reg=0xa5, val=?)
+  0010c32c  phy_reg_write(reg=?, val=?)
+  0010c348  phy_reg_read(reg=0xa7)
+  0010c360  phy_reg_read(reg=0xa5)
+  0010c384  mod_radio_reg(reg=0xd6, mask=0x3, val=?)
+  0010c3a0  mod_radio_reg(reg=0xe2, mask=0x3, val=?)
+
+wlc_phy_papd_cal_nphy:
+  0010c878  phy_reg_mod(reg=?, mask=0x1, val=0x1)
+  0010c900  phy_reg_write_array(count=&.rodata+0x1e60, arrptr=0x6)
+  0010c96c  phy_reg_write(reg=0x2e5, val=?)
+  0010cce0  phy_reg_write_array(count=&.rodata+0x1e54, arrptr=0x6)
+  0010cd94  phy_reg_write(reg=0x2a4, val=0xf0)
+  0010cf9c  phy_reg_write_array(count=&.rodata+0x1e84, arrptr=0x6)
+  0010d474  phy_reg_read(reg=0x2be)
+  0010d4c4  phy_reg_read(reg=0x2bf)
+  0010d4e4  phy_reg_read(reg=0x2c0)
+  0010d7c0  phy_reg_read(reg=0x2b1)
+  0010dbb0  phy_reg_write(reg=0x35a, val=?)
+  0010ddd8  phy_reg_write_array(count=&.rodata+0x1e90, arrptr=0x6)
+  0010de80  phy_reg_write_array(count=&.rodata+0x1e9c, arrptr=0x6)
+
+wlc_phy_txpwr_papd_cal_run:
+  0010ea5c  phy_reg_read(reg=0x1)
+  0010ea7c  phy_reg_mod(reg=0x1, mask=0x8000, val=?)
+  0010ee68  read_radio_reg(reg=0x81)
+  0010eef0  read_radio_reg(reg=0x17e)
+  0010ef14  read_radio_reg(reg=0x17d)
+  0010ef40  read_radio_reg(reg=0x17e)
+  0010ef5c  read_radio_reg(reg=0x17d)
+  0010ef8c  write_radio_reg(reg=?, val=0xc)
+  0010f010  write_radio_reg(reg=0x17e, val=?)
+  0010f028  write_radio_reg(reg=0x17d, val=0xff)
+  0010f068  read_radio_reg(reg=0x81)
+  0010f080  read_radio_reg(reg=0x1b7)
+  0010f098  read_radio_reg(reg=0x1c1)
+  0010f0b0  read_radio_reg(reg=0x1c2)
+  0010f0cc  write_radio_reg(reg=0x1b7, val=0xc)
+  0010f0e4  write_radio_reg(reg=0x1c1, val=0x1)
+  0010f0fc  write_radio_reg(reg=0x1c2, val=0x80)
+  0010f114  write_radio_reg(reg=0x81, val=0x2)
+  0010f12c  write_radio_reg(reg=0x106, val=0x2)
+  0010f140  read_radio_reg(reg=0x1cc)
+  0010f158  read_radio_reg(reg=0x1cd)
+  0010f170  read_radio_reg(reg=0x1d1)
+  0010f18c  write_radio_reg(reg=0x1cc, val=0x48)
+  0010f1a4  write_radio_reg(reg=0x1cd, val=0x2)
+  0010f1bc  write_radio_reg(reg=0x1d1, val=0x2)
+  0010f2a4  phy_reg_write_array(count=&.rodata+0x1c28, arrptr=0x8)
+  0010f2e8  phy_reg_write(reg=0x1, val=?)
+  0010f568  read_radio_reg(reg=0x6072)
+  0010f58c  write_radio_reg(reg=0x6072, val=0x2b)
+  0010f5b4  read_radio_reg(reg=0x607a)
+  0010f5d4  read_radio_reg(reg=0x203f)
+  0010f5f4  write_radio_reg(reg=0x607a, val=0x3)
+  0010f60c  write_radio_reg(reg=0x203f, val=0x4)
+  0010fcd8  read_radio_reg(reg=0x6079)
+  0010fcf8  read_radio_reg(reg=0x2035)
+  0010fd18  write_radio_reg(reg=0x6079, val=0x3)
+  0010fd4c  read_radio_reg(reg=0x180)
+  0010fd70  read_radio_reg(reg=0x17f)
+  0010fd9c  read_radio_reg(reg=0x180)
+  0010fdb8  read_radio_reg(reg=0x17f)
+  0010fde8  write_radio_reg(reg=?, val=0xc)
+  0010fe28  write_radio_reg(reg=?, val=0xf0)
+  0010fe48  write_radio_reg(reg=0x180, val=?)
+  0010fe60  write_radio_reg(reg=0x17f, val=0xff)
+  0010ff84  read_radio_reg(reg=0x81)
+  00110048  read_radio_reg(reg=0x7072)
+  001100a8  write_radio_reg(reg=?, val=0xf0)
+  001100c4  write_radio_reg(reg=0x19e, val=?)
+  001100f4  write_radio_reg(reg=0x1a0, val=?)
+  00110114  read_radio_reg(reg=0x1a0)
+  00110134  read_radio_reg(reg=0x1a0)
+  0011019c  read_radio_reg(reg=0x7079)
+  001101bc  read_radio_reg(reg=0x3035)
+  001101dc  write_radio_reg(reg=0x7079, val=0x3)
+  001101f4  read_radio_reg(reg=0x707a)
+  00110214  read_radio_reg(reg=0x303f)
+  00110234  write_radio_reg(reg=0x707a, val=0x3)
+  00110254  read_radio_reg(reg=0x19e)
+  00110274  read_radio_reg(reg=0x19e)
+  001104cc  read_radio_reg(reg=0x81)
+  001104ec  mod_radio_reg(reg=0x81, mask=0x1, val=?)
+  00110508  mod_radio_reg(reg=0x106, mask=0x1, val=?)
+  00110588  write_radio_reg(reg=?, val=0xf4)
+  00110604  write_radio_reg(reg=?, val=?)
+  00110638  write_radio_reg(reg=?, val=0xf2)
+  0011070c  write_radio_reg(reg=?, val=?)
+  00110780  write_radio_reg(reg=?, val=0xf0)
+  001107a8  write_radio_reg(reg=?, val=0xf2)
+  001107fc  write_radio_reg(reg=?, val=0xf0)
+  00110948  write_radio_reg(reg=?, val=0xf0)
+  00110980  write_radio_reg(reg=?, val=0xf0)
+  00110a54  phy_reg_read(reg=0x1)
+  00110a74  phy_reg_mod(reg=0x1, mask=0x8000, val=?)
+  00110b60  write_radio_reg(reg=?, val=0xf1)
+  00110b88  write_radio_reg(reg=?, val=0xf2)
+
+wlc_phy_txpwr_papd_cal_nphy:
+  00110efc  phy_reg_read(reg=?)
+
+wlc_phy_papd_cal_watchdog_nphy_setup_rev19:
+  001110bc  phy_reg_mod(reg=0x3b9, mask=0x20, val=0x20)
+  001110d8  phy_reg_read(reg=0x3d4)
+
+T.2964:
+  00111888  read_radio_reg(reg=0x1e)
+  001118dc  mod_radio_reg(reg=0x1e, mask=0xf0, val=?)
+
+wlc_phy_txpwrctrl_idle_tssi_nphy:
+  00111d0c  write_radio_reg(reg=?, val=0x11)
+
+wlc_phy_cal_perical_nphy_run:
+  00112bcc  phy_reg_read(reg=0x79)
+  00112d10  phy_reg_mod(reg=0x283, mask=0xff, val=0x44)
+  00112d58  phy_reg_read(reg=0x280)
+
+wlc_phy_init_nphy:
+  00112f64  phy_reg_write_array(count=&.rodata+0x342c, arrptr=0x6)
+  00112fc8  phy_reg_and(reg=0xa1, mask=0xfffc)
+  001130f0  phy_reg_mod(reg=0x297, mask=0x1, val=0x1)
+  001134b4  phy_reg_write(reg=0xec, val=?)
+  001134d0  phy_reg_write_array(count=&.rodata+0x33fc, arrptr=0x6)
+  0011350c  phy_reg_and(reg=0xa1, mask=0xfffc)
+  00113558  phy_reg_mod(reg=0xdc, mask=0xff, val=0x3b)
+  001135d0  phy_reg_read(reg=0xed)
+  001139e8  mod_radio_reg(reg=0xb4, mask=0x7, val=?)
+  00114034  write_radio_reg(reg=0x171, val=?)
+  00114160  mod_radio_reg(reg=0xb4, mask=0x7, val=?)
+  001144fc  phy_reg_read(reg=0xed)
+  001145e0  phy_reg_mod(reg=0xdc, mask=0xff, val=0x40)
+  00114634  write_radio_reg(reg=0x2021, val=?)
+  001146c8  write_radio_reg(reg=0x2021, val=?)
+  00114798  write_radio_reg(reg=0x8b, val=?)
+  001147e8  write_radio_reg(reg=0x8b, val=?)
+  0011488c  mod_radio_reg(reg=0x602b, mask=0x1c, val=?)
+  001148c0  mod_radio_reg(reg=0x602b, mask=0x1c, val=?)
+
+wlc_phy_txpwrctrl_pwr_setup_rev19_nphy:
+  00114a00  phy_reg_mod(reg=0x3f3, mask=0x800, val=?)
+  00114a1c  phy_reg_mod(reg=0x3f3, mask=0x700, val=0x600)
+  00114a38  phy_reg_mod(reg=0x3f3, mask=0xff, val=0xa0)
+  00114a54  phy_reg_mod(reg=0x3f0, mask=0x1, val=0x1)
+  00114a70  phy_reg_mod(reg=0x51, mask=0x3, val=0x1)
+  00114a8c  phy_reg_mod(reg=0x51, mask=0x30, val=0x10)
+  00114aa8  phy_reg_mod(reg=0x296, mask=0xff, val=0x10)
+  00114ac4  phy_reg_mod(reg=0x296, mask=0xff00, val=0x800)
+  00114ae0  phy_reg_mod(reg=0x1e8, mask=0x700, val=0x300)
+  00114b4c  phy_reg_mod(reg=0x3f0, mask=0xc, val=?)
+
+wlc_phy_rfseq_nphy_rev19:
+  00115220  phy_reg_mod(reg=0x3f0, mask=0x20, val=?)
+  00115510  phy_reg_mod(reg=0x3f0, mask=0x20, val=0x20)
+
+wlc_nphy_set_radio_loft:
+  0011573c  write_radio_reg(reg=0x171, val=?)
+
+wlc_nphy_get_radio_loft:
+  0011590c  read_radio_reg(reg=0x171)
+
+wlc_phy_chanspec_radio2055_setup:
+  00115ae8  write_radio_reg(reg=0x35, val=?)
+
+wlc_phy_chanspec_radio20671_setup:
+  00115f78  mod_radio_reg(reg=0x2c, mask=0xf, val=?)
+
+wlc_phy_radio205x_vcocal_nphy:
+  0011626c  write_radio_reg(reg=0x60, val=?)
+  001162e4  mod_radio_reg(reg=0x2b, mask=0x1, val=?)
+
+wlc_phy_chanspec_radio2057_setup:
+  001163d8  write_radio_reg(reg=0x16, val=?)
+  001166dc  write_radio_reg(reg=0x16, val=?)
+  00116dd8  read_radio_reg(reg=0x73)
+  00116ebc  read_radio_reg(reg=0x16b)
+  0011730c  read_radio_reg(reg=0x16b)
+  00117774  phy_reg_write(reg=0x195, val=?)
+  00117790  read_radio_reg(reg=0x16b)
+
+wlc_phy_chanspec_radio2056_setup:
+  00117b8c  write_radio_reg(reg=0x56, val=?)
+
+wlc_phy_radio205x_check_vco_cal_nphy:
+  00118674  read_radio_reg(reg=0x33)
+
+wlc_phy_radio205x_rcal:
+  001187bc  phy_reg_read(reg=0x7a)
+  001188ec  phy_reg_write_array(count=&.rodata+0x3714, arrptr=0x36)
+  00118950  mod_radio_reg(reg=0x4, mask=0x1, val=0x1)
+  00118a0c  phy_reg_write(reg=0xe7, val=?)
+  00118ba4  mod_radio_reg(reg=0xcd, mask=0x1, val=0x1)
+  00118bdc  read_radio_reg(reg=0x3d)
+  00118c04  write_radio_reg(reg=0x3d, val=?)
+  00118d64  mod_radio_reg(reg=0xc6, mask=0x1, val=0x1)
+  00118dbc  read_radio_reg(reg=0xcd)
+  00118de0  write_radio_reg(reg=0xcd, val=0x11)
+  00118e08  write_radio_reg(reg=0xcd, val=?)
+  00118e24  read_radio_reg(reg=0xcd)
+  00118e74  write_radio_reg(reg=0x1ca, val=0x2)
+  00118ea4  write_radio_reg(reg=0xcd, val=?)
+
+wlc_phy_radio_preinit_205x:
+  00118ee0  phy_reg_and(reg=0x78, mask=0xfbff)
+  00118f0c  phy_reg_write_array(count=&.rodata+0x3780, arrptr=0x6)
+  00118f4c  phy_reg_write_array(count=&.rodata+0x378c, arrptr=0x6)
+
+wlc_phy_switch_radio_nphy:
+  00119048  phy_reg_and(reg=0x78, mask=0xfbff)
+  00119068  mod_radio_reg(reg=0x9, mask=0x2, val=?)
+  00119158  phy_reg_and(reg=0x78, mask=0xfbff)
+  0011927c  mod_radio_reg(reg=0x8, mask=0xb, val=0xb)
+  0011938c  mod_radio_reg(reg=0x164, mask=0x1, val=0x1)
+  0011945c  phy_reg_write_array(count=&.rodata+0x3798, arrptr=0x9)
+  00119490  and_radio_reg(reg=0x11, mask=0xfff3)
+  001194f4  mod_radio_reg(reg=0x23, mask=0x3f, val=0x2c)
+  00119508  write_radio_reg(reg=0x24, val=0x3c)
+  00119530  or_radio_reg(reg=0x29, val=0x80)
+  001197c4  write_radio_reg(reg=0x1ae, val=0x61)
+  00119b00  write_radio_reg(reg=0x2, val=0x61)
+
+wlc_sslpnphy_get_tx_gain:
+  00119dd4  phy_reg_read(reg=0x439)
+
+wlc_sslpnphy_GetpapdMaxMinIdxupdt:
+  00119e6c  phy_reg_read(reg=0x6b7)
+
+wlc_sslpnphy_get_rx_pwr_offset:
+  0011a1ec  phy_reg_read(reg=0x434)
+  0011a224  phy_reg_read(reg=0x734)
+
+wlc_phy_tpc_isenabled_sslpnphy:
+  0011a274  phy_reg_read(reg=0x4a4)
+
+wlc_sslpnphy_get_tssi:
+  0011a320  phy_reg_read(reg=0x4a4)
+
+wlc_sslpnphy_set_rx_iq_comp:
+  0011a5b4  phy_reg_mod(reg=0x645, mask=0x3ff, val=?)
+
+wlc_sslpnphy_set_tx_gain_override:
+  0011a668  phy_reg_mod(reg=0x4b0, mask=0x80, val=?)
+
+wlc_sslpnphy_set_tx_gain:
+  0011a6e0  phy_reg_read(reg=0x4fb)
+  0011a710  phy_reg_mod(reg=0x4b5, mask=0xffff, val=?)
+
+wlc_sslpnphy_set_rx_gain_by_distribution:
+  0011a8bc  phy_reg_mod(reg=0x4b6, mask=0xffff, val=?)
+
+wlc_sslpnphy_set_pa_gain:
+  0011a97c  phy_reg_mod(reg=0x4fb, mask=0x7f00, val=?)
+
+wlc_sslpnphy_rx_gain_override_enable:
+  0011a9f0  phy_reg_mod(reg=0x4b0, mask=0x160, val=?)
+
+wlc_sslpnphy_set_rx_gain:
+  0011aac4  phy_reg_mod(reg=0x44d, mask=0x1, val=?)
+
+wlc_sslpnphy_get_rxiq_accum:
+  0011b2a8  phy_reg_read(reg=0x485)
+
+wlc_sslpnphy_noise_measure_change_rxpo:
+  0011b520  phy_reg_read(reg=0x55f)
+
+wlc_sslpnphy_rx_pu:
+  0011b698  phy_reg_write_array(count=&.rodata+0x4024, arrptr=0xc)
+  0011b704  phy_reg_write_array(count=&.rodata+0x403c, arrptr=0x6)
+
+wlc_sslpnphy_deaf_mode:
+  0011b760  phy_reg_mod(reg=0x4b0, mask=0x20, val=?)
+  0011b87c  phy_reg_write_array(count=&.rodata+0x48bc, arrptr=0x8)
+
+wlc_sslpnphy_toggle_afe_pwdn:
+  0011b964  phy_reg_read(reg=0x43c)
+  0011b994  phy_reg_write(reg=0x43c, val=?)
+
+wlc_sslpnphy_afe_clk_init:
+  0011ba40  phy_reg_mod(reg=0x6d1, mask=0x80, val=0x80)
+  0011ba68  phy_reg_write(reg=0x6d0, val=0x7)
+  0011bab8  phy_reg_write_array(count=&.rodata+0x3a10, arrptr=0x8)
+  0011bb48  phy_reg_write(reg=0x6d0, val=?)
+
+wlc_sslpnphy_load_filt_coeff:
+  0011bba4  phy_reg_write(reg=?, val=?)
+
+wlc_sslpnphy_set_ant_override:
+  0011bcfc  phy_reg_read(reg=0x44d)
+  0011bd38  phy_reg_write(reg=0x44d, val=?)
+
+wlc_sslpnphy_force_adj_gain:
+  0011bdbc  phy_reg_mod(reg=0x423, mask=0xff, val=?)
+  0011be58  phy_reg_mod(reg=0x423, mask=0xff, val=?)
+  0011bee4  phy_reg_mod(reg=0x723, mask=0xff, val=?)
+  0011bf3c  phy_reg_mod(reg=0x723, mask=0xff, val=?)
+
+wlc_sslpnphy_channel_gain_adjust:
+  0011c008  phy_reg_write(reg=0x50c, val=?)
+  0011c0f0  phy_reg_read(reg=0x50c)
+
+wlc_sslpnphy_get_radio_loft:
+  0011c170  read_radio_reg(reg=0xfe)
+
+wlc_sslpnphy_reset_radio_loft:
+  0011c298  write_radio_reg(reg=0xfe, val=0x88)
+
+wlc_2063_vco_cal:
+  0011c314  mod_radio_reg(reg=0x1a, mask=0x40, val=?)
+  0011c328  read_radio_reg(reg=0x64)
+  0011c348  write_radio_reg(reg=0x64, val=?)
+
+wlc_sslpnphy_noise_measure_chg_listen_gain:
+  0011c458  phy_reg_mod(reg=0x423, mask=0xff, val=?)
+  0011c474  phy_reg_write_array(count=&.rodata+0x3880, arrptr=0x6)
+  0011c4e0  phy_reg_mod(reg=0x723, mask=0xff, val=0x49)
+  0011c4fc  phy_reg_write_array(count=&.rodata+0x3880, arrptr=0x6)
+
+wlc_sslpnphy_aux_adc_accum:
+  0011c564  phy_reg_read(reg=0x43b)
+  0011c588  phy_reg_write_array(count=&.rodata+0x46e8, arrptr=0x10)
+  0011c5a0  phy_reg_mod(reg=0x505, mask=0xffff, val=?)
+
+wlc_sslpnphy_rx_iq_est:
+  0011c71c  phy_reg_write_array(count=&.rodata+0x4740, arrptr=0x8)
+  0011c754  phy_reg_mod(reg=0x482, mask=0xffff, val=?)
+  0011c7e8  phy_reg_read(reg=0x483)
+  0011c800  phy_reg_read(reg=0x484)
+  0011c820  phy_reg_read(reg=0x485)
+  0011c838  phy_reg_read(reg=0x486)
+  0011c858  phy_reg_read(reg=0x487)
+  0011c870  phy_reg_read(reg=0x488)
+  0011c8fc  phy_reg_mod(reg=0x710, mask=0x8, val=?)
+
+wlc_sslpnphy_btcx_override_enable:
+  0011cb60  phy_reg_write_array(count=&.rodata+0x49d8, arrptr=0x8)
+
+wlc_sslpnphy_auxadc_measure:
+  0011cc80  phy_reg_write_array(count=&.rodata+0x3874, arrptr=0x6)
+  0011ccd8  phy_reg_read(reg=0x506)
+  0011cd1c  phy_reg_mod(reg=0x4a6, mask=0x3f, val=?)
+
+wlc_sslpnphy_rx_signal_power:
+  0011ce3c  phy_reg_read(reg=0x425)
+
+wlc_sslpnphy_aci:
+  0011d0e4  phy_reg_or(reg=0x55d, val=0x1)
+  0011d148  phy_reg_mod(reg=0x423, mask=0xff, val=?)
+  0011d1a0  phy_reg_mod(reg=0x723, mask=0xff, val=?)
+
+wlc_sslpnphy_set_trsw_override:
+  0011d224  phy_reg_mod(reg=0x44d, mask=0x3, val=?)
+
+wlc_sslpnphy_set_tssi_mux:
+  0011d284  phy_reg_or(reg=0x4f3, val=0x1000)
+  0011d2b0  mod_radio_reg(reg=0x10b, mask=0x4, val=0x4)
+  0011d2c8  write_radio_reg(reg=0x114, val=0x51)
+  0011d330  phy_reg_and(reg=0x4f3, mask=?)
+  0011d358  write_radio_reg(reg=0x127, val=0x21)
+  0011d374  phy_reg_write_array(count=&.rodata+0x49b4, arrptr=0x8)
+  0011d3b8  mod_radio_reg(reg=0x10b, mask=0x4, val=?)
+  0011d3d4  write_radio_reg(reg=0x114, val=0x51)
+  0011d3e8  or_radio_reg(reg=0x4c, val=0x2)
+  0011d44c  write_radio_reg(reg=0x127, val=0x20)
+
+wlc_sslpnphy_radio_2063_channel_tune:
+  0011d59c  write_radio_reg(reg=0xa2, val=?)
+  0011d6b0  read_radio_reg(reg=0xf)
+  0011d7e8  mod_radio_reg(reg=0x7c, mask=0x7, val=?)
+  0011dd98  or_radio_reg(reg=0x81, val=0x2)
+  0011ddb0  and_radio_reg(reg=0x81, mask=0xfe)
+  0011dde0  or_radio_reg(reg=0x75, val=0x2)
+  0011dfec  and_radio_reg(reg=0x75, mask=0xfd)
+  0011e00c  or_radio_reg(reg=0x81, val=0x2)
+  0011e160  and_radio_reg(reg=0x81, mask=0xfd)
+
+wlc_sslpnphy_pktengtx:
+  0011e3b0  phy_reg_mod(reg=0x44d, mask=0x4, val=?)
+
+wlc_sslpnphy_idle_tssi_est:
+  0011e53c  phy_reg_read(reg=0x4ab)
+
+wlc_sslpnphy_tx_pu:
+  0011e5dc  phy_reg_write_array(count=&.rodata+0x490c, arrptr=0x10)
+  0011e63c  phy_reg_mod(reg=0x4f9, mask=0x7, val=0x7)
+
+wlc_sslpnphy_stop_tx_tone:
+  0011e71c  phy_reg_read(reg=0x644)
+  0011e750  phy_reg_write_array(count=&.rodata+0x488c, arrptr=0x8)
+  0011e7d8  phy_reg_mod(reg=0x63f, mask=0x2, val=0x2)
+  0011e7f8  phy_reg_mod(reg=0x453, mask=0x8000, val=?)
+
+wlc_sslpnphy_calc_rx_iq_comp:
+  0011e870  phy_reg_read(reg=0x645)
+  0011e8a4  phy_reg_write_array(count=&.rodata+0x45a0, arrptr=0x8)
+  0011ea58  read_radio_reg(reg=0x124)
+
+wlc_sslpnphy_tempsense:
+  0011eb28  phy_reg_read(reg=0x504)
+  0011eb9c  phy_reg_mod(reg=0x6da, mask=0x40, val=0x40)
+  0011ebdc  phy_reg_write_array(count=&.rodata+0x46c0, arrptr=0x14)
+  0011ebf0  read_radio_reg(reg=0xd)
+  0011ec44  mod_radio_reg(reg=0x122, mask=0x80, val=0x80)
+  0011ed20  phy_reg_write(reg=0x43e, val=?)
+
+wlc_sslpnphy_vbatsense:
+  0011eeb8  phy_reg_read(reg=0x504)
+  0011ef74  phy_reg_mod(reg=0x6da, mask=0x40, val=0x40)
+  0011efb0  phy_reg_write_array(count=&.rodata+0x4708, arrptr=0x14)
+  0011efe8  read_radio_reg(reg=0x121)
+  0011f00c  mod_radio_reg(reg=0x121, mask=0xf, val=0x4)
+  0011f054  phy_reg_write(reg=0x43e, val=?)
+  0011f098  write_radio_reg(reg=0x121, val=?)
+
+wlc_sslpnphy_detection_disable:
+  0011f240  phy_reg_mod(reg=0x410, mask=0x60, val=?)
+  0011f310  phy_reg_mod(reg=0x710, mask=0x80, val=?)
+  0011f438  phy_reg_write_array(count=&.rodata+0x48dc, arrptr=0x8)
+
+wlc_sslpnphy_noise_measure:
+  0011f508  phy_reg_mod(reg=0x6da, mask=0x20, val=0x20)
+  0011f9a0  phy_reg_write(reg=0x750, val=?)
+  0011fac4  phy_reg_write_array(count=&.rodata+0x3880, arrptr=0x6)
+  0011ffa8  phy_reg_read(reg=0x55b)
+  00120278  phy_reg_write(reg=0x550, val=?)
+
+wlc_sslpnphy_tx_pwr_update_npt:
+  0012069c  phy_reg_read(reg=0x4ab)
+  001206fc  phy_reg_mod(reg=0x4a5, mask=0x700, val=0x100)
+
+wlc_sslpnphy_save_papd_calibration_results:
+  00120cfc  phy_reg_read(reg=0x671)
+
+wlc_sslpnphy_set_swctrl_override:
+  00121320  phy_reg_write(reg=0x44e, val=0xff)
+  00121340  phy_reg_mod(reg=0x44f, mask=0xf, val=?)
+  00121380  phy_reg_write(reg=0x44e, val=?)
+
+wlc_sslpnphy_temp_adj_offset:
+  00121998  phy_reg_mod(reg=0x4df, mask=0xff, val=?)
+
+wlc_sslpnphy_CmRxAciGainTbl_Tweaks:
+  00121d84  phy_reg_write(reg=0x750, val=0x140)
+  00121d9c  write_radio_reg(reg=0xb2, val=0xf6)
+  00121fb8  phy_reg_mod(reg=0x420, mask=0xff00, val=0xc00)
+  00121fec  phy_reg_mod(reg=0x4de, mask=0x8, val=0x8)
+  001220c0  phy_reg_write_array(count=&.rodata+0x4bcc, arrptr=0x17)
+  00122260  phy_reg_write_array(count=&.rodata+0x4b20, arrptr=0x12)
+  001223dc  phy_reg_write(reg=0x550, val=0x168)
+  001223f4  write_radio_reg(reg=0xb2, val=0xf0)
+  00122410  phy_reg_write_array(count=&.rodata+0x4a00, arrptr=0x20)
+  0012250c  phy_reg_write_array(count=&.rodata+0x49e8, arrptr=0xc)
+  00122548  phy_reg_mod(reg=0x428, mask=0xf, val=0x8)
+  001225e4  write_radio_reg(reg=0xb2, val=0x33)
+  001225fc  phy_reg_write(reg=0x550, val=0x154)
+
+wlc_sslpnphy_set_chanspec_default_tweaks:
+  00122a04  phy_reg_mod(reg=0x434, mask=0xff, val=0xff)
+  00122a2c  phy_reg_write(reg=0x550, val=0x168)
+  00122b48  phy_reg_write_array(count=&.rodata+0x4d20, arrptr=0x14)
+
+wlc_sslpnphy_set_chanspec_tweaks:
+  00123318  phy_reg_mod(reg=0x434, mask=0xff, val=0xfe)
+  001233b8  phy_reg_mod(reg=0x434, mask=0xff, val=?)
+  001233d4  phy_reg_write_array(count=&.rodata+0x41d0, arrptr=0x6)
+  00123438  phy_reg_write_array(count=&.rodata+0x4180, arrptr=0x7)
+  001234c0  phy_reg_mod(reg=0x423, mask=0xff, val=0x46)
+  0012351c  phy_reg_write(reg=0x550, val=0x140)
+  00123580  phy_reg_mod(reg=0x434, mask=0xff, val=?)
+  001235cc  phy_reg_mod(reg=0x434, mask=0xff, val=0xfd)
+  00123620  phy_reg_write_array(count=&.rodata+0x4130, arrptr=0x10)
+  0012363c  phy_reg_write(reg=0x550, val=0x15e)
+  00123660  phy_reg_write_array(count=&.rodata+0x41c0, arrptr=0x7)
+  001236d8  phy_reg_write_array(count=&.rodata+0x4358, arrptr=0x1e)
+  00123768  phy_reg_mod(reg=0x428, mask=0xf, val=0x7)
+  00123818  phy_reg_mod(reg=0x423, mask=0xff, val=0x43)
+  00123870  phy_reg_write(reg=0x550, val=0x12c)
+  001238e8  phy_reg_write_array(count=&.rodata+0x41a0, arrptr=0x7)
+  00123920  phy_reg_write(reg=0x550, val=0xf0)
+  00123980  phy_reg_write_array(count=&.rodata+0x4168, arrptr=0xc)
+  001239b4  phy_reg_write_array(count=&.rodata+0x4150, arrptr=0xc)
+  001239ec  phy_reg_write_array(count=&.rodata+0x434c, arrptr=0x6)
+  00123afc  phy_reg_write_array(count=&.rodata+0x4190, arrptr=0x7)
+  00123b1c  phy_reg_mod(reg=0x428, mask=0xf, val=0x5)
+  00123bbc  phy_reg_mod(reg=0x428, mask=0xf, val=0x6)
+  00123bdc  write_radio_reg(reg=0xb2, val=0x33)
+  00123c1c  phy_reg_mod(reg=0x4df, mask=0xff, val=0x3)
+  00123cbc  phy_reg_mod(reg=0x434, mask=0xff, val=0xfc)
+  00123d34  phy_reg_mod(reg=0x4df, mask=0xff, val=0xf4)
+  00123f1c  phy_reg_mod(reg=0x434, mask=0xff, val=0xfd)
+  00124428  phy_reg_mod(reg=0x434, mask=0xff, val=0xfd)
+  00124724  phy_reg_mod(reg=0x434, mask=0xff, val=0x4)
+
+wlc_sslpnphy_restore_calibration_results:
+  00124a74  write_radio_reg(reg=0xfe, val=?)
+  00124b3c  phy_reg_write(reg=0x64b, val=?)
+
+wlc_sslpnphy_txpower_recalc_target:
+  00124e6c  phy_reg_mod(reg=0x4a7, mask=0xff, val=?)
+  00125088  phy_reg_read(reg=0x4a7)
+  001250fc  phy_reg_mod(reg=0x4a7, mask=0xff, val=?)
+
+wlc_sslpnphy_temp_adj:
+  001252d8  phy_reg_read(reg=0x434)
+  00125510  phy_reg_write_array(count=&.rodata+0x4638, arrptr=0xb)
+  0012559c  phy_reg_mod(reg=0x50e, mask=0x1fe, val=0x2e)
+  001255c4  phy_reg_write(reg=0x542, val=0xc)
+  00125868  phy_reg_mod(reg=0x434, mask=0xff, val=?)
+  0012592c  phy_reg_mod(reg=0x4df, mask=0xff, val=?)
+  00125a50  phy_reg_read(reg=0x734)
+  00125b24  phy_reg_write_array(count=&.rodata+0x4660, arrptr=0x1c)
+  00125b60  phy_reg_read(reg=0x434)
+  00125bf0  phy_reg_write_array(count=&.rodata+0x4600, arrptr=0xc)
+  00125cc0  phy_reg_mod(reg=?, mask=?, val=?)
+  00125d3c  phy_reg_write_array(count=&.rodata+0x4650, arrptr=0x8)
+  00125d78  phy_reg_write_array(count=&.rodata+0x4698, arrptr=0xc)
+  00125dbc  phy_reg_write(reg=0x542, val=0xc)
+  00125ed4  phy_reg_write_array(count=&.rodata+0x46b0, arrptr=0x7)
+  00125ff0  phy_reg_write_array(count=&.rodata+0x45e0, arrptr=0x7)
+  00126010  phy_reg_write_array(count=&.rodata+0x45d0, arrptr=0x8)
+  00126188  phy_reg_write_array(count=&.rodata+0x45c0, arrptr=0x8)
+  00126234  phy_reg_mod(reg=0x434, mask=0xff, val=?)
+  00126264  phy_reg_write_array(count=&.rodata+0x45f0, arrptr=0x8)
+  0012630c  phy_reg_mod(reg=0x50e, mask=0x1fe, val=0x2e)
+  0012634c  phy_reg_mod(reg=0x434, mask=0xff, val=0xfd)
+  00126374  phy_reg_write_array(count=&.rodata+0x45b0, arrptr=0x8)
+  00126430  phy_reg_write_array(count=&.rodata+0x45b0, arrptr=0x8)
+
+wlc_sslpnphy_set_tx_pwr_ctrl:
+  001265e8  phy_reg_read(reg=0x4a4)
+  00126614  phy_reg_mod(reg=0x6da, mask=0x40, val=?)
+  001266b0  phy_reg_mod(reg=0x6da, mask=0x40, val=0x40)
+
+wlc_sslpnphy_set_tx_pwr_by_index:
+  001269e4  phy_reg_mod(reg=0x6a6, mask=0x1fff, val=?)
+
+wlc_sslpnphy_pre_papd_cal_setup:
+  00126afc  phy_reg_read(reg=0x4ea)
+  00126b24  read_radio_reg(reg=0x55)
+  00126b54  phy_reg_mod(reg=0x4ea, mask=0x7, val=0x5)
+  00126c30  mod_radio_reg(reg=0xf3, mask=0x18, val=0x10)
+  00126c7c  or_radio_reg(reg=0x2, val=0x1)
+  00126cdc  write_radio_reg(reg=0x2, val=?)
+  00126d70  phy_reg_or(reg=0x6da, val=0x8f)
+  00126dc8  phy_reg_write(reg=0x671, val=?)
+  00126e94  write_radio_reg(reg=0x3, val=?)
+  00126ea4  read_radio_reg(reg=0x2)
+  00126ec0  or_radio_reg(reg=0x3, val=0x18)
+  00126f1c  phy_reg_write(reg=0x4ea, val=?)
+  00126fa8  phy_reg_and(reg=0x44c, mask=0xfffc)
+  00127004  mod_radio_reg(reg=0x4c, mask=0x30, val=?)
+  00127054  phy_reg_mod(reg=0x44c, mask=0x800, val=?)
+  00127144  mod_radio_reg(reg=0xf3, mask=0x18, val=0x18)
+
+wlc_sslpnphy_bu_tweaks:
+  001271f8  phy_reg_write_array(count=&.rodata+0x3d80, arrptr=0x5d)
+  00127218  phy_reg_mod(reg=0x50a, mask=0x1, val=0x1)
+  00127544  phy_reg_mod(reg=0x50a, mask=0x1, val=?)
+
+wlc_sslpnphy_tx_pwr_ctrl_init:
+  001276c4  phy_reg_read(reg=0x50c)
+  001278d0  phy_reg_write_array(count=&.rodata+0x49a4, arrptr=0x8)
+  001278e8  phy_reg_mod(reg=0x503, mask=0x15, val=0x14)
+  001278fc  read_radio_reg(reg=0x121)
+  00127918  write_radio_reg(reg=0x121, val=?)
+  00127d38  mod_radio_reg(reg=0x121, mask=0xf, val=0x8)
+
+wlc_sslpnphy_radio_init:
+  00128f10  phy_reg_or(reg=0x4a2, val=0x2)
+  00128f30  phy_reg_and(reg=0x4a2, mask=0xfffd)
+  00128fa8  write_radio_reg(reg=?, val=?)
+  00128ff8  or_radio_reg(reg=0x8, val=0x38)
+  00129034  mod_radio_reg(reg=0xf3, mask=0x6, val=0x2)
+  00129070  and_radio_reg(reg=0x2, mask=?)
+  00129268  and_radio_reg(reg=0x4, mask=0xffbf)
+  00129284  phy_reg_write_array(count=&.rodata+0x3e3c, arrptr=0xe)
+  00129538  mod_radio_reg(reg=0xf3, mask=0x2, val=?)
+  00129650  read_radio_reg(reg=0x46)
+
+T.1220:
+  001298ac  phy_reg_mod(reg=0x6da, mask=0x80, val=0x80)
+  0012992c  phy_reg_write(reg=0x63f, val=0x1)
+
+wlc_sslpnphy_start_tx_tone:
+  00129b98  phy_reg_write_array(count=&.rodata+0x489c, arrptr=0x8)
+
+wlc_phy_sslpnphy_long_train:
+  00129cb8  phy_reg_write_array(count=&.rodata+0x3848, arrptr=0x7)
+  00129d54  phy_reg_write_array(count=&.rodata+0x3858, arrptr=0x7)
+
+T.1221:
+  00129ea0  phy_reg_read(reg=0x852)
+  00129f04  phy_reg_write_array(count=&.rodata+0x4844, arrptr=0xf)
+  0012a0d0  phy_reg_mod(reg=0x6da, mask=0x40, val=0x40)
+  0012a108  read_radio_reg(reg=0x10b)
+  0012a160  mod_radio_reg(reg=0x10b, mask=0x4, val=0x4)
+  0012a184  phy_reg_or(reg=0x4f3, val=0x1000)
+  0012a1e0  and_radio_reg(reg=0x121, mask=0xf2)
+  0012a2c8  phy_reg_write(reg=0x453, val=0xaa9)
+  0012a5dc  write_radio_reg(reg=0x121, val=?)
+  0012a79c  phy_reg_write_array(count=?, arrptr=?)
+  0012aa08  or_radio_reg(reg=0x4c, val=0x2)
+  0012aa38  mod_radio_reg(reg=0x10b, mask=0x4, val=?)
+
+wlc_sslpnphy_periodic_cal:
+  0012af34  phy_reg_read(reg=0x4a4)
+  0012afbc  phy_reg_write_array(count=&.rodata+0x4548, arrptr=0x8)
+  0012b004  phy_reg_write_array(count=&.rodata+0x4518, arrptr=0x18)
+  0012b018  write_radio_reg(reg=0x124, val=0x8c)
+  0012b100  phy_reg_write_array(count=&.rodata+0x44a8, arrptr=0x10)
+  0012b114  read_radio_reg(reg=0x118)
+  0012b158  phy_reg_write_array(count=&.rodata+0x4588, arrptr=0xb)
+  0012b178  phy_reg_write_array(count=&.rodata+0x4578, arrptr=0x8)
+  0012b190  phy_reg_mod(reg=0x4e9, mask=0x7f, val=0x5)
+  0012b1fc  phy_reg_write_array(count=&.rodata+0x4558, arrptr=0xf)
+  0012b288  phy_reg_write_array(count=&.rodata+0x4588, arrptr=0xb)
+  0012b494  phy_reg_write_array(count=&.rodata+0x44d8, arrptr=0x20)
+  0012b4a8  write_radio_reg(reg=0x124, val=?)
+  0012b528  phy_reg_mod(reg=0x676, mask=0x80, val=?)
+  0012b564  phy_reg_write_array(count=&.rodata+0x44c8, arrptr=0x8)
+  0012b68c  phy_reg_and(reg=0x44c, mask=0xfffc)
+  0012b6a8  phy_reg_write_array(count=&.rodata+0x4498, arrptr=0x8)
+  0012b724  phy_reg_write_array(count=&.rodata+0x4478, arrptr=0x10)
+  0012b7fc  phy_reg_write(reg=0x676, val=?)
+
+wlc_phy_init_test_sslpnphy:
+  0012b9b0  phy_reg_mod(reg=0x676, mask=0x40, val=0x40)
+
+T.1226:
+  0012ba24  phy_reg_mod(reg=0x6a3, mask=0x2, val=?)
+  0012ba50  phy_reg_write(reg=0x6a1, val=?)
+
+T.1225:
+  0012bba4  phy_reg_write_array(count=&.rodata+0x4100, arrptr=0x7)
+  0012bbc8  phy_reg_write(reg=0x679, val=0x64)
+  0012bd7c  phy_reg_read(reg=0x6ba)
+  0012bda4  phy_reg_read(reg=0x6bb)
+  0012bf28  phy_reg_read(reg=0x6ba)
+  0012bf40  phy_reg_read(reg=0x6bb)
+  0012c1a4  phy_reg_write(reg=0x679, val=0xc8)
+  0012c544  phy_reg_write(reg=0x6000, val=?)
+
+wlc_sslpnphy_papd_recal:
+  0012cce0  phy_reg_read(reg=0x4a4)
+  0012cd70  phy_reg_mod(reg=0x4a7, mask=0xff, val=?)
+  0012cdf8  phy_reg_write_array(count=&.rodata+0x3fd4, arrptr=0x8)
+  0012d470  phy_reg_write(reg=0x671, val=?)
+  0012d62c  phy_reg_write_array(count=&.rodata+0x3f78, arrptr=0xc)
+  0012d690  phy_reg_write(reg=0x4ea, val=?)
+  0012d87c  phy_reg_write_array(count=&.rodata+0x3fc4, arrptr=0x8)
+  0012d8b4  phy_reg_write_array(count=&.rodata+0x3f3c, arrptr=0x8)
+  0012d938  phy_reg_read(reg=0x4ab)
+  0012d9c0  phy_reg_mod(reg=0x6da, mask=0x1003, val=0x1003)
+  0012d9fc  phy_reg_write_array(count=&.rodata+0x3fe4, arrptr=0x10)
+  0012dccc  write_radio_reg(reg=0xa5, val=0x6)
+  0012dd38  write_radio_reg(reg=0xa5, val=?)
+  0012deb0  phy_reg_write(reg=0x62c, val=0x63f)
+  0012decc  phy_reg_write_array(count=&.rodata+0x3f4c, arrptr=0x9)
+  0012df1c  phy_reg_write_array(count=&.rodata+0x3fb4, arrptr=0x8)
+  0012e13c  phy_reg_write_array(count=&.rodata+0x4014, arrptr=0x8)
+  0012e164  phy_reg_write(reg=0x62c, val=0x7ff)
+  0012e20c  phy_reg_write(reg=0x4f2, val=?)
+  0012e4e0  phy_reg_write_array(count=&.rodata+0x4004, arrptr=0x8)
+  0012e4fc  write_radio_reg(reg=0x138, val=0xee)
+  0012e580  phy_reg_write_array(count=&.rodata+0x3f60, arrptr=0xc)
+
+wlc_phy_chanspec_set_sslpnphy:
+  0012eba0  write_phy_channel_reg(reg=?, val=?)
+  0012ec2c  phy_reg_write(reg=0x4f2, val=?)
+  0012ec68  phy_reg_mod(reg=0x448, mask=0x300, val=0x100)
+  0012ecfc  write_radio_reg(reg=0x51, val=0x7f)
+  0012ed14  write_radio_reg(reg=0x4b, val=0xff)
+  0012ed2c  write_radio_reg(reg=0x47, val=0xff)
+  0012ed44  write_radio_reg(reg=0x3f, val=0xff)
+  0012ed5c  write_radio_reg(reg=0x10f, val=0x50)
+  0012f000  write_radio_reg(reg=0x10f, val=0x40)
+  0012f06c  write_radio_reg(reg=0x111, val=0x2)
+  0012f0a0  write_radio_reg(reg=0x10c, val=0x90)
+  0012f0b8  write_radio_reg(reg=0x111, val=?)
+  0012f0e0  write_radio_reg(reg=0x118, val=0x10)
+  0012f294  write_radio_reg(reg=0xd0, val=0x1)
+  0012f2ac  write_radio_reg(reg=0xd3, val=?)
+  0012f2ec  phy_reg_mod(reg=0x448, mask=0x300, val=0x100)
+  0012f408  phy_reg_write_array(count=&.rodata+0x4d00, arrptr=0x8)
+  0012f448  phy_reg_write_array(count=&.rodata+0x4cd0, arrptr=0x8)
+  0012f4a8  phy_reg_write_array(count=&.rodata+0x4c88, arrptr=0x8)
+  0012f4f0  write_radio_reg(reg=0x138, val=0xde)
+  0012f564  phy_reg_write_array(count=&.rodata+0x4ca8, arrptr=0x14)
+  0012f5d0  phy_reg_write_array(count=&.rodata+0x4c70, arrptr=0xc)
+  0012f640  phy_reg_write_array(count=&.rodata+0x4ce0, arrptr=0x8)
+  0012f7cc  write_radio_reg(reg=0x111, val=0x20)
+  0012f7e4  write_radio_reg(reg=0x10c, val=0x20)
+  0012f8a8  write_radio_reg(reg=0x111, val=0x10)
+  0012f8c0  write_radio_reg(reg=0x10c, val=0x90)
+  0012f8d8  write_radio_reg(reg=0x111, val=?)
+  0012f9fc  write_radio_reg(reg=0x138, val=0xda)
+  0012fa18  write_radio_reg(reg=0xd0, val=0xf)
+  0012fa30  write_radio_reg(reg=0xd3, val=0xc)
+  0012fa9c  phy_reg_write_array(count=&.rodata+0x4c34, arrptr=0x6)
+  0012fb10  phy_reg_write_array(count=&.rodata+0x4bfc, arrptr=0xe)
+  0012fba4  write_radio_reg(reg=0xfb, val=0xa1)
+  0012fcb8  write_radio_reg(reg=0xd0, val=0xf)
+  0012fcd0  write_radio_reg(reg=0xd3, val=0xf)
+  0012fcec  write_radio_reg(reg=0xd0, val=0xf)
+  0012fd04  write_radio_reg(reg=0xd3, val=0x9)
+  0012fd1c  write_radio_reg(reg=0xd0, val=0xf)
+  0012fd34  write_radio_reg(reg=0xd3, val=0x8)
+  0012fd4c  write_radio_reg(reg=0xd0, val=0xf)
+  0012fd64  write_radio_reg(reg=0xd3, val=0x7)
+  0012fd90  write_radio_reg(reg=0xd3, val=0x6)
+  0012fda8  write_radio_reg(reg=0xd0, val=0xf)
+  0012fdc0  write_radio_reg(reg=0xd3, val=0x3)
+  0012fe28  write_radio_reg(reg=0xd0, val=0xf)
+  0012fe40  write_radio_reg(reg=0xd3, val=0x2)
+  0012fe60  phy_reg_write_array(count=&.rodata+0x4c40, arrptr=0x18)
+  0012ff08  write_radio_reg(reg=0xd0, val=0xf)
+  0012ff20  write_radio_reg(reg=0xd3, val=0x1)
+  0012ff4c  phy_reg_write_array(count=&.rodata+0x4c18, arrptr=0xe)
+  00130008  write_radio_reg(reg=0xd0, val=?)
+  00130020  write_radio_reg(reg=0xd3, val=?)
+  00130040  write_radio_reg(reg=0xd0, val=0x2)
+  00130058  write_radio_reg(reg=0xd3, val=?)
+
+wlc_phy_init_sslpnphy:
+  00130228  phy_reg_write_array(count=&.rodata+0x3a90, arrptr=0x6)
+  00130244  phy_reg_mod(reg=0x448, mask=0x300, val=0x100)
+  00130268  phy_reg_write(reg=0x439, val=0x54)
+  001302e0  read_radio_reg(reg=0x81)
+  001302fc  write_radio_reg(reg=0x81, val=0x4)
+  00130320  phy_reg_read(reg=0x44c)
+  00130380  and_radio_reg(reg=0x1a, mask=0xf7)
+  00130658  phy_reg_write(reg=0x439, val=0x50)
+  0013067c  phy_reg_write_array(count=&.rodata+0x3a84, arrptr=0x6)
+  00130d34  phy_reg_or(reg=0x55d, val=0x2)
+
+wlc_sslpnphy_periodic_cal_top:
+  001316f0  phy_reg_read(reg=0x4ab)
+  00131a04  read_radio_reg(reg=0x65)
+
+wlc_phy_watchdog_sslpnphy:
+  00131ce4  phy_reg_read(reg=0x4ab)
+
+wlc_phy_rssi_compute:
+  0000163c  phy_reg_read(reg=0xa52)
+  000018ec  phy_reg_read(reg=0xa53)
+
+wlc_phy_rssi_compute_nphy:
+  00001ee0  phy_reg_read(reg=0x83)
+
