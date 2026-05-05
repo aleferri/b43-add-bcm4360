@@ -85,18 +85,19 @@ quelli rev-11-only (`rxgains_*`, `subband5gver`, il blocco femctrl,
 `pdoffset*`, e per ogni chain `maxp2ga`, `maxp5ga[4]`, `pa2ga[3]`,
 `pa5ga[12]`).
 
-Per coprire il gap è in `kernel-patch/sprom-rev11/` una serie di tre
-patch DRAFT contro mainline:
+Per coprire il gap è in `kernel-patch/sprom-rev11/` una **patch DRAFT
+v2** contro mainline (`0001-ssb-bcma-firmware-SROM-revision-11-support.patch`).
+Single-file consolidation di tre cambi logicamente indipendenti che
+però devono atterrare insieme per essere utili:
 
-| | File | Obiettivo |
+| Componente | File toccato | Obiettivo |
 |---|---|---|
-| 0001 | `include/linux/ssb/ssb.h` | Estende `struct ssb_sprom` e `struct ssb_sprom_core_pwr_info` con i campi rev 11 dimostrati dal dump NVRAM del DSL-3580L. Tutto appeso, zero shift su campi esistenti, no-op per rev ≤ 10. |
-| 0002 | `drivers/firmware/broadcom/bcm47xx_sprom.c` | NVRAM key→field mapping per i nuovi campi rev 11 (`ENTRY()` mask `0x00000800`) + nuova `bcm47xx_fill_sprom_path_r11` per i campi per-chain CSV. Helper `nvram_read_u{8,16}_array` per i payload comma-separated come `pa5ga0=0xff4d,0x1690,...`. |
-| 0003 | `drivers/bcma/sprom.c`, `include/linux/ssb/ssb_regs.h` | Skeleton `bcma_sprom_extract_r11` con dispatch da `bcma_sprom_get`. Estrae solo i campi i cui offset byte sono verificabili 1:1 contro il dump del DSL-3580L (header condiviso con rev 8 + per-chain block stride 0x28 + `subband5gver`). Tutto il resto resta TODO con elenco esplicito. |
+| (a) struct extension | `include/linux/ssb/ssb.h` | Estende `struct ssb_sprom` e `struct ssb_sprom_core_pwr_info` con i campi rev 11 dimostrati dal dump NVRAM del DSL-3580L. Tutto appeso, zero shift su campi esistenti, no-op per rev ≤ 10. |
+| (b) NVRAM-key path | `drivers/firmware/broadcom/bcm47xx_sprom.c` | NVRAM key→field mapping per i nuovi campi rev 11 (`ENTRY()` mask `0x00000800`) + nuova `bcm47xx_fill_sprom_path_r11` per i campi per-chain CSV. Helper `nvram_read_u{8,16}_array` per i payload comma-separated come `pa5ga0=0xff4d,0x1690,...`. |
+| (c) raw extractor | `drivers/bcma/sprom.c`, `include/linux/ssb/ssb_regs.h` | `bcma_sprom_extract_r11` con dispatch da `bcma_sprom_get`. Estrae header (offset rev-11-specifici `IL0MAC`/`ANTAVAIL`/`TXRXC` introdotti da v2), per-chain block stride 0x28, `subband5gver`, `pdoffset40ma`, region power-per-rate `0x150..0x190`. Region `0x190..0x1B0` resta TODO documentato. |
 
-Stato della serie: **DRAFT, NON da inviare**. Le patch applicano in
-sequenza pulita (`git am`) sul `master` corrente. La serie va
-mantenuta nel repo finché:
+Stato: **DRAFT, NON da inviare**. La patch applica pulita (`git am`)
+sul `master` corrente. Va mantenuta nel repo finché:
 
 1. Il bring-up MVP raggiunge probe + RX su UNII-1 ch.36 (cioè il
    resto di questo README), così c'è almeno un consumer in-tree
@@ -109,7 +110,7 @@ L'invio anticipato è esplicitamente fuori discussione: mandare a
 `linux-wireless` un estrattore rev 11 mai esercitato end-to-end è da
 irresponsabili.
 
-Vantaggio collaterale, già operativo localmente: con la patch 0001
+Vantaggio collaterale, già operativo localmente: con la patch
 applicata, il porting rxgain (sotto) riceve `rxgains_5g{l,m,h}` e
 `pa5ga[12]` per nome, niente costanti hardcoded.
 
@@ -221,10 +222,10 @@ che funzioni comunque, ma è da validare empiricamente.
 ## Bring-up MVP rivisto
 
 Prerequisiti: kernel locale con `B43_PHY_AC=y` (rimosso `BROKEN`)
-**+ patch series `sprom-rev11/` applicate** (le tre patch DRAFT in
-`kernel-patch/sprom-rev11/` da applicare con `git am` sul kernel di
-test), firmware in `/lib/firmware/b43/`, DSL-3580L sacrificabile, AP
-target `D-Link DSL-3580L_5G` (cioè il router stesso) acceso su channel
+**+ patch `sprom-rev11/0001-*.patch` applicata** (DRAFT v2 da
+applicare con `git am` sul kernel di test), firmware in
+`/lib/firmware/b43/`, DSL-3580L sacrificabile, AP target
+`D-Link DSL-3580L_5G` (cioè il router stesso) acceso su channel
 36, seriale TTY.
 
 1. **Smoke test**: `modprobe b43`. Verificare in dmesg:
@@ -260,7 +261,7 @@ target `D-Link DSL-3580L_5G` (cioè il router stesso) acceso su channel
 ### Encoding rxgains nei due word del chain block (SROM-side)
 
 Vedi §"Strategia rxgain — SROM-side" e il commento TODO di
-`bcma_sprom_extract_r11` in `kernel-patch/sprom-rev11/0003-*.patch`.
+`bcma_sprom_extract_r11` nella patch consolidata.
 
 ### `wl phytable` formato output
 
@@ -385,10 +386,27 @@ Miłecki (bcma).
   Cross-reference nome→valore→offset eseguibile localmente.
 - `wl phytable` / `wl phyreg` confermati funzionanti su questo blob —
   via di acquisizione runtime aperta per ground truth.
-- Serie patch DRAFT `kernel-patch/sprom-rev11/` (3 patch + README)
-  contro mainline `master` `6d35786`: applica con `git am` in
-  sequenza, non testata end-to-end. Trattenuta nel repo finché il
-  bring-up non rende esercitabile l'estrazione.
+- Patch DRAFT v2 `kernel-patch/sprom-rev11/0001-*.patch` (single-file
+  consolidation, vedi §"SROM rev 11" sopra) contro mainline `master`
+  `6d35786`: applica con `git am`, non testata end-to-end. Trattenuta
+  nel repo finché il bring-up non rende esercitabile l'estrazione.
+- Harness userspace in `kernel-patch/sprom-rev11/harness/` che
+  compila `bcma_sprom_extract_r11()` contro un kernel shim e diffa
+  ogni campo popolato vs `wl nvram_dump`. Stato corrente:
+  `make check` (DSL-3580L) **77 PASS / 0 FAIL / 2 INFO**;
+  `make check-d6220` (Netgear D6220, secondo board hardware-reale
+  della famiglia BCM43b3) **74 PASS / 0 FAIL / 5 INFO**;
+  `make check-bcm4360usb` (synth-mode, NVRAM-only di asuswrt-merlin)
+  passa ma espone `Finding 1` su collisione word IL0MAC/CCODE — vedi
+  `cross_check.md`.
+- Cross-board confirmation D6220 → DSL-3580L: stride per-chain 0x28
+  e offset header (boardrev, aa{2,5}g, txchain/rxchain, antswitch,
+  subband5gver) reggono su un secondo board della famiglia con PA
+  table e `maxp5ga0` strutturalmente diversi (vedi
+  `router-data/d6220/README.md`). **Non** chiude la SALAME `Finding 1`
+  (region 0x90..0x95 letta zero anche sul D6220) né l'encoding
+  rxgains chain block (triplet identici, `0xb3` resta unico
+  informativo).
 
 ## Provenance
 
@@ -409,12 +427,8 @@ router-data/d6220/                    — analoga sessione su Netgear D6220
                                         board rev P355). Vedi router-data/d6220/README.md
 ```
 
-Il file `bcm43b3_3580l_map.bin` (480 byte, root del repo) è una
-versione binaria del SROM, congruente coi 240 word di
-`router-data/dsl3580l/wl1_srom_raw.txt` salvo lo stato del CRC (high byte di
-word 233): il `.bin` è di una snapshot anteriore, il `.txt` è il
-dump corrente. Per il cross-reference nome→valore→offset il
-testuale è la fonte affidabile.
+Per il cross-reference nome→valore→offset il testuale (`wl1_srom_raw.txt`,
+240 word BE per riga di word) è la fonte affidabile.
 
 Non ancora committati ma utili per chiudere le aperture residue:
 

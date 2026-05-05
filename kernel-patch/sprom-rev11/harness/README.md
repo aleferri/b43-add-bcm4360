@@ -18,6 +18,8 @@ DSL-3580L, leading to the introduction of the
 ```
 $ make                     # builds ./test
 $ make check               # runs against ../../../router-data/dsl3580l/wl1_*.txt
+$ make check-d6220         # runs against ../../../router-data/d6220/wl1_*.txt
+                           # (second hardware-real board, same chip family)
 $ make check-bcm4360usb    # runs the synth-mode round-trip on the
                            # bcm4360usb reference NVRAM (see below)
 ```
@@ -36,9 +38,16 @@ $ ./test --synth path/to/nvram.txt
 
 Output is line-per-field PASS/FAIL/INFO with a final summary. Exit
 status is 0 if no FAIL occurred. Current state on the committed
-DSL-3580L vector: 77 PASS, 0 FAIL, 2 INFO (the two INFO are
-SROM-vs-NVRAM source divergences for `il0mac` and `country_code`,
-both legitimate and explained inline in the output).
+vectors:
+
+  - DSL-3580L: 77 PASS / 0 FAIL / 2 INFO (the two INFO are
+    SROM-vs-NVRAM source divergences for `il0mac` and `country_code`,
+    both legitimate and explained inline in the output).
+  - D6220:     74 PASS / 0 FAIL / 5 INFO (same two source-divergence
+    INFOs as DSL, plus three NVRAM-missing-key INFOs for
+    `mcsbw1605g{l,m,h}po` — D6220's NVRAM doesn't declare 160 MHz
+    power-per-rate keys, the parser still extracts them from SROM
+    bytes but there is no oracle to diff against).
 
 ## Synth-mode round-trip (NVRAM-only second vector)
 
@@ -120,5 +129,7 @@ particularly useful — see `../README.md` for the full priority list:
 - `test.c` — table of field checks plus the diff/summary driver.
   Supports both `srom+nvram` mode (default) and `--synth nvram` mode.
 - `Makefile` — `make` builds, `make check` runs against the committed
-  DSL-3580L vector at `../../../router-data/`, `make check-bcm4360usb`
-  runs the bcm4360usb synth-mode round-trip.
+  DSL-3580L vector at `../../../router-data/dsl3580l/`,
+  `make check-d6220` runs against the committed D6220 vector at
+  `../../../router-data/d6220/`, `make check-bcm4360usb` runs the
+  bcm4360usb synth-mode round-trip.

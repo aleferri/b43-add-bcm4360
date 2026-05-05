@@ -93,7 +93,7 @@ DSL-3580L's `aa2g=0` made the bg-half check trivial; bcm4360usb fills
 both halves and so confirms that ANTAVAIL packs `aa5g<<8 | aa2g` into
 a single u16 at the v2-corrected byte offset. Same for TXRXC.
 
-### 4. Per-chain power-info block stride (verified by bcm4360usb chains 0/1)
+### 4. Per-chain power-info block stride (verified by bcm4360usb chains 0/1, D6220 chains 0/1/2)
 
 The patch declares the per-chain block stride at 0x28 starting at 0xD8:
 
@@ -108,27 +108,31 @@ confirming the stride is exactly 0x28 and not 0x26 or 0x2A — an
 off-by-one would mix chain-0 `pa5ga` data into chain-1's `pa2ga` slot
 and the diff would explode immediately.
 
-Chain 2 unverified by this vector (NVRAM declares only chains 0 and 1).
-DSL-3580L provides chain-2 coverage at 0x128.
+Chain 2 stride is now independently verified by the D6220 board,
+which populates all three chains with `pa5ga[12]` distinct word-by-word
+from the DSL-3580L and an asymmetric `maxp5ga0=(72,70,86,0)` (vs
+DSL's symmetric `(76,76,76,76)`). The D6220 chain-2 block at 0x128
+parses cleanly against the NVRAM oracle on every per-chain field,
+which would not happen if 0x128 were off by even one word.
 
 ## Status table
 
 | Patch constant            | Value  | Verified by                | bcmsrom_tbl.h cross-check |
 |---------------------------|--------|----------------------------|---------------------------|
-| `SSB_SPROM11_IL0MAC`      | 0x0090 | DSL-3580L (region zero)    | **collision with CCODE** — see Finding 1 |
-| `SSB_SPROM11_ANTAVAIL`    | 0x00A0 | DSL-3580L + bcm4360usb     | not yet read from canonical |
-| `SSB_SPROM11_TXRXC`       | 0x00A8 | DSL-3580L + bcm4360usb     | not yet read from canonical |
-| `SSB_SPROM11_SUBBAND5GVER`| 0x00D6 | DSL-3580L + bcm4360usb     | not yet read from canonical |
-| `SSB_SPROM11_PDOFFSET40MA`| 0x00CA | DSL-3580L                  | not yet read from canonical |
-| `SSB_SPROM11_PWR_INFO_*`  | stride 0x28 from 0xD8 | DSL-3580L (3 chains) + bcm4360usb (2 chains) | not yet read from canonical |
+| `SSB_SPROM11_IL0MAC`      | 0x0090 | DSL-3580L (region zero), D6220 (region zero — same CFE-store pattern) | **collision with CCODE** — see Finding 1 |
+| `SSB_SPROM11_ANTAVAIL`    | 0x00A0 | DSL-3580L + D6220 (same payload — non-degenerate confirmation pending) + bcm4360usb (aa2g=3, aa5g=3) | not yet read from canonical |
+| `SSB_SPROM11_TXRXC`       | 0x00A8 | DSL-3580L + D6220 (same payload) + bcm4360usb | not yet read from canonical |
+| `SSB_SPROM11_SUBBAND5GVER`| 0x00D6 | DSL-3580L + D6220 + bcm4360usb     | not yet read from canonical |
+| `SSB_SPROM11_PDOFFSET40MA`| 0x00CA | DSL-3580L + D6220                  | not yet read from canonical |
+| `SSB_SPROM11_PWR_INFO_*`  | stride 0x28 from 0xD8 | DSL-3580L (3 chains) + D6220 (3 chains, distinct per-chain values) + bcm4360usb (2 chains) | not yet read from canonical |
 | `SSB_SPROM11_PWR_RXGAINS{0,1}` | 0x08 / 0x0A in chain block | bcm4360usb non-saturated triplets | encoding masks not yet read from canonical |
 | `SSB_SPROM11_PWR_PA2GA`        | 0x02 | both vectors | — |
-| `SSB_SPROM11_PWR_MAXP5GA`      | 0x0C | both vectors | — |
-| `SSB_SPROM11_PWR_PA5GA`        | 0x10 | both vectors | — |
-| `SSB_SPROM11_CCKBW202GPO`      | 0x150 | DSL-3580L | — |
-| `SSB_SPROM11_MCSBW{20,40,80,160}5G{L,M,H}PO` | 0x150..0x190 stride 4 | DSL-3580L | — |
-| Reused `SSB_SPROM8_BOARDREV`   | 0x0082 | both vectors; canonical revmask `0xffffff00` covers rev 11 | confirmed reuse |
-| Reused `SSB_SPROM8_CCODE`      | 0x0092 | both vectors (passing only because either NVRAM ccode is empty or = 0) | **suspect — overlaps IL0MAC region** |
+| `SSB_SPROM11_PWR_MAXP5GA`      | 0x0C | DSL-3580L + D6220 (asymmetric (72,70,86,0) on D6220) + bcm4360usb | — |
+| `SSB_SPROM11_PWR_PA5GA`        | 0x10 | DSL-3580L + D6220 (distinct word-by-word from DSL across all 3 chains) + bcm4360usb | — |
+| `SSB_SPROM11_CCKBW202GPO`      | 0x150 | DSL-3580L + D6220 | — |
+| `SSB_SPROM11_MCSBW{20,40,80,160}5G{L,M,H}PO` | 0x150..0x190 stride 4 | DSL-3580L + D6220 (NVRAM lacks `mcsbw160*` keys → INFO, the 20/40/80 entries pass) | — |
+| Reused `SSB_SPROM8_BOARDREV`   | 0x0082 | DSL-3580L + D6220 (different `boardrev` value) + bcm4360usb; canonical revmask `0xffffff00` covers rev 11 | confirmed reuse |
+| Reused `SSB_SPROM8_CCODE`      | 0x0092 | both hardware vectors (passing only because both NVRAM ccode are empty) | **suspect — overlaps IL0MAC region** |
 
 ## How to fill the canonical column
 

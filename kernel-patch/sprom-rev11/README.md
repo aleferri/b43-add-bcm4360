@@ -12,10 +12,7 @@ The patch is stored here as a single file:
 
 It is a single-file consolidation of three logically independent
 changes that nevertheless need to land together to be useful (struct
-extension, NVRAM-key path, raw SROM extractor). The earlier
-incremental version of the series — three separate `git format-patch`
-files — lives in `superseded/` for reference; once this draft
-graduates the superseded directory should be removed.
+extension, NVRAM-key path, raw SROM extractor).
 
 It will be `git format-patch`'d and sent to
 `linux-wireless@vger.kernel.org` only **after** at least one of the
@@ -88,17 +85,27 @@ Per the commit message, three changes consolidated:
 
 ## Test vector reference
 
-The DSL-3580L reference dump is committed in `router-data/` of this
-repository:
+Three vectors are wired into the harness (`harness/`):
 
 ```
-router-data/dsl3580l/wl1_nvram.txt    — `wl -i wl1 nvram_dump` output
-router-data/dsl3580l/wl1_srom_raw.txt — `wl -i wl1 srdump`     output
+router-data/dsl3580l/wl1_{nvram,srom_raw}.txt   — primary, D-Link DSL-3580L
+                                                  (BCM4352-family, P353)
+router-data/d6220/wl1_{nvram,srom_raw}.txt      — second hardware-real board,
+                                                  Netgear D6220 (same chip
+                                                  family, P355)
+harness/vectors/bcm4360usb.nvram                — synth-mode, NVRAM-only
+                                                  defaultsromvars from
+                                                  asuswrt-merlin
 ```
 
-Every offset pinned in the patch has been derived by exact byte-match
-of a NVRAM nominal value against the raw SROM byte stream of the same
-board. Three categories of fit:
+Run with `make check`, `make check-d6220`, `make check-bcm4360usb`
+respectively. Current state: 77/0/2, 74/0/5, synth round-trip clean
+modulo `Finding 1` (see `cross_check.md`).
+
+The DSL-3580L is the primary board because every offset pinned in
+the patch has been derived by exact byte-match of a NVRAM nominal
+value against the raw SROM byte stream of that board. Three categories
+of fit:
 
 - **Unique value-match** (high confidence): for each named field
   there exists exactly one byte offset in the raw SROM whose bytes
@@ -132,9 +139,19 @@ board. Three categories of fit:
    rxchain, antswitch and the SROM-side MAC actually live at +4 / +6
    / +4 byte past the rev-8 positions. v2 introduces
    `SSB_SPROM11_IL0MAC=0x90`, `SSB_SPROM11_ANTAVAIL=0xA0`,
-   `SSB_SPROM11_TXRXC=0xA8`, pinned on this single board; a second
-   rev-11 dump pair would either confirm them or reveal further
-   per-board variation.
+   `SSB_SPROM11_TXRXC=0xA8`. Status as of D6220 onboarding:
+   - `ANTAVAIL`/`TXRXC`: D6220 has the same `aa5g=3 / aa2g=0 /
+     txchain=3 / rxchain=3` as DSL (BCM43b3 reference design is
+     2x2 5GHz-only across both boards), so D6220 only confirms
+     "byte-match still holds at these offsets on a second board",
+     not "the offset is correct against a different payload". For
+     non-degenerate confirmation, the bcm4360usb synth vector
+     (aa2g=3, aa5g=3) plus a future Fastgate or other 4352 board
+     with different `aa2g` are the relevant signals.
+   - `IL0MAC`: still on a single board because both DSL and D6220
+     read the 0x90..0x95 region as zero (CFE-store-sourced MAC,
+     not SROM). Finding 1 in `cross_check.md` remains the gating
+     issue here.
 
 2. Cross-board confirmation of:
    - rxgains decoding by reading registers `0x6f9/0x8f9/0xaf9` bits
