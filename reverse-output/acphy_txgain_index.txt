@@ -1,0 +1,22 @@
+# acphy_txgain_* dump from wl.o
+# id=0x20 len=128 off=0x0 width=48
+# symbol                                    bytes  evidence
+  acphy_txgain_epa_2g_2069rev0                768  reloc-proven
+  acphy_txgain_epa_2g_2069rev16               768  reloc-proven
+  acphy_txgain_epa_2g_2069rev17               768  reloc-proven
+  acphy_txgain_epa_2g_2069rev18               768  reloc-proven
+  acphy_txgain_epa_2g_2069rev4                768  reloc-proven
+  acphy_txgain_epa_5g_2069rev0                768  reloc-proven
+  acphy_txgain_epa_5g_2069rev16               768  reloc-proven
+  acphy_txgain_epa_5g_2069rev17               768  reloc-proven
+  acphy_txgain_epa_5g_2069rev18               768  reloc-proven
+  acphy_txgain_epa_5g_2069rev254              768  size-only
+  acphy_txgain_epa_5g_2069rev4                768  reloc-proven
+  acphy_txgain_ipa_2g_2069rev0                768  reloc-proven
+  acphy_txgain_ipa_2g_2069rev16               768  reloc-proven
+  acphy_txgain_ipa_2g_2069rev17               768  reloc-proven
+  acphy_txgain_ipa_2g_2069rev18               768  reloc-proven
+  acphy_txgain_ipa_5g_2069rev0                768  reloc-proven
+  acphy_txgain_ipa_5g_2069rev16               768  reloc-proven
+  acphy_txgain_ipa_5g_2069rev17               768  reloc-proven
+  acphy_txgain_ipa_5g_2069rev18               768  reloc-proven

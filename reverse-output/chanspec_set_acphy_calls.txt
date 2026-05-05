@@ -1,0 +1,198 @@
+# helper-call audit of wlc_phy_chanspec_set_acphy
+# function range: 0x50d9c..0x53298 (9468 bytes)
+# total recognised calls: 186
+# by helper:
+#   mod_radio_reg             14
+#   phy_reg_mod               10
+#   phy_reg_read               3
+#   phy_reg_write             23
+#   read_radio_reg             3
+#   write_radio_reg          133
+
+# in execution order:
+  0x00050e9c  phy_reg_mod        reg=0x3, mask=0x100, val=?
+  0x00050ee8  read_radio_reg     reg=?
+  0x00050f34  write_radio_reg    reg=0x8e8, val=?
+  0x00050f60  write_radio_reg    reg=0x8e9, val=?
+  0x00050f88  write_radio_reg    reg=0x8e5, val=?
+  0x00050fb4  write_radio_reg    reg=0x8e4, val=?
+  0x00050fdc  write_radio_reg    reg=0x8ee, val=?
+  0x00051008  write_radio_reg    reg=0x8ef, val=?
+  0x00051030  write_radio_reg    reg=0x8cc, val=?
+  0x0005105c  write_radio_reg    reg=0x8cd, val=?
+  0x00051084  write_radio_reg    reg=0x8ed, val=?
+  0x000510b0  write_radio_reg    reg=0x8f3, val=?
+  0x000510d8  write_radio_reg    reg=0x8de, val=?
+  0x00051104  write_radio_reg    reg=0x925, val=?
+  0x0005112c  write_radio_reg    reg=0x8e3, val=?
+  0x00051158  write_radio_reg    reg=0x8e2, val=?
+  0x00051180  write_radio_reg    reg=0x8df, val=?
+  0x000511ac  write_radio_reg    reg=0x88c, val=?
+  0x000511d4  write_radio_reg    reg=0x88d, val=?
+  0x00051200  write_radio_reg    reg=0x88e, val=?
+  0x00051228  write_radio_reg    reg=0x8e1, val=?
+  0x00051254  write_radio_reg    reg=0x8e0, val=?
+  0x0005127c  write_radio_reg    reg=0x8d1, val=?
+  0x000512a8  write_radio_reg    reg=0x8d2, val=?
+  0x000512d0  write_radio_reg    reg=0x8d4, val=?
+  0x000512fc  write_radio_reg    reg=0x8cf, val=?
+  0x00051324  write_radio_reg    reg=0x8d0, val=?
+  0x00051350  write_radio_reg    reg=0x89a, val=?
+  0x00051378  write_radio_reg    reg=0x9c, val=?
+  0x000513a4  write_radio_reg    reg=0x9d, val=?
+  0x000513cc  write_radio_reg    reg=0x9e, val=?
+  0x000513f8  write_radio_reg    reg=0x9f, val=?
+  0x00051420  write_radio_reg    reg=0xa1, val=?
+  0x0005144c  write_radio_reg    reg=0xa2, val=?
+  0x00051474  write_radio_reg    reg=0xa3, val=?
+  0x000514a0  write_radio_reg    reg=0xa4, val=?
+  0x000514c8  write_radio_reg    reg=0x924, val=?
+  0x000514f4  write_radio_reg    reg=0x2f, val=?
+  0x0005151c  write_radio_reg    reg=0x62, val=?
+  0x00051548  write_radio_reg    reg=0x65, val=?
+  0x00051570  write_radio_reg    reg=0x6f, val=?
+  0x0005159c  write_radio_reg    reg=0x92c, val=?
+  0x000515c4  write_radio_reg    reg=0x92d, val=?
+  0x000515f0  write_radio_reg    reg=0x12b, val=?
+  0x00051618  write_radio_reg    reg=0x37, val=?
+  0x00051644  write_radio_reg    reg=0x63, val=?
+  0x0005166c  write_radio_reg    reg=0x69, val=?
+  0x00051698  write_radio_reg    reg=0x74, val=?
+  0x000516c0  write_radio_reg    reg=0x89b, val=?
+  0x000516ec  write_radio_reg    reg=0x957, val=?
+  0x00051714  write_radio_reg    reg=0x958, val=?
+  0x00051744  write_radio_reg    reg=0x135, val=?
+  0x000517a4  mod_radio_reg      reg=0x4c, mask=0x7000, val=0x7000
+  0x000517f0  write_radio_reg    reg=0x135, val=0x83e0
+  0x0005181c  mod_radio_reg      reg=0x8ed, mask=0x4000, val=?
+  0x00051848  mod_radio_reg      reg=0x8d8, mask=0x1, val=?
+  0x00051870  mod_radio_reg      reg=0x8f0, mask=0x40, val=?
+  0x0005189c  mod_radio_reg      reg=0x8e4, mask=0x2000, val=?
+  0x000518d0  mod_radio_reg      reg=0x8d8, mask=0x1, val=0x1
+  0x000518fc  mod_radio_reg      reg=0x8f0, mask=0x40, val=0x40
+  0x00051930  mod_radio_reg      reg=0x8e4, mask=0x2000, val=0x2000
+  0x00051950  read_radio_reg     reg=?
+  0x00051994  read_radio_reg     reg=0x90b
+  0x000519f8  phy_reg_read       reg=0xb
+  0x00051ac8  phy_reg_write      reg=0x19a, val=?
+  0x00051ad8  phy_reg_write      reg=0x19b, val=?
+  0x00051ae8  phy_reg_write      reg=0x19c, val=?
+  0x00051af8  phy_reg_write      reg=0x199, val=?
+  0x00051b08  phy_reg_write      reg=0x1a1, val=?
+  0x00051b18  phy_reg_write      reg=0x1a2, val=?
+  0x00051b28  phy_reg_write      reg=0x1a3, val=?
+  0x00051b38  phy_reg_write      reg=0x1a0, val=?
+  0x00051b88  phy_reg_write      reg=0x603, val=?
+  0x00051bac  phy_reg_write      reg=0x602, val=?
+  0x00051bd0  phy_reg_write      reg=0x607, val=?
+  0x00051bf8  phy_reg_write      reg=0x606, val=?
+  0x00051c0c  phy_reg_read       reg=0x601
+  0x00051c38  phy_reg_write      reg=0x601, val=?
+  0x00051c54  phy_reg_write      reg=0x371, val=?
+  0x00051c64  phy_reg_write      reg=0x372, val=?
+  0x00051c74  phy_reg_write      reg=0x373, val=?
+  0x00051c84  phy_reg_write      reg=0x374, val=?
+  0x00051c94  phy_reg_write      reg=0x375, val=?
+  0x00051ca4  phy_reg_write      reg=0x376, val=?
+  0x00051cec  phy_reg_write      reg=0x31c, val=0xff
+  0x00051cfc  phy_reg_write      reg=0x31d, val=0xff
+  0x00051d0c  phy_reg_write      reg=0x31e, val=0xff
+  0x00051d1c  phy_reg_write      reg=0x31f, val=0xff
+  0x00051f64  phy_reg_mod        reg=0x3, mask=0x100, val=0x100
+  0x0005204c  write_radio_reg    reg=0x135, val=0x3e9
+  0x00052078  write_radio_reg    reg=0x135, val=0x3e9
+  0x000520ac  mod_radio_reg      reg=0x89a, mask=0xff00, val=0xa000
+  0x000520ec  write_radio_reg    reg=0x8de, val=0xce4
+  0x0005211c  mod_radio_reg      reg=0x8f4, mask=0x70, val=0x50
+  0x00052138  write_radio_reg    reg=0x8dd, val=?
+  0x0005215c  write_radio_reg    reg=0x8dc, val=?
+  0x00052180  write_radio_reg    reg=0x8e6, val=?
+  0x000521a4  write_radio_reg    reg=0x8e7, val=?
+  0x000521c8  write_radio_reg    reg=0x8c4, val=?
+  0x000521ec  write_radio_reg    reg=0x8c5, val=?
+  0x00052210  write_radio_reg    reg=0x8e5, val=?
+  0x00052234  write_radio_reg    reg=0x8eb, val=?
+  0x00052258  write_radio_reg    reg=0x8d6, val=?
+  0x0005227c  write_radio_reg    reg=0x113, val=?
+  0x000522a0  write_radio_reg    reg=0x8db, val=?
+  0x000522c4  write_radio_reg    reg=0x8da, val=?
+  0x000522e8  write_radio_reg    reg=0x8d7, val=?
+  0x0005230c  write_radio_reg    reg=0x885, val=?
+  0x00052330  write_radio_reg    reg=0x886, val=?
+  0x00052354  write_radio_reg    reg=0x887, val=?
+  0x00052378  write_radio_reg    reg=0x8d9, val=?
+  0x0005239c  write_radio_reg    reg=0x8d8, val=?
+  0x000523c0  write_radio_reg    reg=0x8c9, val=?
+  0x000523e4  write_radio_reg    reg=0x8ca, val=?
+  0x00052408  write_radio_reg    reg=0x8cc, val=?
+  0x0005242c  write_radio_reg    reg=0x8c7, val=?
+  0x00052450  write_radio_reg    reg=0x8c8, val=?
+  0x00052474  write_radio_reg    reg=0x892, val=?
+  0x00052498  write_radio_reg    reg=0x894, val=?
+  0x000524bc  write_radio_reg    reg=0x895, val=?
+  0x000524e0  write_radio_reg    reg=0x896, val=?
+  0x00052504  write_radio_reg    reg=0x897, val=?
+  0x00052528  write_radio_reg    reg=0x899, val=?
+  0x0005254c  write_radio_reg    reg=0x89a, val=?
+  0x00052570  write_radio_reg    reg=0x89b, val=?
+  0x00052594  write_radio_reg    reg=0x89c, val=?
+  0x000525b8  write_radio_reg    reg=0x112, val=?
+  0x000525dc  write_radio_reg    reg=0x629, val=?
+  0x00052600  write_radio_reg    reg=0x65b, val=?
+  0x00052624  write_radio_reg    reg=0x65e, val=?
+  0x00052648  write_radio_reg    reg=0x668, val=?
+  0x0005266c  write_radio_reg    reg=0x11a, val=?
+  0x00052690  write_radio_reg    reg=0x11b, val=?
+  0x000526b4  write_radio_reg    reg=0x719, val=?
+  0x000526d8  write_radio_reg    reg=0x630, val=?
+  0x000526fc  write_radio_reg    reg=0x65c, val=?
+  0x00052720  write_radio_reg    reg=0x662, val=?
+  0x00052744  write_radio_reg    reg=0x66d, val=?
+  0x00052768  write_radio_reg    reg=0x893, val=?
+  0x0005278c  write_radio_reg    reg=0x145, val=?
+  0x000527b0  write_radio_reg    reg=0x146, val=?
+  0x000527e8  mod_radio_reg      reg=0x1603, mask=?, val=?
+  0x00052808  mod_radio_reg      reg=0x1602, mask=?, val=?
+  0x00052828  mod_radio_reg      reg=0x1607, mask=?, val=?
+  0x00052848  mod_radio_reg      reg=0x1606, mask=?, val=?
+  0x0005285c  phy_reg_read       reg=0x601
+  0x00052a54  phy_reg_mod        reg=0x30f, mask=0xc000, val=0xc000
+  0x00052a98  write_radio_reg    reg=0x8e8, val=?
+  0x00052ac4  write_radio_reg    reg=0x8e9, val=?
+  0x00052af0  write_radio_reg    reg=0x8e5, val=?
+  0x00052b1c  write_radio_reg    reg=0x8e4, val=?
+  0x00052b48  write_radio_reg    reg=0x8ee, val=?
+  0x00052b74  write_radio_reg    reg=0x8ef, val=?
+  0x00052ba0  write_radio_reg    reg=0x8cc, val=?
+  0x00052bcc  write_radio_reg    reg=0x8cd, val=?
+  0x00052bf8  write_radio_reg    reg=0x8ed, val=?
+  0x00052c24  write_radio_reg    reg=0x8f3, val=?
+  0x00052c50  write_radio_reg    reg=0x8de, val=?
+  0x00052c7c  write_radio_reg    reg=0x925, val=?
+  0x00052ca8  write_radio_reg    reg=0x8e3, val=?
+  0x00052cd4  write_radio_reg    reg=0x8e2, val=?
+  0x00052d00  write_radio_reg    reg=0x8df, val=?
+  0x00052d2c  write_radio_reg    reg=0x88c, val=?
+  0x00052d58  write_radio_reg    reg=0x88d, val=?
+  0x00052d84  write_radio_reg    reg=0x88e, val=?
+  0x00052db0  write_radio_reg    reg=0x8e1, val=?
+  0x00052ddc  write_radio_reg    reg=0x8e0, val=?
+  0x00052e08  write_radio_reg    reg=0x924, val=?
+  0x00052e34  write_radio_reg    reg=0x2f, val=?
+  0x00052e60  write_radio_reg    reg=0x62, val=?
+  0x00052e8c  write_radio_reg    reg=0x65, val=?
+  0x00052eb8  write_radio_reg    reg=0x6f, val=?
+  0x00052ee4  write_radio_reg    reg=0x92c, val=?
+  0x00052f10  write_radio_reg    reg=0x92d, val=?
+  0x00052f3c  write_radio_reg    reg=0x12b, val=?
+  0x00052f68  write_radio_reg    reg=0x37, val=?
+  0x00052f94  write_radio_reg    reg=0x63, val=?
+  0x00052fc0  write_radio_reg    reg=0x69, val=?
+  0x00052ff0  write_radio_reg    reg=0x74, val=?
+  0x0005301c  phy_reg_mod        reg=0x164, mask=0x10, val=?
+  0x00053034  phy_reg_mod        reg=0x30f, mask=0xc000, val=?
+  0x000530bc  phy_reg_mod        reg=0x728, mask=0x100, val=0x100
+  0x000530dc  phy_reg_mod        reg=0x728, mask=0x100, val=?
+  0x00053234  phy_reg_mod        reg=0x30f, mask=0xc000, val=0x4000
+  0x00053254  phy_reg_mod        reg=0x30f, mask=0xc000, val=?
+  0x00053288  phy_reg_mod        reg=0x30f, mask=0xc000, val=0x8000

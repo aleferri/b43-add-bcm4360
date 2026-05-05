@@ -1,0 +1,53 @@
+# A.1 — .rodata base tables (referenced by wlc_phy_rxgainctrl_set_gaintbls_acphy)
+# Section: .rodata; addresses are the section-relative offsets
+# Layout discovery: 10 distinct LO16 references, contiguous block 0x17758..0x177b8
+# All values are u8; signed interpretation in the "(int8)" column for negative values
+
+## 0x17758  size=12  block_A_const2_2g (10 bytes of 0x02 + 2 pad)
+   bytes:    02 02 02 02 02 02 02 02 02 02 00 00
+   (int8):      2    2    2    2    2    2    2    2    2    2    0    0
+
+## 0x17764  size=12  block_A_const7_2g (10 bytes of 0x07 + 2 pad)
+   bytes:    07 07 07 07 07 07 07 07 07 07 00 00
+   (int8):      7    7    7    7    7    7    7    7    7    7    0    0
+
+## 0x17770  size= 8  block_A_delta0    (8 bytes signed)
+   bytes:    f8 f8 fb fe 02 05 09 00
+   (int8):     -8   -8   -5   -2    2    5    9    0
+
+## 0x17778  size= 8  block_A_delta1    (8 bytes signed)  ⭐ROADMAP
+   bytes:    fb fb 01 07 0d 14 00 00
+   (int8):     -5   -5    1    7   13   20    0    0
+
+## 0x17780  size= 8  block_A_delta2    (8 bytes signed)
+   bytes:    fd fd 03 09 0f 16 00 00
+   (int8):     -3   -3    3    9   15   22    0    0
+
+## 0x17788  size= 8  block_A_delta3    (8 bytes signed)
+   bytes:    fe fe 04 0a 10 17 00 00
+   (int8):     -2   -2    4   10   16   23    0    0
+
+## 0x17790  size=12  block_B_const2_5g (10 bytes of 0x02 + 2 pad)
+   bytes:    02 02 02 02 02 02 02 02 02 02 00 00
+   (int8):      2    2    2    2    2    2    2    2    2    2    0    0
+
+## 0x1779c  size=12  block_B_const3_5g (10 bytes of 0x03 + 2 pad)  ⭐ROADMAP
+   bytes:    03 03 03 03 03 03 03 03 03 03 00 00
+   (int8):      3    3    3    3    3    3    3    3    3    3    0    0
+
+## 0x177a8  size= 8  block_B_delta0    (8 bytes signed)  ⭐ROADMAP
+   bytes:    f8 f8 fc ff 02 05 09 00
+   (int8):     -8   -8   -4   -1    2    5    9    0
+
+## 0x177b0  size= 8  block_B_delta1    (8 bytes signed)  ⭐ROADMAP
+   bytes:    ff ff 06 0c 12 19 00 00
+   (int8):     -1   -1    6   12   18   25    0    0
+
+## Group labels — SALAME
+# The block_A / block_B grouping is observed (the function partitions the 10
+# offsets into two contiguous regions and selects between them at runtime).
+# The "2g" / "5g" labels are SPECULATIVE — based on the binary having two
+# contiguous regions of equal-shape data (2 const-bands + N delta-tables each)
+# and a likely band-discriminator at phy[218]&0xc000. Confirm against runtime
+# when the router is up. For the MVP CCK 2.4GHz ch6 path, only one group is
+# needed; identify which by tracing which region is read on the live blob.

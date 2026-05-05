@@ -1,0 +1,289 @@
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Additions for drivers/net/wireless/broadcom/b43/phy_ac.h
+ *
+ * NOT a standalone source file.  Each block below carries an
+ * INSERT IN ... marker with the existing-file lines that anchor
+ * it.  Merge by hand.
+ */
+
+/* ============================================================
+ * BLOCK 1 — INSERT IN drivers/net/wireless/broadcom/b43/phy_ac.h
+ *
+ * AFTER existing line:
+ *     #include "phy_common.h"
+ * BEFORE existing line:
+ *     #define B43_PHY_AC_BBCFG			0x001
+ * ============================================================ */
+
+/*
+ * Number of RF cores on AC-PHY (= number of MIMO chains).
+ *
+ * BCM4352 is 2x2, BCM4360 is 3x3 (router) or 2x2 (laptop). Default 2
+ * here for static array sizing. The runtime value is in PHY register
+ * 0x0B masked with 0x07: the wl blob does
+ * `pi->num_cores = phy_reg_read(pi, 0x0B) & 0x07` at attach (verified
+ * on the DSL-3580L wlDSL-3580_EU.o_save blob, BCM4352-family chip
+ * 0x43b3, 2x2 — reads num_cores=2 at runtime even though the blob's
+ * .rodata carries 3-core descriptor data the chip will not walk).
+ * Use a struct field for runtime 3x3 support.
+ */
+#define B43_PHY_AC_NUM_CORES		2
+
+/*
+ * PHY register offsets, relative to PHY MMIO space.
+ *
+ * The numbers below come from the original 2015 stub (BBCFG, BANDCTL,
+ * CLASSCTL, BW1A..6, RFCTL_CMD, C{1,2,3}_CLIP). The new ones added by
+ * this scaffolding (TABLE_*, RFCTL1, RF_SEQ_*, AFE_C{1,2}{,_OVER},
+ * REG_TBL_WRITE_GATE) are extracted by static analysis of the wl ELF
+ * — see the comment above each block for the recovery method. Where
+ * a register is mentioned in callers but its offset cannot be
+ * recovered from the blob in hand (e.g. dead-code-eliminated paths),
+ * the #define is left commented out instead of using a 0xFFFF
+ * sentinel: 0xFFFF is itself a reachable MMIO offset, and a sentinel
+ * define would compile cleanly while silently accessing register
+ * 0xFFFF. The op_read / op_write helpers in phy_ac.c carry a
+ * B43_WARN_ON(reg == 0xFFFF) backstop for stragglers.
+ */
+
+/* ============================================================
+ * BLOCK 2b — INSERT IN drivers/net/wireless/broadcom/b43/phy_ac.h
+ *
+ * AFTER existing line:
+ *     #define B43_PHY_AC_BANDCTL			0x003	/* Band control */
+ * BEFORE existing line:
+ *     #define B43_PHY_AC_TABLE_ID			0x00d
+ *
+ * NOTE: the four TABLE_* offsets below are not new register offsets —
+ * the 2015 stub never declared them. They are extracted by static
+ * analysis of wlc_phy_table_write_acphy() in the wl proprietary blob,
+ * which calls wlc_phy_write_table_ext() with the four register numbers
+ * hardcoded as immediates (13, 14, 15, 16). The fifth register at 17
+ * (DATA_3) is used only on the LCN/LCN40 path, not on AC — we do not
+ * declare it.
+ * ============================================================ */
+
+/* PHY-table access registers, used in pairs for bulk writes.
+ *
+ * Sequence per table (verified in wlc_phy_write_table_ext, blob
+ * wlDSL-3580_EU.o_save):
+ *     write TABLE_ID    <- table id
+ *     write TABLE_OFFSET <- starting offset (usually 0)
+ *     for each entry of width <= 16:
+ *         write TABLE_DATA_LO <- value
+ *     for each entry of width 32:
+ *         write TABLE_DATA_HI <- value >> 16
+ *         write TABLE_DATA_LO <- value & 0xffff
+ *
+ * The chip auto-increments the internal offset across writes to
+ * TABLE_DATA_LO, so OFFSET is written only once per bulk transfer.
+ * Wrap the whole sequence in B43_PHY_AC_TBL_WRITE_GATE_LOCK on reg
+ * 0x19E (see helpers in phy_ac.c).
+ */
+#define B43_PHY_AC_TABLE_ID			0x00d
+#define B43_PHY_AC_TABLE_OFFSET			0x00e
+#define B43_PHY_AC_TABLE_DATA_LO		0x00f
+#define B43_PHY_AC_TABLE_DATA_HI		0x010
+
+/* ============================================================
+ * BLOCK 3 — INSERT IN drivers/net/wireless/broadcom/b43/phy_ac.h
+ *
+ * AFTER existing line:
+ *     #define  B43_PHY_AC_CLASSCTL_WAITEDEN		0x0004	/* Waited enable */
+ * BEFORE existing line:
+ *     #define B43_PHY_AC_BW1A				0x371
+ * ============================================================ */
+
+/*
+ * TEST register, used by HT for OFDM-disable on channel 14. The AC
+ * pendant is NOT recoverable from the wl blob currently in hand:
+ * wlDSL-3580_EU.o_save is an EU regulatory build, channel 14 is
+ * Japan-only, and the channel-14 code path has been dead-code
+ * eliminated by the compiler (verified — wlc_phy_chanspec_set_acphy
+ * @0x50d9c..0x51663 contains no comparison against the immediate 14
+ * and no slt/sltiu against 14). Recovering the offset requires a
+ * Japan- or world-regulatory build of the same wl driver.
+ *
+ * The MVP path (CCK 1 Mbps on channel 6) does not touch this
+ * register. The #define is intentionally COMMENTED OUT rather than
+ * carrying a 0xFFFF placeholder. Reason: 0xFFFF is itself a
+ * reachable PHY MMIO offset, and a sentinel define would make calls
+ * of the form
+ *     b43_phy_read(dev, B43_PHY_AC_TEST);
+ * compile cleanly while silently reading register 0xFFFF. Anyone
+ * adding the channel-14 dance to AC must re-introduce this macro
+ * with the real offset (recovered from a JP/world wl build) before
+ * any caller can be written. The op_read / op_write helpers in
+ * phy_ac.c also assert reg != 0xFFFF as a runtime backstop in case
+ * a literal 0xFFFF slips through.
+ */
+/* #define B43_PHY_AC_TEST			0x???? */
+
+/*
+ * RF Control & RF Sequencer.
+ *
+ * Offsets extracted by static analysis of wlc_phy_force_rfseq_acphy
+ * (@0x3b958 in wlDSL-3580_EU.o_save). The function brackets every RF
+ * sequence with save/restore of reg 0x400 and a save/set/restore of
+ * bits 0x1+0x2 of reg 0x19E (see TBL_WRITE_GATE note below: bit 0x2
+ * is the table-write gate, bit 0x1 is a separate RF-seq override
+ * gate).  It then ORs reg 0x402 with a `which`-specific bit and polls
+ * reg 0x403 for the same bit to clear, with a 0x30D49-iteration
+ * timeout @ 10us per iter (~2 seconds — clearly a "should never wait
+ * this long" bound, not the real expected duration).
+ *
+ * RF_SEQ_MODE is the per-caller mode register: force_rfseq_acphy
+ * itself never writes it (verified — only regs 0x400, 0x19E, 0x402,
+ * 0x403 are touched in 0x3b958..0x3bb33). The mode bits are managed
+ * by callers across forced sequences. Concretely,
+ * wlc_phy_rxcore_setstate_acphy (@0x3bb34) reads reg 0x401 twice,
+ * saves `value & 0x7000` and `value & 0x0007` in callee-saved
+ * registers, modifies bits 0x70/0x7000/0x0007 to drive the sequence,
+ * fires force_rfseq_acphy(which=1) then force_rfseq_acphy(which=0),
+ * and restores the two bit-groups. The position is the only free
+ * slot in the contiguous 0x400..0x403 bank; the save/modify/restore
+ * pattern around forced sequences is the canonical signature of an
+ * RF-sequencer mode register. The semantic name "RF_SEQ_MODE" is
+ * a HT-PHY carry-forward (no symbol info in the stripped blob); the
+ * offset 0x401 is directly observed.
+ */
+#define B43_PHY_AC_RFCTL1			0x400	/* override save/restore + OR 0x3 */
+#define B43_PHY_AC_RF_SEQ_MODE			0x401	/* see comment block above */
+#define B43_PHY_AC_RF_SEQ_TRIG			0x402
+#define B43_PHY_AC_RF_SEQ_STATUS		0x403
+
+/*
+ * Trigger values for RF_SEQ_TRIG (and corresponding bits read from
+ * RF_SEQ_STATUS). b43_phy_ac_reset_cca is the first AC-grounded
+ * caller (extracted from wlc_phy_resetcca_acphy @0x3be40); the
+ * RST2RX value is observed in its tail call
+ * (`wlc_phy_force_rfseq_acphy(pi, 2)`).
+ *
+ * RX2TX = 0x0001 is the symmetric value used elsewhere in the wl
+ * blob; left commented until the first AC-grounded RX2TX caller is
+ * extracted.
+ */
+#define  B43_PHY_AC_RF_SEQ_RST2RX		0x0002
+/* #define  B43_PHY_AC_RF_SEQ_RX2TX		0x0001 — no AC caller yet */
+
+/* ============================================================
+ * BLOCK 4 — INSERT IN drivers/net/wireless/broadcom/b43/phy_ac.h
+ *
+ * AFTER existing line:
+ *     #define B43_PHY_AC_RFCTL_CMD			0x408
+ * BEFORE existing line:
+ *     #define B43_PHY_AC_C1_CLIP			0x6d4
+ * ============================================================ */
+
+/*
+ * Analog Front End (AFE), per RF core.
+ *
+ * Offsets extracted by static analysis of wlc_phy_radio2069_afecal
+ * (@0x3a908). The function modifies reg 0x725 with mask 0x4 and reg
+ * 0x739 with mask 0x80 on core 0, plus the same offset pattern at
+ * +0x200 stride for upper cores. The mask-0x4 register is the AFE
+ * data path (toggled to enable/disable the analog frontend chain),
+ * the mask-0x80 register is the override-enable that gates manual
+ * control over the hardware sequencer.
+ *
+ * AFE_C2 = 0x925 is inferred by stride from the C1 base; C2_OVER
+ * = 0x939 is observed directly. AFE_C3 (0xb25 / 0xb39, observed)
+ * applies only to 3x3 chips and is left out of the MVP — the b43
+ * struct currently dimensions per-core arrays at NUM_CORES = 2.
+ */
+#define B43_PHY_AC_AFE_C1			0x725
+#define B43_PHY_AC_AFE_C1_OVER			0x739
+#define B43_PHY_AC_AFE_C2			0x925	/* by stride from C1 */
+#define B43_PHY_AC_AFE_C2_OVER			0x939
+
+/*
+ * PHY-side AFE override registers used by switch_analog.
+ *
+ * These are distinct from B43_PHY_AC_AFE_C{1,2}{,_OVER} above:
+ *  - B43_PHY_AC_AFE_C{1,2}{,_OVER} (0x725/0x739/0x925/0x939) are
+ *    *radio* registers, accessed via mod_radio_reg, manipulated by
+ *    wlc_phy_radio2069_afecal during cal.
+ *  - The four PHY_AFE_* below are *PHY* registers, accessed via
+ *    phy_reg_write. They are the four register addresses the AC
+ *    anacore enable/disable arrays write in wlc_phy_anacore @0x65d40
+ *    (on-path) and @0x65d88 (off-path), when pi[0xc0] >= 3 (always
+ *    true on 0x43b3 = 17331).
+ *
+ * Role inferred from the on/off patterns:
+ *  - "*_OVR" registers receive 0x0000 on enable, 0x07ff on disable
+ *    (i.e. "clear override on enable, force-disable mask on disable")
+ *  - "*_DATA" registers receive 0x000d on enable, 0x00fd on disable
+ *    (data path enable / disable patterns)
+ *
+ * The C1/C2 split inside each pair (which of 0x008f vs 0x00a5 is the
+ * core-1 OVR; which of 0x00a6 vs 0x00a7 is the core-1 DATA) is NOT
+ * established by static analysis — the two arrays interleave the
+ * cores rather than grouping them. For 1x1 CCK at 1 Mbps both cores
+ * are written either way, so this is benign for the MVP. Resolve the
+ * pairing once hardware bring-up gives observable per-core behaviour.
+ *
+ * Extracted by static analysis: phy_reg_write_array @0x54b5c consumes
+ * records with top-3-bits opcode 0x4000 = (reg<<16 | val) for
+ * "phy_reg_write with 13-bit register". The two arrays at
+ * .rodata+0x1a048 (off) and .rodata+0x1a060 (on) are 24 bytes each,
+ * decoded as four (opcode=0x4000, reg, val) triples.
+ */
+#define B43_PHY_AC_AFE_PHY_OVR_A			0x008f
+#define B43_PHY_AC_AFE_PHY_OVR_B			0x00a5
+#define B43_PHY_AC_AFE_PHY_DATA_A			0x00a6
+#define B43_PHY_AC_AFE_PHY_DATA_B			0x00a7
+
+/* ============================================================
+ * BLOCK 5 — INSERT IN drivers/net/wireless/broadcom/b43/phy_ac.h
+ *
+ * AFTER existing line:
+ *     #define  B43_PHY_AC_C3_CLIP_DIS			0x4000
+ * BEFORE existing line:
+ *     struct b43_phy_ac {
+ * ============================================================ */
+
+/*
+ * PHY-table-write gate.  Register 0x19E carries two independent
+ * single-bit gates that bracket privileged PHY operations:
+ *
+ *   bit 0x0002 — table-write gate, asserted across PHY-table writes
+ *                (verified in wlc_phy_init_acphy and the
+ *                wlc_phy_rfctrl_override_*_acphy family, ~30 strictly
+ *                paired triplets).
+ *   bit 0x0001 — RF-sequence override gate, asserted across forced
+ *                RF sequences (verified in wlc_phy_force_rfseq_acphy
+ *                @0x3b958, see phy_ac.c::b43_phy_ac_force_rf_sequence).
+ *
+ * The two are independent: callers may hold either, both, or neither.
+ * The "TBL_WRITE_GATE" register name is kept for backward continuity
+ * with the helpers that already exist; a future cleanup might rename
+ * it to B43_PHY_AC_REG_GATES once both bits are exercised.
+ */
+#define B43_PHY_AC_REG_TBL_WRITE_GATE		0x19E
+#define  B43_PHY_AC_TBL_WRITE_GATE_LOCK		0x0002
+#define  B43_PHY_AC_RF_SEQ_OVERRIDE_GATE	0x0001
+
+/*
+ * Per-device PHY state.
+ *
+ * Currently empty for the AC scaffolding: no field on struct b43_phy_ac
+ * is actually read by any code in this patch set. The HT-PHY mirror
+ * fields (rf_ctl_int_save / tx_pwr_ctl / tx_pwr_idx / bb_mult_save /
+ * idle_tssi) belong to PA-override and TX-power-control paths that are
+ * intentionally not implemented here — see ROADMAP §7r.1 (pa_override
+ * structurally not in op_init for AC) and the post-MVP txpwrctrl note
+ * in §7r.5. Reintroduce only when a real caller lands.
+ */
+
+/* ============================================================
+ * BLOCK 6 — INSERT IN drivers/net/wireless/broadcom/b43/phy_ac.h
+ *
+ * AFTER existing line:
+ *     struct b43_phy_ac {
+ * BEFORE existing line:
+ *     };
+ *
+ * No additions for now. The struct currently has only the upstream
+ * stub fields; this scaffolding does not need any new ones.
+ * ============================================================ */

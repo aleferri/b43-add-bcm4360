@@ -1,0 +1,74 @@
+# *_GAINTBL_TWEAKS symbols in the blob
+#
+# IMPORTANT: cross-reference analysis (see file 04) shows these symbols are
+# referenced ONLY from sslpnphy functions, NOT from any acphy function.
+# They were probably mentioned in the ROADMAP by name-pattern association
+# rather than by reloc evidence — they are NOT used by
+# wlc_phy_rxgainctrl_set_gaintbls_acphy.
+#
+# Dumped for completeness; do not assume they apply to A.1 without further evidence.
+
+## ELNA_CCK_ACI_GAINTBL_TWEAKS  (96 bytes, in .data)
+   (companion ELNA_CCK_ACI_GAINTBL_TWEAKS_sz = 24)
+   +0x000: 00 32 02 4c 00 33 02 33 00 34 02 4d 00 35 02 4e
+   +0x010: 00 36 02 40 00 37 02 4f 00 38 02 c0 00 39 02 d0
+   +0x020: 00 3a 02 d8 00 3b 02 af 00 3c 02 b9 00 3d 03 2f
+   +0x030: 00 3e 03 3a 00 3f 03 3b 00 40 03 3c 00 41 03 3d
+   +0x040: 00 42 03 3e 00 43 03 bf 00 44 03 be 00 45 03 c2
+   +0x050: 00 46 03 c1 00 47 03 c4 00 48 03 b0 00 49 03 b1
+
+## ELNA_OLYMPIC_CCK_ACI_GAINTBL_TWEAKS  (52 bytes, in .data)
+   (companion ELNA_OLYMPIC_CCK_ACI_GAINTBL_TWEAKS_sz = 13)
+   +0x000: 00 3d 02 8f 00 3e 03 2c 00 3f 03 3e 00 40 03 3f
+   +0x010: 00 41 03 c3 00 42 03 ae 00 43 03 ca 00 44 03 c9
+   +0x020: 00 45 03 87 00 46 03 cb 00 47 03 ce 00 48 03 cf
+   +0x030: 00 49 03 d0
+
+## ELNA_OLYMPIC_OFDM_5G_GAINTBL_TWEAKS  (116 bytes, in .data)
+   (companion ELNA_OLYMPIC_OFDM_5G_GAINTBL_TWEAKS_sz = 29)
+   +0x000: 00 00 02 00 00 01 02 00 00 02 02 00 00 03 02 00
+   +0x010: 00 04 02 00 00 05 02 00 00 06 02 00 00 07 02 00
+   +0x020: 00 08 02 00 00 09 02 00 00 0a 02 51 00 0b 02 52
+   +0x030: 00 0c 02 d1 00 0d 02 d2 00 0e 02 cc 00 0f 02 b3
+   +0x040: 00 10 02 a7 00 11 02 86 00 12 02 8b 00 13 02 90
+   +0x050: 00 14 03 8f 00 15 03 93 00 16 03 8b 00 17 03 90
+   +0x060: 00 18 03 8c 00 19 03 8e 00 1a 03 8d 00 1b 03 a3
+   +0x070: 00 1c 03 88
+
+## ELNA_OLYMPIC_OFDM_ACI_GAINTBL_TWEAKS  (44 bytes, in .data)
+   (companion ELNA_OLYMPIC_OFDM_ACI_GAINTBL_TWEAKS_sz = 11)
+   +0x000: 00 17 03 81 00 18 03 85 00 19 03 d4 00 1a 03 d5
+   +0x010: 00 1b 03 89 00 1c 03 ab 00 1d 03 d6 00 1e 03 d8
+   +0x020: 00 1f 03 8e 00 20 03 8c 00 21 03 8a
+
+## NINJA_SDNA_5G_20MHZ_GAINTBL_TWEAKS  (60 bytes, in .data)
+   (companion NINJA_SDNA_5G_20MHZ_GAINTBL_TWEAKS_sz = 15)
+   +0x000: 00 00 06 00 00 01 00 00 00 02 00 51 00 03 00 80
+   +0x010: 00 04 00 d1 00 05 00 d2 00 06 01 00 00 07 01 51
+   +0x020: 00 08 00 8a 00 09 00 8b 00 0a 01 0d 00 0b 02 80
+   +0x030: 00 0c 02 d1 00 0d 02 d2 00 0e 02 d3
+
+## NINJA_SDNA_5G_40MHZ_GAINTBL_TWEAKS  (112 bytes, in .data)
+   (companion NINJA_SDNA_5G_40MHZ_GAINTBL_TWEAKS_sz = 28)
+   +0x000: 00 00 06 00 00 01 00 51 00 02 00 80 00 03 00 d1
+   +0x010: 00 04 00 d2 00 05 01 00 00 06 01 51 00 07 00 8a
+   +0x020: 00 08 00 8b 00 09 01 0a 00 0a 01 0b 00 14 03 82
+   +0x030: 00 15 03 83 00 16 03 d7 00 17 03 ab 00 18 03 8c
+   +0x040: 00 19 03 8e 00 1a 03 97 00 1b 03 9f 00 1c 03 9e
+   +0x050: 00 1d 03 b0 00 1e 03 dd 00 1f 03 de 00 20 03 df
+   +0x060: 00 21 03 92 00 22 03 99 00 23 03 a5 00 24 03 bb
+
+## SMIC_ELNA_535640Mhz_OFDM_GAINTBL_TWEAKS  (44 bytes, in .data)
+   (companion SMIC_ELNA_535640Mhz_OFDM_GAINTBL_TWEAKS_sz = 11)
+   +0x000: 00 00 04 00 00 01 04 03 00 02 04 80 00 03 04 83
+   +0x010: 00 04 04 de 00 05 04 cc 00 06 04 99 00 07 04 9d
+   +0x020: 00 09 00 04 00 0e 00 be 00 12 01 82
+
+## UNO_LOCO_ELNA_CCK_GAINTBL_TWEAKS  (32 bytes, in .data)
+   (companion UNO_LOCO_ELNA_CCK_GAINTBL_TWEAKS_sz = 8)
+   +0x000: 00 27 06 51 00 28 06 80 00 29 06 d1 00 2a 07 00
+   +0x010: 00 2b 07 51 00 2c 07 80 00 2d 07 d1 00 2e 07 d2
+
+## UNO_LOW_TEMP_OFDM_GAINTBL_TWEAKS  (8 bytes, in .data)
+   (companion UNO_LOW_TEMP_OFDM_GAINTBL_TWEAKS_sz = 2)
+   +0x000: 00 19 03 ac 00 1a 03 c3

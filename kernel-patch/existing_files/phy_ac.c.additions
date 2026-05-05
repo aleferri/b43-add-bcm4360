@@ -1,0 +1,733 @@
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Additions for drivers/net/wireless/broadcom/b43/phy_ac.c
+ *
+ * NOT a standalone source file.  Each block below carries an
+ * INSERT IN ... marker with the existing-file lines that anchor
+ * it.  Merge by hand.
+ */
+
+/* ============================================================
+ * BLOCK 1 — INSERT IN drivers/net/wireless/broadcom/b43/phy_ac.c
+ *
+ * AFTER existing line:
+ *      *
+ * BEFORE existing line:
+ *      *
+ * ============================================================ */
+
+ * Copyright (c) 2015        Rafał Miłecki <zajec5@gmail.com>
+ * Copyright (c) 2026 (RFC scaffolding extension)
+
+/* ============================================================
+ * BLOCK 2 — INSERT IN drivers/net/wireless/broadcom/b43/phy_ac.c
+ *
+ * AFTER existing line:
+ *      * option) any later version.
+ * BEFORE existing line:
+ *      */
+ * ============================================================ */
+
+ *
+ * This file is split into the same sections as phy_ht.c:
+ *   - Radio 2069
+ *   - RF
+ *   - Various PHY ops
+ *   - Channel switching ops
+ *   - Basic PHY ops
+ *   - R/W ops
+ *   - PHY ops struct
+ *
+ * Every block of register writes is currently empty or filled with
+ * placeholder values, marked TODO. The companion files are:
+ *   - radio_2069.{c,h}    — radio init and channel-table writes
+ *   - tables_phy_ac.{c,h} — PHY init tables
+ *
+ * The intent is that someone with access to dump-and-replay of the
+ * BCM4360 wl driver, or to bcm-v4.sipsolutions.net documentation, can
+ * fill the body of each TODO function in isolation.
+
+/* ============================================================
+ * BLOCK 3 — INSERT IN drivers/net/wireless/broadcom/b43/phy_ac.c
+ *
+ * AFTER existing line:
+ *      */
+ * BEFORE existing line:
+ *     #include "b43.h"
+ * ============================================================ */
+
+#include <linux/slab.h>
+
+/* ============================================================
+ * BLOCK 4 — INSERT IN drivers/net/wireless/broadcom/b43/phy_ac.c
+ *
+ * AFTER existing line:
+ *     #include "phy_ac.h"
+ * BEFORE existing line:
+ *     /**************************************************
+ * ============================================================ */
+
+#include "phy_common.h"
+#include "tables_phy_ac.h"
+#include "radio_2069.h"
+#include "rxgain_phy_ac.h"
+#include "main.h"
+
+/* ============================================================
+ * BLOCK 5 — INSERT IN drivers/net/wireless/broadcom/b43/phy_ac.c
+ *
+ * AFTER existing line:
+ *     /**************************************************
+ * BEFORE existing line:
+ *      **************************************************/
+ * ============================================================ */
+
+ * Radio 2069
+
+/* ============================================================
+ * BLOCK 6 — INSERT IN drivers/net/wireless/broadcom/b43/phy_ac.c
+ *
+ * AFTER existing line:
+ *      **************************************************/
+ * BEFORE existing line:
+ *      **************************************************/
+ * ============================================================ */
+
+/*
+ * Initial bring-up of the 2069 radio.
+ *
+ * Extracted from wlc_phy_radio2069_pwron_seq @0x45140 in
+ * wlDSL-3580_EU.o_save (initial extraction by extract_radio2069_init.py
+ * on the 4360 path; body retargeted to the 0x43b3 path).
+ *
+ * Structure: prologue (6 PHY writes + 2 RMW + udelay + 1 PHY write,
+ * chip-agnostic), body (7 radio_set, chip-dispatched — pages
+ * 0x096b/0x096c/0x0407 for {0x4360, 0x4352}, else 0x097f/0x0980/0x0807),
+ * epilogue (4 PHY writes + udelay + 2 RMW, chip-agnostic). Body
+ * below targets 0x43b3; for a 4352/4360 build, branch around the body
+ * section. Phy_rev 3/4 prefregs branch and `*pi[28]->[80] & 0x2`
+ * board-flag pre-amble are not ported (dead on DSL-3580L). See
+ * reverse-output/by-chip/radio2069_init_extracted_diff.md for the
+ * per-chip diff.
+ */
+static void b43_radio_2069_init(struct b43_wldev *dev)
+{
+	/* --- Prologo: PHY register writes --- */
+	b43_phy_write(dev, 0x0415, 0x0000);  /* @0x00045194 */
+	b43_phy_write(dev, 0x040e, 0x0000);  /* @0x000451a4 */
+	b43_phy_write(dev, 0x040c, 0x2000);  /* @0x000451b4 */
+	b43_phy_write(dev, 0x0408, 0x0000);  /* @0x000451c4 */
+	b43_phy_write(dev, 0x0417, 0x0000);  /* @0x000451d4 */
+	b43_phy_write(dev, 0x0416, 0x000d);  /* @0x000451e4 */
+
+	/* RMW 1+2: blob salva PHY 0x728, azzera bit 0x8080 e setta
+	 * PHY 0x720 | 0x180. Traduciamo in mask/set incondizionali
+	 * (sicuri: i bit field non si sovrappongono). */
+	b43_phy_mask(dev, 0x0728, 0x7e7f);   /* @0x000451f4 */
+	b43_phy_set(dev,  0x0720, 0x0180);   /* @0x00045214 */
+	b43_phy_write(dev, 0x0408, 0x0007);  /* @0x00045228 */
+
+	/* --- Setup + udelay(100) --- */
+	udelay(100);  /* @0x00045234 */
+	b43_phy_write(dev, 0x0408, 0x0006);  /* @0x00045244 */
+
+	/* phy_rev 3/4 prefregs branch (blob @0x4524c) is never taken on
+	 * BCM4352-family (phy_rev=1). */
+
+	/* --- Body (0x43b3 path: chipid ∉ {0x4360, 0x4352}) --- */
+	b43_radio_set(dev, 0x097f, 0x0800);  /* @0x000452a0 */
+	b43_radio_set(dev, 0x097f, 0x4000);  /* @0x000452b4 */
+	b43_radio_set(dev, 0x0980, 0x0800);  /* @0x000452c8 */
+	b43_radio_set(dev, 0x097f, 0x8000);  /* @0x000452dc */
+	b43_radio_set(dev, 0x097f, 0x1000);  /* @0x000452f0 */
+	b43_radio_set(dev, 0x097f, 0x0004);  /* @0x00045304 */
+	b43_radio_set(dev, 0x0807, 0x0002);  /* @0x00045438 */
+
+	/* --- Epilogue (chip-agnostic, fall-through from per-radio-rev loop) --- */
+	b43_phy_write(dev, 0x0417, 0x000d);  /* @0x000456a4 */
+	b43_phy_write(dev, 0x0408, 0x0002);  /* @0x000456b4 */
+	/* RMW 3: restore PHY 0x728 con bit 0x180 settato */
+	b43_phy_set(dev, 0x0728, 0x0180);    /* @0x000456c8 */
+	udelay(100);                          /* @0x000456d0 */
+	b43_phy_write(dev, 0x0417, 0x0004);  /* @0x000456e0 */
+	/* RMW 4: clear bit 0x100 di PHY 0x728 */
+	b43_phy_mask(dev, 0x0728, ~0x0100);
+}
+
+/**************************************************
+ * RF sequencing
+ **************************************************/
+
+/*
+ * Force a single RF sequence.
+ *
+ * Pattern transcribed from wlc_phy_force_rfseq_acphy (@0x3b958 in the
+ * wl blob), NOT from the HT-PHY analogue: the AC sequencer doesn't
+ * have a separate RF_SEQ_MODE register, the "mode" is asserted by
+ * ORing 0x3 into RFCTL1 (= reg 0x400) and restoring its prior value
+ * at exit. The blob also sets bit 0x1 of reg 0x19E ("RF-seq override
+ * gate", separate from the table-write gate at bit 0x2) before the
+ * trigger and clears it after.
+ *
+ * @rf_seq is one of B43_PHY_AC_RF_SEQ_TRIG_{RX2TX,RST2RX,...}.
+ *
+ * Poll budget matches the blob's literally: 0x30D49 = 200009 counter,
+ * decremented by 10 each iter, with osl_delay(10) per iter — i.e.
+ * 20000 × 10us = 200ms in the blob. With usleep_range(10, 20) the
+ * worst case in this driver is ~400ms (the scheduler can pick the
+ * upper bound of the range), so the bound is "200–400ms, never less".
+ * The fast path (bit clears within the first read, which is the
+ * common case) stays at ~10us; using msleep(1) instead would force
+ * ~1ms minimum on the fast path, two orders of magnitude worse than
+ * the blob. b43_phy_ht_force_rf_sequence uses msleep(1) and is on
+ * our list of things that could become consistent later.
+ */
+static void __maybe_unused
+b43_phy_ac_force_rf_sequence(struct b43_wldev *dev, u16 rf_seq)
+{
+	u16 saved_rfctl1, saved_gate;
+	bool timed_out = true;
+	unsigned int i;
+
+	saved_rfctl1 = b43_phy_read(dev, B43_PHY_AC_RFCTL1);
+	saved_gate = b43_phy_read(dev, B43_PHY_AC_REG_TBL_WRITE_GATE);
+
+	b43_phy_set(dev, B43_PHY_AC_REG_TBL_WRITE_GATE,
+		    B43_PHY_AC_RF_SEQ_OVERRIDE_GATE);
+	b43_phy_set(dev, B43_PHY_AC_RFCTL1, 0x3);
+	b43_phy_set(dev, B43_PHY_AC_RF_SEQ_TRIG, rf_seq);
+
+	for (i = 0; i < 20000; i++) {
+		if (!(b43_phy_read(dev, B43_PHY_AC_RF_SEQ_STATUS) & rf_seq)) {
+			timed_out = false;
+			break;
+		}
+		usleep_range(10, 20);
+	}
+	if (timed_out)
+		b43err(dev->wl, "Forcing RF sequence timeout\n");
+
+	b43_phy_write(dev, B43_PHY_AC_RFCTL1, saved_rfctl1);
+	b43_phy_maskset(dev, B43_PHY_AC_REG_TBL_WRITE_GATE,
+			(u16)~B43_PHY_AC_RF_SEQ_OVERRIDE_GATE,
+			saved_gate & B43_PHY_AC_RF_SEQ_OVERRIDE_GATE);
+}
+
+/*
+ * Reset the CCA (Clear Channel Assessment) state machine.
+ *
+ * Hand-derived from wlc_phy_resetcca_acphy @0x3be40..0x3bf24 in
+ * wlDSL-3580_EU.o_save (228 bytes / 57 instructions). Sequence: force
+ * PHY clock, set BBCFG bit 0x4000, 1us, clear bit 0x4000, release
+ * clock, force_rfseq(RST2RX). The blob's `pi[0xc0] != 2` guard
+ * around the trailing force_rfseq is dead code on every chip-id this
+ * binary admits (pi[0xc0] is the PCI device ID, never the literal 2).
+ *
+ * If a caller ever needs the skip-rfseq variant, thread a bool
+ * argument; do not reintroduce a chip-id check at offset 0xC0.
+ */
+static void __maybe_unused
+b43_phy_ac_reset_cca(struct b43_wldev *dev)
+{
+	u16 saved_bbcfg;
+
+	b43_phy_force_clock(dev, true);
+
+	saved_bbcfg = b43_phy_read(dev, B43_PHY_AC_BBCFG);
+	b43_phy_write(dev, B43_PHY_AC_BBCFG,
+		      saved_bbcfg | B43_PHY_AC_BBCFG_RSTCCA);
+	udelay(1);
+	b43_phy_write(dev, B43_PHY_AC_BBCFG,
+		      saved_bbcfg & ~B43_PHY_AC_BBCFG_RSTCCA);
+
+	b43_phy_force_clock(dev, false);
+
+	b43_phy_ac_force_rf_sequence(dev, B43_PHY_AC_RF_SEQ_RST2RX);
+}
+
+/**************************************************
+ * Various PHY ops
+ **************************************************/
+
+/*
+ * NOTE: the PHY-table-write gate helpers (save+set / restore of bit
+ * 0x0002 of register B43_PHY_AC_REG_TBL_WRITE_GATE = 0x19E) live in
+ * tables_phy_ac.c, file-local — that is currently the only caller.
+ * They will be promoted to a shared header (this file or phy_ac.h)
+ * once the rfctrl_override_*_acphy helpers land here, since the wl
+ * blob wraps every RF-control override in the same save+set sequence.
+ * The register #defines remain in phy_ac.h.
+ */
+
+/*
+ * Update the classifier control register.
+ *
+ * The classifier picks which preamble types the PHY decodes (CCK, OFDM,
+ * "waited"). The bits are already known (CCKEN/OFDMEN/WAITEDEN) and
+ * the offset (0x140) is in the original stub.
+ *
+ * Use this from switch_channel() to disable OFDM on Japanese channel
+ * 14, exactly like b43_phy_ht_classifier() does.
+ */
+static u16 b43_phy_ac_classifier(struct b43_wldev *dev, u16 mask, u16 val)
+{
+	u16 tmp;
+	u16 allowed = B43_PHY_AC_CLASSCTL_CCKEN |
+		      B43_PHY_AC_CLASSCTL_OFDMEN |
+		      B43_PHY_AC_CLASSCTL_WAITEDEN;
+
+	tmp = b43_phy_read(dev, B43_PHY_AC_CLASSCTL);
+	tmp &= allowed;
+	tmp &= ~mask;
+	tmp |= (val & mask);
+	b43_phy_maskset(dev, B43_PHY_AC_CLASSCTL, ~allowed, tmp);
+
+	return tmp;
+}
+
+/**************************************************
+ * Channel switching ops
+ **************************************************/
+
+/*
+ * Per-channel PHY register programming.
+ *
+ * BW1A..BW6 register offsets are in the 2015 stub. The per-channel
+ * values come from the channel table (struct
+ * b43_phy_ac_channeltab_e_phy populated in radio_2069.c, currently
+ * empty — the caller is gated by a NULL check). Channel 14 disables
+ * OFDM via the classifier (CLASSCTL register and the OFDMEN/CCKEN/
+ * WAITEDEN bits are also from the stub).
+ *
+ * Pieces deliberately left out for the MVP:
+ *   - the HT-style force_clock + RSTCCA + force RST2RX dance after
+ *     channel programming (the AC blob has wlc_phy_resetcca_acphy at
+ *     0x3be40 with the RSTCCA bit verified — see ROADMAP §7r.3 — but
+ *     the surrounding force_clock / force_rfseq wrapping is HT and
+ *     unverified for AC; reintroduce only when an AC caller pattern
+ *     is recovered);
+ *   - 80 MHz / VHT bandwidth handling (the whole point of AC, biggest
+ *     piece missing vs HT-PHY);
+ *   - 5 GHz / 2 GHz transition register dance;
+ *   - spur avoidance (bcma_pmu_spuravoid_pllupdate + TSF_CLK_FRAC).
+ */
+static void b43_phy_ac_channel_setup(struct b43_wldev *dev,
+				     const struct b43_phy_ac_channeltab_e_phy *e,
+				     struct ieee80211_channel *new_channel)
+{
+	if (!e) {
+		b43err(dev->wl, "AC-PHY: no channel table entry, skipping setup\n");
+		return;
+	}
+
+	b43_phy_write(dev, B43_PHY_AC_BW1A, e->bw1);
+	b43_phy_write(dev, B43_PHY_AC_BW2,  e->bw2);
+	b43_phy_write(dev, B43_PHY_AC_BW3,  e->bw3);
+	b43_phy_write(dev, B43_PHY_AC_BW4,  e->bw4);
+	b43_phy_write(dev, B43_PHY_AC_BW5,  e->bw5);
+	b43_phy_write(dev, B43_PHY_AC_BW6,  e->bw6);
+
+	if (new_channel->hw_value == 14)
+		b43_phy_ac_classifier(dev, B43_PHY_AC_CLASSCTL_OFDMEN, 0);
+	else
+		b43_phy_ac_classifier(dev, B43_PHY_AC_CLASSCTL_OFDMEN,
+				      B43_PHY_AC_CLASSCTL_OFDMEN);
+}
+
+static int b43_phy_ac_set_channel(struct b43_wldev *dev,
+				  struct ieee80211_channel *channel,
+				  enum nl80211_channel_type channel_type)
+{
+	struct b43_phy *phy = &dev->phy;
+	const struct b43_phy_ac_channeltab_e_radio2069 *e2069;
+
+	if (phy->radio_ver != 0x2069)
+		return -ESRCH;
+
+	e2069 = b43_phy_ac_get_channeltab_e_r2069(dev, channel->center_freq);
+	if (!e2069)
+		return -ESRCH;
+
+	b43_radio_2069_channel_setup(dev, e2069);
+	b43_phy_ac_channel_setup(dev, &e2069->phy_regs, channel);
+
+	return 0;
+}
+
+/**************************************************
+ * Basic PHY ops
+
+/* ============================================================
+ * BLOCK 7 — INSERT IN drivers/net/wireless/broadcom/b43/phy_ac.c
+ *
+ * AFTER existing line:
+ *     }
+ * BEFORE existing line:
+ *     static void b43_phy_ac_op_free(struct b43_wldev *dev)
+ * ============================================================ */
+
+/*
+ * prepare_structs is called by the b43 core after allocate() and before
+ * init(). Just zero the per-PHY struct: the HT-PHY mirror fields that
+ * needed seeding (tx_pwr_ctl = true, bb_mult_save = -1) are gone with
+ * their consumers (TX power control / TX-sample calibration are
+ * post-MVP — see ROADMAP §7r.5 note on est_pwr_lut and txpwrctrl).
+ */
+static void b43_phy_ac_op_prepare_structs(struct b43_wldev *dev)
+{
+	struct b43_phy_ac *phy_ac = dev->phy.ac;
+
+	memset(phy_ac, 0, sizeof(*phy_ac));
+}
+
+/* ============================================================
+ * BLOCK 8 — INSERT IN drivers/net/wireless/broadcom/b43/phy_ac.c
+ *
+ * AFTER existing line:
+ *     }
+ * BEFORE existing line:
+ *     static void b43_phy_ac_op_maskset(struct b43_wldev *dev, u16 reg, u16 mask,
+ * ============================================================ */
+
+/*
+ * Mode-bit clears (phase 3 of op_init).
+ *
+ * Extracted from wlc_phy_init_acphy @0x53298 for chip 0x43b3 by
+ * reverse-tools/extract_init_acphy.py. The "generic" dispatch path
+ * (chipid ∉ {0x4352, 0x4360}) emits exactly four PHY writes; the
+ * BCM4352/BCM4360 path uses page 0x1xxx instead of 0x07xx for the
+ * trailing three. See reverse-output/by-chip/{43b3,4352}/
+ * init_acphy_extracted.c and reverse-output/by-chip/
+ * init_acphy_extracted_diff.md.
+ *
+ * The two RMW writes that embed chip-id (chip_id | 0x100/0x400 into
+ * 0x72a/0x725) are not statically extractable — left at hardware
+ * reset default for MVP.
+ */
+static void b43_phy_ac_mode_init(struct b43_wldev *dev)
+{
+	b43_phy_write(dev, 0x0410, 0x0077);  /* @0x0005331c */
+	b43_phy_write(dev, 0x0728, 0x0080);  /* @0x000534c0 */
+	b43_phy_write(dev, 0x0720, 0x0180);  /* @0x000534e8 */
+	b43_phy_write(dev, 0x0721, 0x5000);  /* @0x00053538 */
+}
+
+/*
+ * BPHY compat init (phase 9 of op_init, 2.4 GHz only).
+ *
+ * Extracted from wlc_phy_init_acphy post-wlc_phy_radar_detect_init
+ * (0x536ac–0x5379c) by reverse-tools/extract_init_acphy.py (2026-04-30).
+ * These are the 16 writes to PHY registers 0x33a–0x349: CCK filter
+ * coefficients / BPHY compatibility path for 2.4 GHz 1 Mbps operation.
+ *
+ * Pattern: pairs (0x395, 0x395, 0x315, 0x315) repeated 4× — one group
+ * per core/path in the blob's 3-core .rodata layout. Values are
+ * constant (no chip-ID dispatch). On 0x43b3 only num_cores=2 of these
+ * groups are walked at runtime, but writing all four at compile time
+ * is benign (the unused pages are silently ignored). Confirmed
+ * against disassembly; no SALAME.
+ */
+static void b43_phy_ac_bphy_init(struct b43_wldev *dev)
+{
+	b43_phy_write(dev, 0x033a, 0x0395);  /* @0x000536ac */
+	b43_phy_write(dev, 0x033b, 0x0395);  /* @0x000536bc */
+	b43_phy_write(dev, 0x033e, 0x0395);  /* @0x000536cc */
+	b43_phy_write(dev, 0x033f, 0x0395);  /* @0x000536dc */
+	b43_phy_write(dev, 0x0342, 0x0395);  /* @0x000536ec */
+	b43_phy_write(dev, 0x0343, 0x0395);  /* @0x000536fc */
+	b43_phy_write(dev, 0x0346, 0x0395);  /* @0x0005370c */
+	b43_phy_write(dev, 0x0347, 0x0395);  /* @0x0005371c */
+	b43_phy_write(dev, 0x033c, 0x0315);  /* @0x0005372c */
+	b43_phy_write(dev, 0x033d, 0x0315);  /* @0x0005373c */
+	b43_phy_write(dev, 0x0340, 0x0315);  /* @0x0005374c */
+	b43_phy_write(dev, 0x0341, 0x0315);  /* @0x0005375c */
+	b43_phy_write(dev, 0x0344, 0x0315);  /* @0x0005376c */
+	b43_phy_write(dev, 0x0345, 0x0315);  /* @0x0005377c */
+	b43_phy_write(dev, 0x0348, 0x0315);  /* @0x0005378c */
+	b43_phy_write(dev, 0x0349, 0x0315);  /* @0x0005379c */
+}
+
+/*
+ * AC-PHY init.
+ *
+ * The phases below are the subset of wlc_phy_init_acphy that we have
+ * either extracted from the blob or grounded in the 2015 stub. The
+ * rest of the wl init (PA override / RX2TX / RST2RX bracketing, clip
+ * detection, "late" PHY-table writes, full TX power control / TSSI
+ * calibration) is intentionally not ported — see ROADMAP §7r.1 (PA
+ * override structurally not in op_init for AC, verified) and §7r.5
+ * (txpwrctrl post-MVP).
+ *
+ * What runs here, in order:
+ *   - BCMA sanity check;
+ *   - tables_init: writes the 24 rev-0 PHY init tables (§7r.5);
+ *   - mode_init: pre-table-lock register seeding extracted from
+ *     wlc_phy_init_acphy via reverse-tools/extract_init_acphy.py;
+ *   - rxgain_init: skeleton port of
+ *     wlc_phy_rxgainctrl_set_gaintbls_acphy. Scope deliberately
+ *     narrow — see rxgain_phy_ac.c file header. Does NOT yet
+ *     populate tables 0x44/0x45;
+ *   - AFE bring-up: clear the OVER gates so the hardware sequencer
+ *     drives the AFE chains (offsets verified — see phy_ac.h);
+ *   - mac_phy_clock_set(true): already implemented in b43 core;
+ *   - bphy_init on 2.4 GHz: CCK filter coefficients. Dead code on
+ *     this board (DSL-3580L wl1 has aa2g=0); kept for general
+ *     BCM4352-family boards where 2.4 GHz antennas are wired;
+ *   - TXPCTL fix: disable hardware TX power control and pin a
+ *     conservative target. The dBm semantic of 200 is undocumented
+ *     in the blob (SALAME — verify on bring-up with a spectrum
+ *     analyser or 'iw dev wlan0 link' output). recalc_txpower
+ *     returns RES_DONE so the core won't call ->adjust_txpower.
+ */
+static int b43_phy_ac_op_init(struct b43_wldev *dev)
+{
+	if (dev->dev->bus_type != B43_BUS_BCMA) {
+		b43err(dev->wl, "AC-PHY is supported only on BCMA bus!\n");
+		return -EOPNOTSUPP;
+	}
+
+	b43_phy_ac_tables_init(dev);
+	b43_phy_ac_mode_init(dev);
+	b43_phy_ac_rxgain_init(dev);
+
+	/*
+	 * AFE: clear PHY-side override registers so the hardware sequencer
+	 * drives the AFE chains. Belt-and-braces; b43_phy_init() already
+	 * calls ->switch_analog(true) before us.
+	 */
+	b43_phy_write(dev, B43_PHY_AC_AFE_PHY_OVR_A, 0);
+	b43_phy_write(dev, B43_PHY_AC_AFE_PHY_OVR_B, 0);
+
+	b43_mac_phy_clock_set(dev, true);
+
+	if (b43_current_band(dev->wl) == NL80211_BAND_2GHZ)
+		b43_phy_ac_bphy_init(dev);
+
+	/* TXPCTL fix: disable HW control, pin targ_pwr = 200 (0xC8).
+	 * Extracted from wlc_phy_txpwrctrl_pwr_setup_acphy. */
+	b43_phy_maskset(dev, 0x0070, ~0xe000, 0x0000);
+	b43_phy_maskset(dev, 0x0071, ~0x00ff, 0x00c8);
+
+	return 0;
+}
+
+/*
+ * software_rfkill: traduzione del path 0x43b3 di
+ * wlc_phy_switch_radio_acphy @0x4582c (op count: on=19 off=11).
+ *
+ * OFF path (@0x00045c6c..0x00045de8): 8 PHY writes su pagina 0x07xx
+ * (radio AFE quench) + 3 writes su pagina 0x04xx (baseband mute).
+ *
+ * ON path (@0x0004588c..0x00045c00): pwron_seq → 17 radio reg ops
+ * con due udelay → rccal. La pwron_seq è già portata come
+ * b43_radio_2069_init(); rccal richiede un estrattore separato
+ * (TODO sotto), non strettamente necessario per il MVP OFDM 6 Mbit.
+ */
+static void b43_phy_ac_op_software_rfkill(struct b43_wldev *dev, bool blocked)
+{
+	if (blocked) {
+		b43_phy_write(dev, 0x073e, 0x0000);  /* @0x00045c6c */
+		b43_phy_write(dev, 0x0739, 0x0000);  /* @0x00045c94 */
+		b43_phy_write(dev, 0x073a, 0x0000);  /* @0x00045cbc */
+		b43_phy_write(dev, 0x0725, 0x1fff);  /* @0x00045ce4 */
+		b43_phy_write(dev, 0x0729, 0x0000);  /* @0x00045d0c */
+		b43_phy_write(dev, 0x0721, 0xffff);  /* @0x00045d34 */
+		b43_phy_write(dev, 0x0728, 0x0000);  /* @0x00045d5c */
+		b43_phy_write(dev, 0x0720, 0x03ff);  /* @0x00045d88 */
+		b43_phy_write(dev, 0x0408, 0x0000);  /* @0x00045d98 */
+		b43_phy_write(dev, 0x0417, 0x0000);  /* @0x00045da8 */
+		b43_phy_write(dev, 0x0416, 0x0001);  /* @0x00045de8 */
+		return;
+	}
+
+	if (dev->phy.radio_ver != 0x2069) {
+		B43_WARN_ON(1);
+		return;
+	}
+
+	/* @0x0004588c → wlc_phy_radio2069_pwron_seq */
+	b43_radio_2069_init(dev);
+
+	b43_radio_set(dev,   0x08f2, 0x0040);   /* @0x000458dc */
+	b43_radio_set(dev,   0x08f2, 0x0080);   /* @0x00045908 */
+	b43_radio_mask(dev,  0x08f5, ~0x0600);  /* @0x00045934 */
+	b43_radio_mask(dev,  0x08f5, ~0x1800);  /* @0x00045960 */
+	b43_radio_set(dev,   0x095b, 0x0001);   /* @0x0004598c */
+	b43_radio_write(dev, 0x095c, 0x0000);   /* @0x000459bc */
+	b43_radio_write(dev, 0x095d, 0x0000);   /* @0x000459e4 */
+	b43_radio_write(dev, 0x095e, 0x0000);   /* @0x00045a0c */
+	b43_radio_write(dev, 0x095f, 0x0000);   /* @0x00045a34 */
+	b43_radio_mask(dev,  0x0810, ~0x0001);  /* @0x00045a64 */
+	udelay(1);                              /* @0x00045a70 */
+	b43_radio_set(dev,   0x0810, 0x0001);   /* @0x00045aa0 */
+	udelay(10);                             /* @0x00045af0 */
+	b43_radio_mask(dev,  0x095b, ~0x0001);  /* @0x00045b6c */
+	b43_radio_mask(dev,  0x08f2, ~0x0040);  /* @0x00045b98 */
+	b43_radio_mask(dev,  0x08f2, ~0x0080);  /* @0x00045bc4 */
+	b43_radio_mask(dev,  0x0810, ~0x0001);  /* @0x00045bf0 */
+
+	/* TODO: wlc_phy_radio2069_rccal @0x00045c00 — chip-agnostic,
+	 * non ancora estratto. Servirà un extract_radio2069_rccal.py;
+	 * fuori critical path per OFDM 6 Mbit. */
+}
+
+/*
+ * switch_analog: drive the four PHY-side AFE registers on/off.
+ *
+ * Values from `.rodata + 0x1a060` (on) and `+ 0x1a048` (off), invoked
+ * by `wlc_phy_anacore` @0x65ce0 via `phy_reg_write_array`. The HT-PHY
+ * addresses (0x725/0x739/0x925/0x939) are the radio-side AFE on AC,
+ * not the PHY-side AFE that this op must drive.
+ */
+static void b43_phy_ac_op_switch_analog(struct b43_wldev *dev, bool on)
+{
+	if (on) {
+		b43_phy_write(dev, B43_PHY_AC_AFE_PHY_DATA_A, 0x000d);
+		b43_phy_write(dev, B43_PHY_AC_AFE_PHY_OVR_A,  0x0000);
+		b43_phy_write(dev, B43_PHY_AC_AFE_PHY_DATA_B, 0x000d);
+		b43_phy_write(dev, B43_PHY_AC_AFE_PHY_OVR_B,  0x0000);
+	} else {
+		b43_phy_write(dev, B43_PHY_AC_AFE_PHY_OVR_A,  0x07ff);
+		b43_phy_write(dev, B43_PHY_AC_AFE_PHY_DATA_A, 0x00fd);
+		b43_phy_write(dev, B43_PHY_AC_AFE_PHY_OVR_B,  0x07ff);
+		b43_phy_write(dev, B43_PHY_AC_AFE_PHY_DATA_B, 0x00fd);
+	}
+}
+
+static int b43_phy_ac_op_switch_channel(struct b43_wldev *dev,
+					unsigned int new_channel)
+{
+	struct ieee80211_channel *channel = dev->wl->hw->conf.chandef.chan;
+	enum nl80211_channel_type channel_type =
+		cfg80211_get_chandef_type(&dev->wl->hw->conf.chandef);
+
+	if (b43_current_band(dev->wl) == NL80211_BAND_2GHZ) {
+		/*
+		 * MVP target on this board is 5 GHz UNII-1 only. The
+		 * DSL-3580L wl1 SROM declares aa2g=0: no 2.4 GHz
+		 * antennas wired, and `wl chanspec 2g*` is rejected
+		 * empirically. The chip itself (BCM4352-family) can
+		 * do 2.4 GHz on a board with antennas, but on this
+		 * unit 2.4 GHz coverage is provided by wl0 (BCM6362,
+		 * N-PHY, separate driver path). Drop with a one-shot
+		 * dmesg note rather than letting the call land in
+		 * b43_phy_ac_set_channel() and fail with -ESRCH after
+		 * a misleading channel-table miss.
+		 */
+		b43dbg(dev->wl,
+		       "AC-PHY: 2.4 GHz channel %u rejected (aa2g=0 on this board; MVP is 5 GHz UNII-1)\n",
+		       new_channel);
+		return -EOPNOTSUPP;
+	}
+
+	/*
+	 * 5 GHz path. The chan_tuning_2069rev_GE16 entries committed in
+	 * radio_2069.c cover only UNII-1 (channels 36/40/44/48). UNII-2/
+	 * 2e/3 are also out of scope for the MVP — empirically rejected
+	 * with `Bad Channel` by the OEM firmware on this hardware
+	 * (regulatory or subband5gver=0x4 related; see top-level README
+	 * §"Open questions"). Gate at the UNII-1 range here so the user
+	 * gets a clear EOPNOTSUPP rather than a chantab miss for any
+	 * other 5 GHz channel; widen the range when the corresponding
+	 * sub-band is added to b43_chantab_r2069[].
+	 */
+	if (new_channel < 36 || new_channel > 48) {
+		b43dbg(dev->wl,
+		       "AC-PHY: 5 GHz channel %u rejected (MVP covers UNII-1 36/40/44/48 only)\n",
+		       new_channel);
+		return -EOPNOTSUPP;
+	}
+
+	return b43_phy_ac_set_channel(dev, channel, channel_type);
+}
+
+/**************************************************
+ * R/W ops
+ **************************************************/
+
+/*
+ * Plain PHY register read/write.
+ *
+ * The 2015 stub only registered ->phy_maskset, which means b43_phy_read
+ * and b43_phy_write (called all over the rest of the b43 core) will
+ * dereference a NULL ->phy_read/->phy_write. Add them, identical in
+ * shape to phy_ht.c.
+ *
+ * The B43_WARN_ON(reg == 0xFFFF) gate is a defensive backstop for the
+ * register #defines that are intentionally commented out in phy_ac.h
+ * (currently B43_PHY_AC_TEST and B43_PHY_AC_RF_SEQ_MODE). If a future
+ * patch re-introduces them as 0xFFFF placeholders by mistake, or
+ * passes a literal 0xFFFF, this catches the access before it lands
+ * on a real register at that MMIO offset. Read returns 0 in the
+ * mistake path so the caller doesn't propagate undefined data; write
+ * is dropped silently after the warning. The b43_phy_read/write
+ * macros that wrap these helpers are uniform across the b43 core, so
+ * a single check here covers every PHY-side caller.
+ */
+static u16 b43_phy_ac_op_read(struct b43_wldev *dev, u16 reg)
+{
+	if (B43_WARN_ON(reg == 0xFFFF))
+		return 0;
+	b43_write16f(dev, B43_MMIO_PHY_CONTROL, reg);
+	return b43_read16(dev, B43_MMIO_PHY_DATA);
+}
+
+static void b43_phy_ac_op_write(struct b43_wldev *dev, u16 reg, u16 value)
+{
+	if (B43_WARN_ON(reg == 0xFFFF))
+		return;
+	b43_write16f(dev, B43_MMIO_PHY_CONTROL, reg);
+	b43_write16(dev, B43_MMIO_PHY_DATA, value);
+}
+
+/* ============================================================
+ * BLOCK 9 — INSERT IN drivers/net/wireless/broadcom/b43/phy_ac.c
+ *
+ * AFTER existing line:
+ *     }
+ * BEFORE existing line:
+ *     const struct b43_phy_operations b43_phyops_ac = {
+ * ============================================================ */
+
+/**************************************************
+ * PHY ops struct
+ **************************************************/
+
+/*
+ * Anything still NULL here is an op that phy_common.h documents as
+ * optional. In particular: prepare_hardware, exit, supports_hwpctl,
+ * set_rx_antenna, interf_mitigation, pwork_15sec, pwork_60sec.
+ *
+ * Once the init body is real and TX/RX is needed:
+ *   - implement set_rx_antenna so userspace antenna selection works,
+ *   - implement interf_mitigation for the WLC_NONWLAN modes,
+ *   - revisit recalc_txpower to actually return NEED_ADJUST and add
+ *     a real adjust_txpower that walks the SPROM core_pwr_info.
+ */
+
+/* ============================================================
+ * BLOCK 10 — INSERT IN drivers/net/wireless/broadcom/b43/phy_ac.c
+ *
+ * AFTER existing line:
+ *     	.free			= b43_phy_ac_op_free,
+ * BEFORE existing line:
+ *     	.phy_maskset		= b43_phy_ac_op_maskset,
+ * ============================================================ */
+
+	.prepare_structs	= b43_phy_ac_op_prepare_structs,
+	.init			= b43_phy_ac_op_init,
+	.phy_read		= b43_phy_ac_op_read,
+	.phy_write		= b43_phy_ac_op_write,
+
+/* ============================================================
+ * BLOCK 11 — INSERT IN drivers/net/wireless/broadcom/b43/phy_ac.c
+ *
+ * AFTER existing line:
+ *     	.radio_write		= b43_phy_ac_op_radio_write,
+ * BEFORE existing line:
+ *     	.get_default_chan	= b43_phy_ac_op_get_default_chan,
+ * ============================================================ */
+
+	.software_rfkill	= b43_phy_ac_op_software_rfkill,
+	.switch_analog		= b43_phy_ac_op_switch_analog,
+	.switch_channel		= b43_phy_ac_op_switch_channel,

@@ -22,6 +22,12 @@ python3 extract_acphy_tables_from_descriptor.py wl.o output_dir/
 # 3. Mappa per-funzione di tutte le call helper PHY/radio. Utile per leggere
 #    il flusso e capire le funzioni da approfondire in Ghidra.
 python3 extract_phy_writes_v2.py wl.disr wl.o output_dir/ [--filter acphy]
+
+# 4. Estrazione quad-modale: rilancia i due tool
+#    chip-aware sui 4 path {default,4352,4360,43b3} e produce diff report.
+python3 run_quad_modal.py wl.disr [reverse-output]
+#    Output: reverse-output/by-chip/{default,4352,4360,43b3}/<tool>.{c,_ops.tsv}
+#            reverse-output/by-chip/<tool>_diff.md
 ```
 
 ## extract_acphy_tables_from_descriptor.py
@@ -35,10 +41,36 @@ Output:
 - `acphy_tables_full.c` — i 25 array C pronti da incollare;
 - `acphy_tables_index.txt` — indice tabellare per id/len/off/width/simbolo.
 
-**SALAME**: assume layout `(ptr, len, id, off, width)` di 4 byte ciascuno.
-Va verificato in Ghidra prima di fidarsi (vedi ROADMAP punto 0.3). Se
-l'ordine dei campi è diverso, lo script va aggiornato di una riga
-(`>5I` con riordino dei field name).
+**Layout verificato (2026-04-30):** `(ptr, len, id, off, width)`,
+5×u32 = 20 byte.  Verifica via stride del walker in `wlc_phy_init_acphy`
+(`addiu s5,s5,20`), conta runtime `acphytbl_info_sz_rev{0,2}` coerente
+con `sizeof(array)/20`, e R_MIPS_32 sull'offset 0 di ogni entry.
+
+## run_quad_modal.py
+
+Orchestratore reverse chip-aware.
+Lancia ogni tool chip-aware sui 4 path `{default, 4352, 4360, 43b3}` e
+produce un diff report semantico per ciascuno.
+
+I tool chip-aware (oggi `extract_init_acphy.py` e `extract_radio2069_init.py`)
+supportano:
+- `--chip {default,4352,4360,43b3}` — emette UN solo path proiettato
+- `--out-dir DIR` — scrive `<tool>_output.c` + `<tool>_ops.tsv` in DIR
+  (richiede `--chip`)
+
+Senza flag, comportamento legacy invariato (stdout, formato side-by-side).
+
+L'orchestratore:
+1. Per ogni chip, crea `reverse-output/by-chip/<chip>/` e ci lancia ogni tool.
+2. Confronta i 4 `_ops.tsv` come set di tuple e classifica ogni tupla in:
+   - chip-agnostic (in tutti e 4 → `verified for chip 0x43b3`)
+   - 43b3 == default ≠ {4352,4360} (43b3 prende il default, ok)
+   - 43b3 anomalo (43b3 ≠ {default,4352,4360} — caso anomalo)
+3. Scrive `reverse-output/by-chip/<tool>_diff.md` con le tre tabelle.
+
+Aggiungere un nuovo tool chip-aware significa: implementare `--chip` e
+`--out-dir` come negli altri due, poi appendere `(script, basename)` alla
+lista `TOOLS` in cima a `run_quad_modal.py`.
 
 ## extract_phy_writes_v2.py
 

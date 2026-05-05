@@ -1,0 +1,799 @@
+# A.1 — Annotated disasm of wlc_phy_rxgainctrl_set_gaintbls_acphy
+# Address range: 0x4285c .. 0x431c0  (size 0x960 = 2400 bytes = 600 instructions)
+# Structural anchors are inserted as comments. Generated from objdump -dr output.
+#
+# The function is NOT linear. Body has loop on s1 (counter) bounded by phy[196],
+# and four chip-id discriminator points all checking BCM4360 (17248) vs BCM4352 (17234).
+#
+
+0004285c <wlc_phy_rxgainctrl_set_gaintbls_acphy>:
+
+# === ENTRY ===
+   4285c:	addiu	sp,sp,-216
+   42860:	lui	v0,0x1
+			42860: R_MIPS_HI16	.rodata
+   42864:	lui	t9,0x1
+			42864: R_MIPS_HI16	.rodata
+   42868:	lui	t8,0x1
+			42868: R_MIPS_HI16	.rodata
+   4286c:	sw	ra,212(sp)
+   42870:	addiu	ra,v0,30584
+			42870: R_MIPS_LO16	.rodata
+   42874:	addiu	t6,t8,30632
+			42874: R_MIPS_LO16	.rodata
+   42878:	lui	t4,0x1
+			42878: R_MIPS_HI16	.rodata
+   4287c:	lui	v1,0x1
+			4287c: R_MIPS_HI16	.rodata
+   42880:	addiu	t7,t9,30640
+			42880: R_MIPS_LO16	.rodata
+   42884:	lhu	ra,4(ra)
+   42888:	addiu	t3,t4,30620
+			42888: R_MIPS_LO16	.rodata
+   4288c:	lui	t2,0x1
+			4288c: R_MIPS_HI16	.rodata
+   42890:	lui	t0,0x1
+			42890: R_MIPS_HI16	.rodata
+   42894:	sw	s7,204(sp)
+   42898:	sw	s6,200(sp)
+   4289c:	lw	s7,30640(t9)
+			4289c: R_MIPS_LO16	.rodata
+   428a0:	lhu	s6,4(t7)
+   428a4:	sw	s5,196(sp)
+   428a8:	sw	s4,192(sp)
+   428ac:	lw	s5,30632(t8)
+			428ac: R_MIPS_LO16	.rodata
+   428b0:	lhu	s4,4(t6)
+   428b4:	sw	s3,188(sp)
+   428b8:	sw	s2,184(sp)
+   428bc:	lbu	s3,6(t6)
+   428c0:	sw	s1,180(sp)
+   428c4:	lw	s2,30620(t4)
+			428c4: R_MIPS_LO16	.rodata
+   428c8:	addiu	s1,v1,30592
+			428c8: R_MIPS_LO16	.rodata
+   428cc:	lw	t4,30592(v1)
+			428cc: R_MIPS_LO16	.rodata
+   428d0:	lui	v1,0x1
+			428d0: R_MIPS_HI16	.rodata
+   428d4:	addiu	t1,t2,30608
+			428d4: R_MIPS_LO16	.rodata
+   428d8:	addiu	t5,t0,30600
+			428d8: R_MIPS_LO16	.rodata
+   428dc:	sh	ra,64(sp)
+   428e0:	lw	ra,30584(v0)
+			428e0: R_MIPS_LO16	.rodata
+   428e4:	addiu	v0,v1,30552
+			428e4: R_MIPS_LO16	.rodata
+   428e8:	lhu	t7,8(t1)
+   428ec:	lw	t9,30608(t2)
+			428ec: R_MIPS_LO16	.rodata
+   428f0:	lw	t8,4(t1)
+   428f4:	lw	t6,30600(t0)
+			428f4: R_MIPS_LO16	.rodata
+   428f8:	lhu	t5,4(t5)
+   428fc:	sw	s8,208(sp)
+   42900:	sw	s0,176(sp)
+   42904:	lhu	s8,4(s1)
+   42908:	lhu	s0,8(t3)
+   4290c:	lw	s1,4(t3)
+   42910:	sb	s3,74(sp)
+   42914:	sw	s7,36(sp)
+   42918:	sh	s6,40(sp)
+   4291c:	sw	s5,68(sp)
+   42920:	sh	s4,72(sp)
+   42924:	sw	s2,84(sp)
+   42928:	sw	t4,52(sp)
+   4292c:	lhu	t4,8(v0)
+   42930:	lw	v0,4(v0)
+   42934:	lui	t3,0x1
+			42934: R_MIPS_HI16	.rodata
+   42938:	lui	t1,0x1
+			42938: R_MIPS_HI16	.rodata
+   4293c:	sw	v0,124(sp)
+   42940:	addiu	v0,zero,32
+   42944:	addiu	t2,t3,30576
+			42944: R_MIPS_LO16	.rodata
+   42948:	addiu	t0,t1,30564
+			42948: R_MIPS_LO16	.rodata
+   4294c:	sb	v0,32(sp)
+   42950:	addiu	v0,zero,36
+   42954:	lw	t3,30576(t3)
+			42954: R_MIPS_LO16	.rodata
+   42958:	lw	t1,30564(t1)
+			42958: R_MIPS_LO16	.rodata
+   4295c:	lw	v1,30552(v1)
+			4295c: R_MIPS_LO16	.rodata
+   42960:	sw	t6,44(sp)
+   42964:	sh	t5,48(sp)
+   42968:	lbu	t6,6(t2)
+   4296c:	lhu	t5,8(t0)
+   42970:	lhu	t2,4(t2)
+   42974:	lw	t0,4(t0)
+   42978:	sb	v0,33(sp)
+   4297c:	addiu	v0,zero,40
+   42980:	andi	a2,a2,0xff
+   42984:	andi	a3,a3,0xff
+   42988:	andi	a1,a1,0xff
+   4298c:	sb	v0,34(sp)
+   42990:	addiu	v0,zero,1
+   42994:	sw	t9,96(sp)
+   42998:	sw	t8,100(sp)
+   4299c:	sh	t7,104(sp)
+   429a0:	sw	ra,60(sp)
+   429a4:	sw	t3,76(sp)
+   429a8:	sh	t2,80(sp)
+   429ac:	sb	t6,82(sp)
+   429b0:	sw	t1,108(sp)
+   429b4:	sw	t0,112(sp)
+   429b8:	sh	t5,116(sp)
+   429bc:	sh	t4,128(sp)
+   429c0:	sw	v1,120(sp)
+   429c4:	sw	s1,88(sp)
+   429c8:	sh	s0,92(sp)
+   429cc:	sw	a1,140(sp)
+   429d0:	sb	v0,24(sp)
+   429d4:	sh	s8,56(sp)
+   429d8:	sw	a2,156(sp)
+   429dc:	sw	a3,160(sp)
+   429e0:	lw	v0,192(a0)
+   429e4:	lui	s1,0x0
+			429e4: R_MIPS_HI16	phy_reg_read
+   429e8:	lw	s3,168(a0)
+   429ec:	addiu	s1,s1,0
+			429ec: R_MIPS_LO16	phy_reg_read
+   429f0:	addiu	a1,zero,414
+   429f4:	sw	v0,152(sp)
+   429f8:	jalr	s1
+   429fc:	addu	s0,a0,zero
+   42a00:	lui	v1,0x0
+			42a00: R_MIPS_HI16	phy_reg_mod
+   42a04:	addiu	a2,zero,2
+   42a08:	addiu	a3,zero,2
+   42a0c:	addiu	v1,v1,0
+			42a0c: R_MIPS_LO16	phy_reg_mod
+   42a10:	sw	v0,168(sp)
+   42a14:	addu	a0,s0,zero
+   42a18:	jalr	v1
+   42a1c:	addiu	a1,zero,414
+   42a20:	addu	a0,s0,zero
+   42a24:	jalr	s1
+   42a28:	addiu	a1,zero,364
+   42a2c:	lui	t4,0x0
+			42a2c: R_MIPS_HI16	phy_reg_mod
+   42a30:	sw	v0,164(sp)
+   42a34:	addu	a0,s0,zero
+   42a38:	addiu	a1,zero,364
+   42a3c:	addiu	a2,zero,64
+   42a40:	addiu	t4,t4,0
+			42a40: R_MIPS_LO16	phy_reg_mod
+   42a44:	jalr	t4
+   42a48:	addiu	a3,zero,64
+   42a4c:	lw	v0,140(sp)
+   42a50:	bne	v0,zero,43180 <wlc_phy_rxgainctrl_set_gaintbls_acphy+0x924>
+   42a54:	addiu	v0,zero,8
+   42a58:	lbu	v0,196(s0)
+   42a5c:	beq	v0,zero,431b0 <wlc_phy_rxgainctrl_set_gaintbls_acphy+0x954>
+   42a60:	lui	v0,0x0
+			42a60: R_MIPS_HI16	phy_reg_write
+
+# --- end of preamble; setup of helper fn ptrs (s7=table_write, s8=memcpy, sp+148=phy_reg_write) ---
+   42a64:	lui	s7,0x0
+
+# --- end of preamble; setup of helper fn ptrs (s7=table_write, s8=memcpy, sp+148=phy_reg_write) ---
+			42a64: R_MIPS_HI16	wlc_phy_table_write_acphy
+   42a68:	lui	s8,0x0
+			42a68: R_MIPS_HI16	memcpy
+   42a6c:	addiu	v0,v0,0
+			42a6c: R_MIPS_LO16	phy_reg_write
+   42a70:	addiu	s7,s7,0
+			42a70: R_MIPS_LO16	wlc_phy_table_write_acphy
+   42a74:	addiu	s8,s8,0
+			42a74: R_MIPS_LO16	memcpy
+
+# phy_reg_write fn ptr stored at sp+148
+   42a78:	sw	v0,148(sp)
+
+# --- main body begins; s1=loop counter (=0), s4=0x44, s5=0x45, s2=8 (width) ---
+   42a7c:	addu	s1,zero,zero
+   42a80:	addiu	s5,zero,69
+   42a84:	addiu	s4,zero,68
+   42a88:	addiu	s2,zero,8
+
+# L_main: lhu v0,218(s0)  -- read PHY-struct field for chip/band gating
+   42a8c:	lhu	v0,218(s0)
+   42a90:	andi	v1,v0,0xc000
+   42a94:	bne	v1,zero,42efc <wlc_phy_rxgainctrl_set_gaintbls_acphy+0x6a0>
+   42a98:	andi	v0,v0,0xff
+   42a9c:	sll	v0,s1,0x1
+   42aa0:	addu	v0,v0,s1
+   42aa4:	addu	v0,s3,v0
+   42aa8:	lbu	v1,783(v0)
+   42aac:	sb	v1,29(sp)
+   42ab0:	sb	v1,28(sp)
+   42ab4:	lbu	a0,784(v0)
+   42ab8:	lbu	a1,785(v0)
+   42abc:	sb	v1,910(v0)
+   42ac0:	sb	a1,912(v0)
+   42ac4:	sb	a0,911(v0)
+   42ac8:	lw	v1,152(sp)
+   42acc:	beq	v1,zero,42f3c <wlc_phy_rxgainctrl_set_gaintbls_acphy+0x6e0>
+   42ad0:	sll	zero,zero,0x0
+   42ad4:	lbu	a3,911(s3)
+   42ad8:	lui	v0,0x0
+			42ad8: R_MIPS_HI16	phy_reg_mod
+   42adc:	addu	a0,s0,zero
+   42ae0:	sll	a3,a3,0x8
+   42ae4:	addiu	a1,zero,1785
+   42ae8:	addiu	v0,v0,0
+			42ae8: R_MIPS_LO16	phy_reg_mod
+   42aec:	jalr	v0
+   42af0:	addiu	a2,zero,32512
+   42af4:	lbu	a3,914(s3)
+   42af8:	lui	v1,0x0
+			42af8: R_MIPS_HI16	phy_reg_mod
+   42afc:	addu	a0,s0,zero
+   42b00:	sll	a3,a3,0x8
+   42b04:	addiu	a1,zero,2297
+   42b08:	addiu	v1,v1,0
+			42b08: R_MIPS_LO16	phy_reg_mod
+   42b0c:	jalr	v1
+   42b10:	addiu	a2,zero,32512
+   42b14:	lbu	a3,917(s3)
+   42b18:	lui	t4,0x0
+			42b18: R_MIPS_HI16	phy_reg_mod
+   42b1c:	addu	a0,s0,zero
+   42b20:	sll	a3,a3,0x8
+   42b24:	addiu	a1,zero,2809
+   42b28:	addiu	t4,t4,0
+			42b28: R_MIPS_LO16	phy_reg_mod
+   42b2c:	jalr	t4
+   42b30:	addiu	a2,zero,32512
+   42b34:	sll	v0,s1,0x3
+   42b38:	sll	v1,s1,0x7
+   42b3c:	addiu	t4,sp,28
+   42b40:	addu	a0,s0,zero
+   42b44:	addu	a1,s4,zero
+   42b48:	addiu	a2,zero,2
+   42b4c:	addu	a3,zero,zero
+   42b50:	sw	v0,136(sp)
+   42b54:	sw	v1,144(sp)
+   42b58:	sw	t4,20(sp)
+
+# CALL: wlc_phy_table_write_acphy(pi, id=s4=0x44, len=2, off=0, ...)
+   42b5c:	jalr	s7
+   42b60:	sw	s2,16(sp)
+   42b64:	lw	v0,144(sp)
+   42b68:	lw	v1,136(sp)
+   42b6c:	lbu	a2,1402(s3)
+   42b70:	subu	s6,v0,v1
+   42b74:	addu	s6,s3,s6
+   42b78:	addiu	s6,s6,922
+   42b7c:	addu	a0,s6,zero
+
+# CALL: memcpy
+   42b80:	jalr	s8
+   42b84:	addiu	a1,sp,28
+   42b88:	lw	a0,140(sp)
+   42b8c:	bne	a0,zero,42ba4 <wlc_phy_rxgainctrl_set_gaintbls_acphy+0x348>
+   42b90:	lw	t4,156(sp)
+   42b94:	bne	t4,zero,42ba4 <wlc_phy_rxgainctrl_set_gaintbls_acphy+0x348>
+   42b98:	lw	v0,160(sp)
+   42b9c:	beq	v0,zero,42eb4 <wlc_phy_rxgainctrl_set_gaintbls_acphy+0x658>
+   42ba0:	sll	zero,zero,0x0
+   42ba4:	lhu	v0,218(s0)
+   42ba8:	andi	v1,v0,0xc000
+   42bac:	beq	v1,zero,430dc <wlc_phy_rxgainctrl_set_gaintbls_acphy+0x880>
+   42bb0:	andi	v0,v0,0x3800
+   42bb4:	addiu	v1,zero,4096
+   42bb8:	beq	v0,v1,43164 <wlc_phy_rxgainctrl_set_gaintbls_acphy+0x908>
+   42bbc:	addiu	v1,s6,10
+   42bc0:	addiu	v1,zero,6144
+   42bc4:	beq	v0,v1,43148 <wlc_phy_rxgainctrl_set_gaintbls_acphy+0x8ec>
+   42bc8:	addiu	v1,s6,10
+   42bcc:	lbu	a2,1403(s3)
+   42bd0:	addu	a0,v1,zero
+   42bd4:	sw	v1,172(sp)
+
+# CALL: memcpy
+   42bd8:	jalr	s8
+   42bdc:	addiu	a1,sp,60
+   42be0:	lw	v1,172(sp)
+   42be4:	sw	v1,20(sp)
+   42be8:	addu	a0,s0,zero
+   42bec:	addu	a1,s4,zero
+   42bf0:	addiu	a2,zero,6
+   42bf4:	addiu	a3,zero,8
+
+# CALL: wlc_phy_table_write_acphy(pi, id=s4=0x44, len=6, off=8, ...)
+   42bf8:	jalr	s7
+   42bfc:	sw	s2,16(sp)
+   42c00:	lw	v1,140(sp)
+   42c04:	beq	v1,zero,43058 <wlc_phy_rxgainctrl_set_gaintbls_acphy+0x7fc>
+   42c08:	lw	a0,156(sp)
+   42c0c:	lhu	v0,218(s0)
+   42c10:	andi	v0,v0,0xc000
+   42c14:	bne	v0,zero,42f74 <wlc_phy_rxgainctrl_set_gaintbls_acphy+0x718>
+
+# --- chip-id discriminator: read acphychipid ---
+   42c18:	lui	v1,0x0
+
+# --- chip-id discriminator: read acphychipid ---
+			42c18: R_MIPS_HI16	acphychipid
+   42c1c:	lui	t4,0x0
+			42c1c: R_MIPS_HI16	acphychipid
+   42c20:	lw	v0,0(t4)
+			42c20: R_MIPS_LO16	acphychipid
+
+# BRANCH: chip == 17248 (BCM4360)?
+   42c24:	addiu	v1,zero,17248
+   42c28:	beq	v0,v1,43130 <wlc_phy_rxgainctrl_set_gaintbls_acphy+0x8d4>
+   42c2c:	addiu	a0,zero,17234
+
+# BRANCH: chip == 17234 (BCM4352)?
+   42c30:	beq	v0,a0,42c3c <wlc_phy_rxgainctrl_set_gaintbls_acphy+0x3e0>
+   42c34:	addiu	a1,zero,5947
+   42c38:	addiu	a1,zero,1851
+   42c3c:	lw	t4,148(sp)
+   42c40:	addu	a0,s0,zero
+
+# CALL: phy_reg_write (via fn ptr at sp+148), len=24
+   42c44:	jalr	t4
+   42c48:	addiu	a2,zero,24
+
+# --- chip-id discriminator (2nd call site) ---
+   42c4c:	lui	v1,0x0
+
+# --- chip-id discriminator (2nd call site) ---
+			42c4c: R_MIPS_HI16	acphychipid
+   42c50:	lw	v0,0(v1)
+			42c50: R_MIPS_LO16	acphychipid
+   42c54:	addiu	a0,zero,17248
+   42c58:	beq	v0,a0,43128 <wlc_phy_rxgainctrl_set_gaintbls_acphy+0x8cc>
+   42c5c:	addiu	t4,zero,17234
+   42c60:	beq	v0,t4,43128 <wlc_phy_rxgainctrl_set_gaintbls_acphy+0x8cc>
+   42c64:	sll	zero,zero,0x0
+   42c68:	addiu	a1,zero,1830
+   42c6c:	lw	v0,148(sp)
+   42c70:	addu	a0,s0,zero
+
+# CALL: phy_reg_write (via fn ptr at sp+148), len=12
+   42c74:	jalr	v0
+   42c78:	addiu	a2,zero,12
+   42c7c:	addiu	v1,sp,68
+   42c80:	sw	v1,20(sp)
+   42c84:	addu	a0,s0,zero
+   42c88:	addu	a1,s4,zero
+   42c8c:	addiu	a2,zero,7
+   42c90:	addiu	a3,zero,16
+
+# CALL: wlc_phy_table_write_acphy(pi, id=s4=0x44, len=7, off=16, ...)
+   42c94:	jalr	s7
+   42c98:	sw	s2,16(sp)
+   42c9c:	addiu	t4,sp,84
+   42ca0:	sw	t4,20(sp)
+   42ca4:	addu	a0,s0,zero
+   42ca8:	addu	a1,s4,zero
+   42cac:	addiu	a2,zero,10
+   42cb0:	addiu	a3,zero,32
+
+# CALL: wlc_phy_table_write_acphy(pi, id=s4=0x44, len=10, off=32, width=s2=8)
+   42cb4:	jalr	s7
+   42cb8:	sw	s2,16(sp)
+   42cbc:	addiu	v0,sp,96
+   42cc0:	addu	a0,s0,zero
+   42cc4:	addu	a1,s5,zero
+   42cc8:	addiu	a3,zero,32
+   42ccc:	addiu	a2,zero,10
+   42cd0:	sw	v0,20(sp)
+
+# CALL: wlc_phy_table_write_acphy(pi, id=s5=0x45, len=10, off=32, width=s2=8)
+   42cd4:	jalr	s7
+   42cd8:	sw	s2,16(sp)
+   42cdc:	lbu	a2,1404(s3)
+   42ce0:	addiu	a0,s6,20
+   42ce4:	jalr	s8
+   42ce8:	addiu	a1,sp,68
+   42cec:	lbu	a2,1405(s3)
+   42cf0:	addiu	a0,s6,30
+   42cf4:	jalr	s8
+   42cf8:	addiu	a1,sp,84
+   42cfc:	lw	v1,140(sp)
+   42d00:	beq	v1,zero,42eb4 <wlc_phy_rxgainctrl_set_gaintbls_acphy+0x658>
+   42d04:	sll	zero,zero,0x0
+   42d08:	addiu	t4,sp,24
+   42d0c:	sw	t4,20(sp)
+   42d10:	addu	a0,s0,zero
+   42d14:	addu	a1,s5,zero
+   42d18:	addiu	a2,zero,1
+   42d1c:	addiu	a3,zero,8
+
+# CALL: wlc_phy_table_write_acphy(pi, id=s5=0x45, len=1, off=8, ...)
+   42d20:	jalr	s7
+   42d24:	sw	s2,16(sp)
+   42d28:	addiu	v0,sp,24
+   42d2c:	addu	a0,s0,zero
+   42d30:	addu	a1,s5,zero
+   42d34:	addiu	a2,zero,1
+   42d38:	addiu	a3,zero,16
+   42d3c:	sw	v0,20(sp)
+
+# CALL: wlc_phy_table_write_acphy(pi, id=s5=0x45, len=1, off=16, ...)
+   42d40:	jalr	s7
+   42d44:	sw	s2,16(sp)
+   42d48:	lw	a0,136(sp)
+   42d4c:	lw	v1,144(sp)
+   42d50:	lui	t4,0x0
+			42d50: R_MIPS_HI16	wlc_phy_table_read_acphy
+   42d54:	subu	v0,v1,a0
+   42d58:	addiu	v0,v0,976
+   42d5c:	addu	v0,s3,v0
+   42d60:	sw	v0,136(sp)
+   42d64:	addiu	v0,v0,6
+   42d68:	addu	a0,s0,zero
+   42d6c:	addu	a1,s5,zero
+   42d70:	addiu	a2,zero,1
+   42d74:	addu	a3,zero,zero
+   42d78:	sw	v0,20(sp)
+   42d7c:	addiu	t4,t4,0
+			42d7c: R_MIPS_LO16	wlc_phy_table_read_acphy
+
+# CALL: wlc_phy_table_read_acphy (1/8)
+   42d80:	jalr	t4
+   42d84:	sw	s2,16(sp)
+   42d88:	lw	v1,136(sp)
+   42d8c:	lui	t4,0x0
+			42d8c: R_MIPS_HI16	wlc_phy_table_read_acphy
+   42d90:	addiu	v0,v1,16
+   42d94:	addu	a0,s0,zero
+   42d98:	addu	a1,s5,zero
+   42d9c:	addiu	a2,zero,6
+   42da0:	addiu	a3,zero,8
+   42da4:	sw	v0,20(sp)
+   42da8:	addiu	t4,t4,0
+			42da8: R_MIPS_LO16	wlc_phy_table_read_acphy
+
+# CALL: wlc_phy_table_read_acphy (2/8)
+   42dac:	jalr	t4
+   42db0:	sw	s2,16(sp)
+   42db4:	lw	v1,136(sp)
+   42db8:	lui	t4,0x0
+			42db8: R_MIPS_HI16	wlc_phy_table_read_acphy
+   42dbc:	addiu	v0,v1,26
+   42dc0:	addu	a0,s0,zero
+   42dc4:	addu	a1,s5,zero
+   42dc8:	addiu	a2,zero,7
+   42dcc:	addiu	a3,zero,16
+   42dd0:	sw	v0,20(sp)
+   42dd4:	addiu	t4,t4,0
+			42dd4: R_MIPS_LO16	wlc_phy_table_read_acphy
+
+# CALL: wlc_phy_table_read_acphy (3/8)
+   42dd8:	jalr	t4
+   42ddc:	sw	s2,16(sp)
+   42de0:	lw	v1,136(sp)
+   42de4:	lui	t4,0x0
+			42de4: R_MIPS_HI16	wlc_phy_table_read_acphy
+   42de8:	addiu	v0,v1,36
+   42dec:	addiu	t4,t4,0
+			42dec: R_MIPS_LO16	wlc_phy_table_read_acphy
+   42df0:	addu	a0,s0,zero
+   42df4:	addu	a1,s5,zero
+   42df8:	addiu	a2,zero,10
+   42dfc:	addiu	a3,zero,32
+   42e00:	sw	v0,20(sp)
+
+# CALL: wlc_phy_table_read_acphy (4/8)
+   42e04:	jalr	t4
+   42e08:	sw	s2,16(sp)
+   42e0c:	addiu	v0,s6,40
+   42e10:	sw	v0,20(sp)
+   42e14:	lui	v0,0x0
+			42e14: R_MIPS_HI16	wlc_phy_table_read_acphy
+   42e18:	addiu	v0,v0,0
+			42e18: R_MIPS_LO16	wlc_phy_table_read_acphy
+   42e1c:	addu	a0,s0,zero
+   42e20:	addu	a1,s4,zero
+   42e24:	addiu	a2,zero,8
+   42e28:	addiu	a3,zero,96
+
+# CALL: wlc_phy_table_read_acphy (5/8)
+   42e2c:	jalr	v0
+   42e30:	sw	s2,16(sp)
+   42e34:	addiu	s6,s6,50
+   42e38:	lui	v1,0x0
+			42e38: R_MIPS_HI16	wlc_phy_table_read_acphy
+   42e3c:	addiu	v1,v1,0
+			42e3c: R_MIPS_LO16	wlc_phy_table_read_acphy
+   42e40:	addu	a1,s4,zero
+   42e44:	addu	a0,s0,zero
+   42e48:	addiu	a2,zero,8
+   42e4c:	addiu	a3,zero,112
+   42e50:	sw	s6,20(sp)
+
+# CALL: wlc_phy_table_read_acphy (6/8)
+   42e54:	jalr	v1
+   42e58:	sw	s2,16(sp)
+   42e5c:	lw	t4,136(sp)
+   42e60:	addu	a0,s0,zero
+   42e64:	addiu	v0,t4,46
+   42e68:	sw	v0,20(sp)
+   42e6c:	lui	v0,0x0
+			42e6c: R_MIPS_HI16	wlc_phy_table_read_acphy
+   42e70:	addu	a1,s5,zero
+   42e74:	addiu	a2,zero,8
+   42e78:	addiu	a3,zero,96
+   42e7c:	addiu	v0,v0,0
+			42e7c: R_MIPS_LO16	wlc_phy_table_read_acphy
+
+# CALL: wlc_phy_table_read_acphy (7/8)
+   42e80:	jalr	v0
+   42e84:	sw	s2,16(sp)
+   42e88:	lw	v1,136(sp)
+   42e8c:	lui	t4,0x0
+			42e8c: R_MIPS_HI16	wlc_phy_table_read_acphy
+   42e90:	addiu	v0,v1,56
+   42e94:	addu	a1,s5,zero
+   42e98:	addu	a0,s0,zero
+   42e9c:	addiu	a2,zero,8
+   42ea0:	addiu	a3,zero,112
+   42ea4:	sw	v0,20(sp)
+   42ea8:	addiu	t4,t4,0
+			42ea8: R_MIPS_LO16	wlc_phy_table_read_acphy
+
+# CALL: wlc_phy_table_read_acphy (8/8)
+   42eac:	jalr	t4
+   42eb0:	sw	s2,16(sp)
+   42eb4:	addiu	s1,s1,1
+   42eb8:	lbu	v0,196(s0)
+   42ebc:	andi	s1,s1,0xff
+   42ec0:	sltu	v0,s1,v0
+   42ec4:	beq	v0,zero,43078 <wlc_phy_rxgainctrl_set_gaintbls_acphy+0x81c>
+   42ec8:	sll	zero,zero,0x0
+   42ecc:	beq	s1,zero,42f68 <wlc_phy_rxgainctrl_set_gaintbls_acphy+0x70c>
+   42ed0:	xori	v0,s1,0x1
+   42ed4:	addiu	v1,zero,132
+   42ed8:	addiu	s4,zero,100
+   42edc:	movn	s4,v1,v0
+   42ee0:	addiu	s5,zero,101
+   42ee4:	addiu	v1,zero,133
+   42ee8:	movn	s5,v1,v0
+   42eec:	lhu	v0,218(s0)
+   42ef0:	andi	v1,v0,0xc000
+   42ef4:	beq	v1,zero,42a9c <wlc_phy_rxgainctrl_set_gaintbls_acphy+0x240>
+   42ef8:	andi	v0,v0,0xff
+   42efc:	sltiu	v0,v0,100
+   42f00:	beq	v0,zero,430fc <wlc_phy_rxgainctrl_set_gaintbls_acphy+0x8a0>
+   42f04:	sll	v0,s1,0x1
+   42f08:	addu	v0,v0,s1
+   42f0c:	addu	v0,s3,v0
+   42f10:	lbu	v1,795(v0)
+   42f14:	sb	v1,29(sp)
+   42f18:	sb	v1,28(sp)
+   42f1c:	lbu	a0,796(v0)
+   42f20:	lbu	a1,797(v0)
+   42f24:	sb	v1,910(v0)
+   42f28:	sb	a1,912(v0)
+   42f2c:	sb	a0,911(v0)
+   42f30:	lw	v1,152(sp)
+   42f34:	bne	v1,zero,42ad4 <wlc_phy_rxgainctrl_set_gaintbls_acphy+0x278>
+   42f38:	sll	zero,zero,0x0
+   42f3c:	bne	s1,zero,42b34 <wlc_phy_rxgainctrl_set_gaintbls_acphy+0x2d8>
+   42f40:	lui	t4,0x0
+			42f40: R_MIPS_HI16	phy_reg_mod
+   42f44:	lbu	a3,911(s3)
+   42f48:	addu	a0,s0,zero
+   42f4c:	sll	a3,a3,0x8
+   42f50:	addiu	a1,zero,649
+   42f54:	addiu	t4,t4,0
+			42f54: R_MIPS_LO16	phy_reg_mod
+   42f58:	jalr	t4
+   42f5c:	addiu	a2,zero,32512
+   42f60:	j	42b38 <wlc_phy_rxgainctrl_set_gaintbls_acphy+0x2dc>
+			42f60: R_MIPS_26	.text
+   42f64:	sll	v0,s1,0x3
+   42f68:	addiu	s5,zero,69
+   42f6c:	j	42a8c <wlc_phy_rxgainctrl_set_gaintbls_acphy+0x230>
+			42f6c: R_MIPS_26	.text
+   42f70:	addiu	s4,zero,68
+
+# --- chip-id discriminator (3rd call site) ---
+   42f74:	lw	v0,0(v1)
+
+# --- chip-id discriminator (3rd call site) ---
+			42f74: R_MIPS_LO16	acphychipid
+   42f78:	addiu	a0,zero,17248
+   42f7c:	beq	v0,a0,43140 <wlc_phy_rxgainctrl_set_gaintbls_acphy+0x8e4>
+   42f80:	addiu	t4,zero,17234
+   42f84:	beq	v0,t4,42f90 <wlc_phy_rxgainctrl_set_gaintbls_acphy+0x734>
+   42f88:	addiu	a1,zero,5947
+   42f8c:	addiu	a1,zero,1851
+   42f90:	lw	v0,148(sp)
+   42f94:	addu	a0,s0,zero
+
+# CALL: phy_reg_write (via fn ptr at sp+148), len=44
+   42f98:	jalr	v0
+   42f9c:	addiu	a2,zero,44
+
+# --- chip-id discriminator (4th call site) ---
+   42fa0:	lui	v1,0x0
+
+# --- chip-id discriminator (4th call site) ---
+			42fa0: R_MIPS_HI16	acphychipid
+   42fa4:	lw	v0,0(v1)
+			42fa4: R_MIPS_LO16	acphychipid
+   42fa8:	addiu	a0,zero,17248
+   42fac:	beq	v0,a0,43138 <wlc_phy_rxgainctrl_set_gaintbls_acphy+0x8dc>
+   42fb0:	addiu	t4,zero,17234
+   42fb4:	beq	v0,t4,43138 <wlc_phy_rxgainctrl_set_gaintbls_acphy+0x8dc>
+   42fb8:	sll	zero,zero,0x0
+   42fbc:	addiu	a1,zero,1830
+   42fc0:	lw	v0,148(sp)
+   42fc4:	addu	a0,s0,zero
+
+# CALL: phy_reg_write (via fn ptr at sp+148), len=12
+   42fc8:	jalr	v0
+   42fcc:	addiu	a2,zero,12
+   42fd0:	addiu	v1,sp,76
+   42fd4:	sw	v1,20(sp)
+   42fd8:	addu	a0,s0,zero
+   42fdc:	addu	a1,s4,zero
+   42fe0:	addiu	a2,zero,7
+   42fe4:	addiu	a3,zero,16
+
+# CALL: wlc_phy_table_write_acphy(pi, id=s4=0x44, len=7, off=16, ...)
+   42fe8:	jalr	s7
+   42fec:	sw	s2,16(sp)
+   42ff0:	addiu	t4,sp,108
+   42ff4:	sw	t4,20(sp)
+   42ff8:	addu	a0,s0,zero
+   42ffc:	addu	a1,s4,zero
+   43000:	addiu	a2,zero,10
+   43004:	addiu	a3,zero,32
+
+# CALL: wlc_phy_table_write_acphy(pi, id=s4=0x44, len=10, off=32)
+   43008:	jalr	s7
+   4300c:	sw	s2,16(sp)
+   43010:	addiu	v0,sp,120
+   43014:	addu	a0,s0,zero
+   43018:	addu	a1,s5,zero
+   4301c:	addiu	a3,zero,32
+   43020:	sw	v0,20(sp)
+   43024:	addiu	a2,zero,10
+
+# CALL: wlc_phy_table_write_acphy(pi, id=s5=0x45, len=10, off=32)
+   43028:	jalr	s7
+   4302c:	sw	s2,16(sp)
+   43030:	lbu	a2,1404(s3)
+   43034:	addiu	a0,s6,20
+
+# CALL: memcpy
+   43038:	jalr	s8
+   4303c:	addiu	a1,sp,76
+   43040:	lbu	a2,1405(s3)
+   43044:	addiu	a0,s6,30
+
+# CALL: memcpy
+   43048:	jalr	s8
+   4304c:	addiu	a1,sp,108
+   43050:	j	42d00 <wlc_phy_rxgainctrl_set_gaintbls_acphy+0x4a4>
+			43050: R_MIPS_26	.text
+   43054:	lw	v1,140(sp)
+   43058:	bne	a0,zero,42c0c <wlc_phy_rxgainctrl_set_gaintbls_acphy+0x3b0>
+   4305c:	sll	zero,zero,0x0
+   43060:	addiu	s1,s1,1
+   43064:	lbu	v0,196(s0)
+   43068:	andi	s1,s1,0xff
+   4306c:	sltu	v0,s1,v0
+
+# BRANCH: loop continuation (s1++ < phy[196])
+   43070:	bne	v0,zero,42ecc <wlc_phy_rxgainctrl_set_gaintbls_acphy+0x670>
+   43074:	sll	zero,zero,0x0
+   43078:	lw	a2,164(sp)
+   4307c:	lw	v0,148(sp)
+   43080:	addu	a0,s0,zero
+
+# CALL: phy_reg_write (via fn ptr at sp+148), len=364
+   43084:	jalr	v0
+   43088:	addiu	a1,zero,364
+   4308c:	lw	v1,168(sp)
+   43090:	lui	t4,0x0
+			43090: R_MIPS_HI16	phy_reg_mod
+   43094:	addu	a0,s0,zero
+   43098:	andi	a3,v1,0x2
+   4309c:	addiu	a1,zero,414
+   430a0:	addiu	t4,t4,0
+			430a0: R_MIPS_LO16	phy_reg_mod
+
+# CALL: phy_reg_mod (final, before epilogue)
+   430a4:	jalr	t4
+   430a8:	addiu	a2,zero,2
+
+# === EPILOGUE: restore + return ===
+   430ac:	lw	ra,212(sp)
+   430b0:	lw	s8,208(sp)
+   430b4:	lw	s7,204(sp)
+   430b8:	lw	s6,200(sp)
+   430bc:	lw	s5,196(sp)
+   430c0:	lw	s4,192(sp)
+   430c4:	lw	s3,188(sp)
+   430c8:	lw	s2,184(sp)
+   430cc:	lw	s1,180(sp)
+   430d0:	lw	s0,176(sp)
+   430d4:	jr	ra
+   430d8:	addiu	sp,sp,216
+
+# --- helper memcpy block (jumped to from main) ---
+   430dc:	addiu	v1,s6,10
+   430e0:	lbu	a2,1403(s3)
+   430e4:	addu	a0,v1,zero
+   430e8:	sw	v1,172(sp)
+   430ec:	jalr	s8
+   430f0:	addiu	a1,sp,36
+   430f4:	j	42be4 <wlc_phy_rxgainctrl_set_gaintbls_acphy+0x388>
+			430f4: R_MIPS_26	.text
+   430f8:	lw	v1,172(sp)
+   430fc:	addu	v0,v0,s1
+   43100:	addu	v0,s3,v0
+   43104:	lbu	v1,819(v0)
+   43108:	sb	v1,29(sp)
+   4310c:	sb	v1,28(sp)
+   43110:	lbu	a0,820(v0)
+   43114:	lbu	a1,821(v0)
+   43118:	sb	v1,910(v0)
+   4311c:	sb	a1,912(v0)
+   43120:	j	42ac8 <wlc_phy_rxgainctrl_set_gaintbls_acphy+0x26c>
+			43120: R_MIPS_26	.text
+   43124:	sb	a0,911(v0)
+   43128:	j	42c6c <wlc_phy_rxgainctrl_set_gaintbls_acphy+0x410>
+			43128: R_MIPS_26	.text
+   4312c:	addiu	a1,zero,5926
+   43130:	j	42c3c <wlc_phy_rxgainctrl_set_gaintbls_acphy+0x3e0>
+			43130: R_MIPS_26	.text
+   43134:	addiu	a1,zero,5947
+   43138:	j	42fc0 <wlc_phy_rxgainctrl_set_gaintbls_acphy+0x764>
+			43138: R_MIPS_26	.text
+   4313c:	addiu	a1,zero,5926
+   43140:	j	42f90 <wlc_phy_rxgainctrl_set_gaintbls_acphy+0x734>
+			43140: R_MIPS_26	.text
+   43144:	addiu	a1,zero,5947
+   43148:	lbu	a2,1403(s3)
+   4314c:	addu	a0,v1,zero
+   43150:	sw	v1,172(sp)
+   43154:	jalr	s8
+   43158:	addiu	a1,sp,52
+   4315c:	j	42be4 <wlc_phy_rxgainctrl_set_gaintbls_acphy+0x388>
+			4315c: R_MIPS_26	.text
+   43160:	lw	v1,172(sp)
+   43164:	lbu	a2,1403(s3)
+   43168:	addu	a0,v1,zero
+   4316c:	sw	v1,172(sp)
+   43170:	jalr	s8
+   43174:	addiu	a1,sp,44
+   43178:	j	42be4 <wlc_phy_rxgainctrl_set_gaintbls_acphy+0x388>
+			43178: R_MIPS_26	.text
+   4317c:	lw	v1,172(sp)
+   43180:	sw	v0,16(sp)
+   43184:	lui	s7,0x0
+			43184: R_MIPS_HI16	wlc_phy_table_write_acphy
+   43188:	addiu	v0,sp,32
+   4318c:	addiu	s7,s7,0
+			4318c: R_MIPS_LO16	wlc_phy_table_write_acphy
+   43190:	addu	a0,s0,zero
+   43194:	addiu	a1,zero,11
+   43198:	addiu	a2,zero,3
+   4319c:	addiu	a3,zero,11
+
+# CALL: wlc_phy_table_write_acphy(pi, id=11, len=3, off=11)  -- only literal id
+   431a0:	jalr	s7
+   431a4:	sw	v0,20(sp)
+   431a8:	j	42a5c <wlc_phy_rxgainctrl_set_gaintbls_acphy+0x200>
+			431a8: R_MIPS_26	.text
+   431ac:	lbu	v0,196(s0)
+   431b0:	addiu	v0,v0,0
+			431b0: R_MIPS_LO16	phy_reg_write
+   431b4:	j	43078 <wlc_phy_rxgainctrl_set_gaintbls_acphy+0x81c>
+			431b4: R_MIPS_26	.text
+
+# phy_reg_write fn ptr re-stored
+   431b8:	sw	v0,148(sp)

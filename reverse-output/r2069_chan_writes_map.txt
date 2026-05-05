@@ -1,0 +1,83 @@
+# 2069 channel programming map (BCM4360, BW20)
+#
+# Source: D-Link DSL-3580 GPL drop wl ELF, function
+# wlc_phy_chanspec_set_acphy() at 0x50d9c.
+#
+# The 2069 has NO dedicated wlc_phy_chanspec_radio2069_setup() — channel
+# tuning is INLINED into wlc_phy_chanspec_set_acphy. The function loads
+# a chan_tuning_2069rev_GE16 entry pointer in s2 and then issues a long
+# sequence of write_radio_reg(dev, REG, lhu(OFF, s2)) calls.
+#
+# Three clusters of writes were identified:
+#   - cluster1 (0x50f24..0x51664): 45 writes via write_radio_reg, runs
+#     for ALL chip variants. Covers offsets 4..92 of the entry — the
+#     full radio_raw[39] + bw1..bw6.
+#   - cluster2 (0x52130..0x52718): 43 writes via write_radio_reg, runs
+#     after cluster1 ALWAYS (no chip branch). Same offsets 8..92, but
+#     to a DIFFERENT set of register addresses — these are the "core 1"
+#     companion registers in 3-chain MIMO. Not needed for single-stream.
+#   - block s5 (0x52a90..0x52fe4 + 0x529ac..0x529fc): 4360-specific
+#     extra programming pass (chip 0x4360 only). Same offsets, more regs.
+#     Only entered via complex branches; assume optional for MVP.
+#
+# Below: cluster1 only, in execution order. raw_idx = u16_idx - 2.
+#
+# u16_idx  off   raw_idx  reg2069   src_field
+#       2    4         0   0x08e8   radio_raw[0]
+#       3    6         1   0x08e9   radio_raw[1]
+#       4    8         2   0x08e5   radio_raw[2]
+#       5   10         3   0x08e4   radio_raw[3]
+#       6   12         4   0x08ee   radio_raw[4]
+#       7   14         5   0x08ef   radio_raw[5]
+#       8   16         6   0x08cc   radio_raw[6]
+#       9   18         7   0x08cd   radio_raw[7]
+#      10   20         8   0x08ed   radio_raw[8]
+#      11   22         9   0x08f3   radio_raw[9]
+#      12   24        10   0x08de   radio_raw[10]
+#      13   26        11   0x0925   radio_raw[11]
+#      14   28        12   0x08e3   radio_raw[12]
+#      15   30        13   0x08e2   radio_raw[13]
+#      16   32        14   0x08df   radio_raw[14]
+#      17   34        15   0x088c   radio_raw[15]
+#      18   36        16   0x088d   radio_raw[16]
+#      19   38        17   0x088e   radio_raw[17]
+#      20   40        18   0x08e1   radio_raw[18]
+#      21   42        19   0x08e0   radio_raw[19]
+#      22   44        20   0x08d1   radio_raw[20]
+#      23   46        21   0x08d2   radio_raw[21]
+#      24   48        22   0x08d4   radio_raw[22]
+#      25   50        23   0x08cf   radio_raw[23]
+#      26   52        24   0x08d0   radio_raw[24]
+#      27   54        25   0x089a   radio_raw[25]
+#      28   56        26   0x009c   radio_raw[26]
+#      29   58        27   0x009d   radio_raw[27]
+#      30   60        28   0x009e   radio_raw[28]
+#      31   62        29   0x009f   radio_raw[29]
+#      32   64        30   0x00a1   radio_raw[30]
+#      33   66        31   0x00a2   radio_raw[31]
+#      34   68        32   0x00a3   radio_raw[32]
+#      35   70        33   0x00a4   radio_raw[33]
+#      36   72        34   0x0924   radio_raw[34]
+#      37   74        35   0x002f   radio_raw[35]
+#      38   76        36   0x0062   radio_raw[36]
+#      39   78        37   0x0065   radio_raw[37]
+#      40   80        38   0x006f   radio_raw[38]
+#      41   82        -    0x092c   phy_regs.bw1  (NB: write_radio_reg, not phy)
+#      42   84        -    0x092d   phy_regs.bw2
+#      43   86        -    0x012b   phy_regs.bw3
+#      44   88        -    0x0037   phy_regs.bw4
+#      45   90        -    0x0063   phy_regs.bw5
+#      46   92        -    0x0069   phy_regs.bw6
+#
+# All 45 writes go through write_radio_reg(), confirmed by the single
+# R_MIPS_HI16/LO16 reloc to write_radio_reg at 0x50f24/0x50f28 in the
+# whole 0x50f24..0x51700 range.
+#
+# The "phy_regs.bw1..bw6" naming in the channel-table struct is
+# historical (it's what b43_phy_ht uses); for 2069 these end up at
+# RADIO addresses 0x092c..0x0069, not PHY addresses.
+#
+# Block s5 separately writes the same bw1..bw6 to PHY registers
+# 0x0371..0x0376 via what appears to be phy_reg_write — that path is
+# 4360-specific and presumably what makes BW filter coherent across
+# both PHY and RADIO sides. Left as TODO for full coverage.

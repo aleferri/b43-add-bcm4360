@@ -1,0 +1,123 @@
+# A.1 — Call inventory of wlc_phy_rxgainctrl_set_gaintbls_acphy
+#
+# Note: 5 of the 42 jalrs use a function pointer cached on the stack at sp+148.
+# That pointer is set up at 0x42a78 from a prior load of phy_reg_write,
+# so all "via sp+148" calls are phy_reg_write.
+#
+# Final tally:
+#   11x wlc_phy_table_write_acphy   (target ids: 0x44, 0x45, 0x0b)
+#    9x memcpy
+#    8x wlc_phy_table_read_acphy
+#    7x phy_reg_mod
+#    5x phy_reg_write (via fn-ptr cache at sp+148)
+#    2x phy_reg_read
+#  ---
+#   42x total
+#
+# Comparison with ROADMAP §2.4 ("composizione misurata"):
+#   ROADMAP        | actual
+#   ---------------|---------
+#   9 phy_reg_*    | 14 (7 mod + 5 write + 2 read)
+#   8 table_read   | 8 ✓
+#   1 memcpy       | 9
+#   2 table_write  | 11
+#   4 .rodata refs | 10 base addresses
+
+## wlc_phy_table_write_acphy call sites with arg analysis
+## Helper signature (inferred from arg pattern): (pi, id, len, off, src, width)
+## a0=pi, a1=id, a2=len, a3=off, sp+16=src, sp+20=width
+## (Note: arg ordering vs the b43 in-kernel helper signature must be verified
+##  against the kernel-patch helper definition; the blob may differ.)
+
+   #   addr      a1=id    a2=len   a3=off   sp+16     sp+20
+   1   0x42b5c   s4=0x44  2        0        -         t4
+   2   0x42bf8   s4=0x44  6        8        -         v1
+   3   0x42c94   s4=0x44  7        16       -         v1
+   4   0x42cb4   s4=0x44  10       32       s2=8      t4
+   5   0x42cd4   s5=0x45  10       32       s2=8      v0
+   6   0x42d20   s5=0x45  1        8        s2=8      t4
+   7   0x42d40   s5=0x45  1        16       s2=8      v0
+   8   0x42fe8   s4=0x44  7        16       -         v1
+   9   0x43008   s4=0x44  10       32       s2=8      t4
+  10   0x43028   s5=0x45  10       32       s2=8      v0
+  11   0x431a0   0x0b     3        11       v0=?      -
+
+## Constants held in callee-saved registers across the body:
+   s2 = 8       (probable table width = 8 bits)
+   s4 = 0x44    (= 68; rxgain table id #1)
+   s5 = 0x45    (= 69; rxgain table id #2)
+
+## Chip-id discriminator points (4 of them):
+   0x42c18, 0x42c4c, 0x42f74, 0x42fa0
+   constants compared: 17248 (=0x4360, BCM4360), 17234 (=0x4352, BCM4352)
+
+## Other PHY-struct-relative reads (s0 = phy_pi):
+   lhu v0, 218(s0)         masked &0xc000 → branch  (probable band/mode hi-bits)
+   lbu v0, 196(s0)         compared as loop bound (s1<v0)  → core/iter count
+   lbu s3, 6(t6)           t6=.rodata+0x177a8, byte 6 = 0x09  (constant from rodata)
+   lbu a3, 911(s3)         s3 was loaded from a phy struct; 911 is large offset
+   lbu a2, 1403(s3)/1404/1405  triple of consecutive byte fields in phy struct
+
+## Cross-ref check: *_GAINTBL_TWEAKS symbols
+   None of the 10 *_GAINTBL_TWEAKS symbols (ELNA_*, NINJA_*, UNO_*, SMIC_*)
+   is referenced by wlc_phy_rxgainctrl_set_gaintbls_acphy.
+   They are referenced ONLY from sslpnphy functions:
+     wlc_sslpnphy_CmRxAciGainTbl_Tweaks       (23 refs)
+     wlc_sslpnphy_set_chanspec_tweaks         (2 refs)
+     wlc_sslpnphy_temp_adj                    (3 refs)
+   sslpnphy is for older Broadcom chips (4313/4322), not for BCM4352/BCM4360.
+   ⇒ ROADMAP §2.4's "selector ELNA/NINJA/UNO/SMIC" claim does not match the binary.
+   The actual board-discriminator path inside this function is the chip-id check
+   (4360 vs 4352) and the 0xc000-mask test on phy[218].
+
+## Appendix — Populator of pi+168 cache (resolved by static analysis)
+
+Updates Tier-A item 4 of 05_structure_and_router_checklist.md ("Identify
+the struct pointed to by pi+168"). Closed without router access.
+
+The struct pi[168] is allocated/zero-init'd inline in
+wlc_phy_attach_acphy @0x4660c, size 1452 bytes:
+
+   46674:  jalr   osl_malloc        ; size = 1452 (a1)
+   46680:  sw     v0, 168(s0)       ; pi[168] = malloc'd
+   46698:  jalr   memset            ; zero-init full 1452
+
+Per-core 3-byte rxgains cache (4 sub-bands × 3 cores × 3 fields):
+
+   sub-band  base       layout
+   --------  ---------  ----------------------------------
+   2g        783        (eln, triso, trelnabyp) per core, stride 3
+   5gl       795        same
+   5gm       807        same
+   5gh       819        same
+
+Stride between sub-bands = 12 (= 3 fields × 3 cores + pad? No: cache is
+exactly 4 sub-bands × 3 cores × 3 bytes = 36 bytes, packed; the +12 is
+the per-subband stride, the +3 is the per-core stride within a subband).
+
+Populator: 6 phy_getintvar() calls (one per (band, field) tuple) keyed
+on .rodata.str1.4 templates resolved via readelf -r:
+
+   $LC12 @0x1460 = "rxgains2gelnagaina%d"     -> store at 783 + 3*core
+   $LC14 @0x1490 = "rxgains2gtrisoa%d"        -> store at 784 + 3*core
+   $LC13 @0x1478 = "rxgains2gtrelnabypa%d"    -> store at 785 + 3*core
+   $LC15 @0x14a4 = "rxgains5gelnagaina%d"     -> store at 795 + 3*core
+   $LC17 @0x14d4 = "rxgains5gtrisoa%d"        -> store at 796 + 3*core
+   $LC16 @0x14bc = "rxgains5gtrelnabypa%d"    -> store at 797 + 3*core
+
+(plus parallel calls for 5gm @ 807.. and 5gh @ 819.. — same shape.)
+
+Field-specific transform applied before sb (verified at @0x46a48 .. 0x46a5c
+for the 5g triso path):
+
+   elnagain    cache := (sprom_eln       + 3) << 1
+   triso       cache := (sprom_triso     + 4) << 1
+   trelnabyp   cache := sprom_trelnabyp                 (raw, no shift)
+
+This explains the lbu reads in set_gaintbls_acphy:
+  lbu a3, 911(s3) [+ 914, 917]: reads CACHE[5gl, triso, core_{0,1,2}]
+    -> all three are (sprom_5gl_triso[core] + 4) << 1.
+
+Re. pi+168 [1402..1407]: separate 6-byte block, populated at
+wlc_phy_attach_acphy + 0x138 (@0x46744..0x46774) by lbu's from sp+20..sp+25
+(stack-resident parsed buffer). Distinct from the rxgains cache.
