@@ -13,9 +13,9 @@
  * empirically, `wl chanspec 2g6/20` is rejected on this hardware. The
  * 2.4 GHz coverage of the unit is provided by wl0 (BCM6362, N-PHY,
  * out of scope). UNII-2/2e/3 are also rejected by the OEM firmware
- * (regulatory or subband5gver=0x4 related — see top-level README,
- * §"Open questions"); UNII-1 is the only sub-band reliably reachable
- * for bring-up.
+ * (working hypothesis: regulatory; see top-level README,
+ * §"Implicazione fondamentale"); UNII-1 is the only sub-band reliably
+ * reachable for bring-up.
  *
  * The static table b43_chantab_r2069[] below was extracted from
  * `chan_tuning_2069rev_GE16` in the D-Link DSL-3580 GPL drop wl ELF

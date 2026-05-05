@@ -624,9 +624,9 @@ static int b43_phy_ac_op_switch_channel(struct b43_wldev *dev,
 	 * 5 GHz path. The chan_tuning_2069rev_GE16 entries committed in
 	 * radio_2069.c cover only UNII-1 (channels 36/40/44/48). UNII-2/
 	 * 2e/3 are also out of scope for the MVP — empirically rejected
-	 * with `Bad Channel` by the OEM firmware on this hardware
-	 * (regulatory or subband5gver=0x4 related; see top-level README
-	 * §"Open questions"). Gate at the UNII-1 range here so the user
+	 * with `Bad Channel` by the OEM firmware on this hardware (working
+	 * hypothesis: regulatory; see top-level README §"Implicazione
+	 * fondamentale"). Gate at the UNII-1 range here so the user
 	 * gets a clear EOPNOTSUPP rather than a chantab miss for any
 	 * other 5 GHz channel; widen the range when the corresponding
 	 * sub-band is added to b43_chantab_r2069[].

@@ -22,6 +22,7 @@
  */
 
 #include "data_load.h"
+#include "synth_srom.h"
 #include "ssb_sprom.h"
 
 #include <stdio.h>
@@ -207,18 +208,50 @@ static void check_u8_list_hard(const struct nvram *nv, const char *key,
 
 int main(int argc, char **argv)
 {
-	const char *srom_path  = argc > 1 ? argv[1] : "../../../router-data/wl1_srom_raw.txt";
-	const char *nvram_path = argc > 2 ? argv[2] : "../../../router-data/wl1_nvram.txt";
+	int synth_mode = 0;
+	const char *srom_path  = NULL;
+	const char *nvram_path = NULL;
+
+	if (argc > 1 && strcmp(argv[1], "--synth") == 0) {
+		/* NVRAM-only round-trip: synthesize a raw SROM from the
+		 * NVRAM using the patch's offsets/encoding, then run the
+		 * parser against it. The check sequence below is identical;
+		 * fields the NVRAM does not declare emit INFO and skip.
+		 *
+		 * Caveat: by construction, synth and parse share offsets,
+		 * so this mode validates structural completeness and
+		 * encoding self-consistency, NOT external offset truth.
+		 * For canonical cross-checks, see ../cross_check.md. */
+		synth_mode = 1;
+		nvram_path = argc > 2 ? argv[2] : "vectors/bcm4360usb.nvram";
+	} else {
+		srom_path  = argc > 1 ? argv[1] : "../../../router-data/wl1_srom_raw.txt";
+		nvram_path = argc > 2 ? argv[2] : "../../../router-data/wl1_nvram.txt";
+	}
 
 	printf("=== bcma_sprom_extract_r11 offline harness ===\n");
-	printf("  srom : %s\n", srom_path);
+	if (synth_mode)
+		printf("  mode : synth (NVRAM round-trip)\n");
+	else
+		printf("  srom : %s\n", srom_path);
 	printf("  nvram: %s\n\n", nvram_path);
 
 	u16 srom[SROM_MAX_WORDS] = {0};
-	int n = srom_load(srom_path, srom, SROM_MAX_WORDS);
-	if (n < 0)
-		return 2;
-	printf("loaded %d SROM words\n", n);
+	if (synth_mode) {
+		struct nvram nv_in;
+		if (nvram_load(nvram_path, &nv_in) < 0)
+			return 2;
+		if (synth_srom_from_nvram(&nv_in, srom, SROM_MAX_WORDS) < 0) {
+			fprintf(stderr, "synth_srom_from_nvram failed\n");
+			return 2;
+		}
+		printf("synthesized SROM from %zu NVRAM entries\n", nv_in.n);
+	} else {
+		int n = srom_load(srom_path, srom, SROM_MAX_WORDS);
+		if (n < 0)
+			return 2;
+		printf("loaded %d SROM words\n", n);
+	}
 
 	struct nvram nv;
 	if (nvram_load(nvram_path, &nv) < 0)

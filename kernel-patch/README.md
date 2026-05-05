@@ -104,9 +104,9 @@ involved.
   required for the OFDM 6 Mbit MVP.
 * Channels other than 36, 40, 44, 48 (UNII-1): `b43_chantab_r2069[]`
   covers only those four for the MVP. UNII-2/2e/3 are out of scope —
-  empirically rejected by the OEM firmware on this hardware
-  (regulatory or `subband5gver=0x4` related; see top-level README
-  §"Open questions"). Adding more sub-bands is a re-run of
+  empirically rejected by the OEM firmware on this hardware (working
+  hypothesis: regulatory; see top-level README §"Implicazione
+  fondamentale"). Adding more sub-bands is a re-run of
   `extract_chan_tuning_2069_GE16.py --band 5g` plus paste, gated on
   resolving the rejection upstream.
 * 2.4 GHz on this board: impossible (`aa2g=0`). The chip family

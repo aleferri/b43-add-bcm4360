@@ -6,11 +6,28 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-DRAFT — derived from a single BCM4352-family board (DSL-3580L); see
-sprom-rev11/README.md in the proposal repository for the data set
-and provenance. Not for upstream submission until a second rev-11
-board confirms the offsets pinned here for the all-zero region
-(byte 0x190..0x1B0).
+DRAFT — derived primarily from a single BCM4352-family board
+(DSL-3580L); see sprom-rev11/README.md in the proposal repository for
+the data set and provenance, and sprom-rev11/cross_check.md for the
+status of cross-validation against canonical Broadcom layout. Not for
+upstream submission until:
+
+ - the IL0MAC vs. CCODE word overlap exposed by the bcm4360usb
+   cross-board test vector is resolved (SSB_SPROM11_IL0MAC=0x90 and
+   SSB_SPROM8_CCODE=0x92 share word 0x92; one of the two is wrong
+   for rev 11 -- see Finding 1 in sprom-rev11/cross_check.md);
+
+ - a second rev-11 board with non-zero values in the all-zero region
+   (byte 0x190..0x1B0) confirms the offsets pinned here.
+
+The bcm4360usb reference NVRAM (defaultsromvars_4360usb in
+asuswrt-merlin / hynnet / landonf, rev 11, BCM4360 USB -- same chip
+family as the DSL-3580L target) has been added as a second test
+vector under sprom-rev11/harness/vectors/. It exercises ANTAVAIL,
+TXRXC, SUBBAND5GVER, the per-chain block stride (chains 0 and 1) and
+the rxgains bit-packing on a non-saturated triplet (triso=9), all of
+which round-trip cleanly. Its principal new finding is the IL0MAC
+overlap above.
 
 This is a single-patch consolidation of three logically independent
 changes that nevertheless need to land together to be useful:
@@ -61,10 +78,12 @@ changes that nevertheless need to land together to be useful:
             RXGAINS1 lo=2g,  hi=5gl(UNII-1)
         verified by cross-reference of `wl srdump` against
         `wl nvram_dump`. Three of the four reference bytes are
-        saturated/zero on this board, so 5gl=0xb3 is the only
-        fully informative data point; the encoding fits all four
-        bytes uniformly and matches the per-chain triplets in
-        NVRAM on every chain;
+        saturated/zero on the DSL-3580L, so 5gl=0xb3 is the only
+        fully informative data point on that board; on the
+        bcm4360usb second vector the encoding round-trips on the
+        non-saturated triplets (3, 9, 1) [5 GHz] and (4, 9, 1)
+        [2.4 GHz] for both populated chains, which exercises every
+        bit position;
       - per-chain pdoffset40ma triplet at byte 0xCA;
       - the rev-11 power-per-rate region (byte 0x150..0x190).
         Layout differs from rev 9: each 5 GHz sub-band has four
@@ -96,10 +115,26 @@ An offline differential-test harness for the extractor lives at
 sprom-rev11/harness/ (compiles bcma_sprom_extract_r11 in userspace
 with a small kernel shim, runs it against the committed test
 vector, diffs every populated field against the corresponding
-NVRAM nominal). It exposed the rev-11 offset shift of IL0MAC /
-ANTAVAIL / TXRXC fixed in this v2; reviewers and contributors of
-new test vectors can use it to flag any further per-board
-divergence before bring-up.
+NVRAM nominal). Two run modes:
+
+ - default: srom_dump + nvram_dump pair from a real board
+   ('wl srdump' + 'wl nvram_dump'). Used for the DSL-3580L vector
+   committed under router-data/. Exposed the rev-11 offset shift of
+   IL0MAC / ANTAVAIL / TXRXC fixed in this v2.
+
+ - synth (--synth FILE): NVRAM-only round-trip. Synthesizes a raw
+   SROM from the NVRAM using this patch's offsets/encoding, runs the
+   parser against it, diffs back. Used for the bcm4360usb reference
+   NVRAM, where no raw 'wl srdump' is available. Exposed the IL0MAC
+   vs. CCODE word overlap recorded as the first pre-upstream blocker
+   above.
+
+Reviewers and contributors of new test vectors can use either path
+to flag any further per-board divergence before bring-up. Canonical
+cross-checks against Broadcom's bcmsrom_tbl.h (the authoritative
+SROM layout table, GPLv2-with-linking-exception in bcmdhd /
+asuswrt-merlin / StreamUnlimited mirrors) are tracked in
+sprom-rev11/cross_check.md.
 
 Signed-off-by: TBD <tbd@example.com>
 ---

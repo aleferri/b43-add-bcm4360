@@ -32,7 +32,7 @@ Letto via `wl -i wl1 revinfo` e `wl -i wl1 nvram_dump` (vedi
 | `sromrev` | **`11`** | vedi §"SROM rev 11: groundwork preparato" |
 | `aa2g / aa5g` | `0 / 3` | vedi §"Implicazione fondamentale" |
 | `txchain / rxchain` | `3 / 3` | 2×2, conferma `num_cores=2` |
-| `subband5gver` | `0x4` | <span style="color:red">**SALAME**</span>: il valore non è uno standard UNII-1/2/2e/3 noto a chi scrive; significato esatto da chiudere |
+| `subband5gver` | `0x4` | partizione 5 GHz a 4 segmenti, confini 5250 / 5500 / 5745 MHz (da NVRAM sample BCM43569A2 in `armbian/firmware`, `nvfam-bcm43569a2-phy.txt`) |
 | `boardflags / boardflags2` | `0x10000000 / 0x2` | board fixup minimale |
 | `femctrl` | `6` | FEM controller mode board-specific |
 | `epagain2g / epagain5g` | `0 / 0` | nessun PA esterno extra |
@@ -54,8 +54,7 @@ Una limitazione operativa aggiuntiva: anche dentro la 5 GHz, il
 chanspec `5g100/20` (UNII-2 extended) viene rifiutato con `Bad
 Channel`. <span style="color:red">**SALAME**</span> — la causa
 candidata è una restrizione regulatory locale al firmware OEM
-(`ccode=` vuoto + `regrev=0` non basta a sbloccare DFS); meno
-probabile ma non escluso, è il significato di `subband5gver=0x4`. Il
+(`ccode=` vuoto + `regrev=0` non basta a sbloccare DFS). Il
 risultato pratico è che la sub-banda affidabile per il bring-up è
 **UNII-1 (canali 36-48)**.
 
@@ -263,16 +262,6 @@ target `D-Link DSL-3580L_5G` (cioè il router stesso) acceso su channel
 Vedi §"Strategia rxgain — SROM-side" e il commento TODO di
 `bcma_sprom_extract_r11` in `kernel-patch/sprom-rev11/0003-*.patch`.
 
-### Significato di `subband5gver = 0x4`
-
-Non corrisponde a un valore documentato pubblicamente nei `subband5gver`
-di mainline (0=no5g, 1=US/EU/JP unified, 2=US, 3=EU, 4=?). <span
-style="color:red">**SALAME**</span> — l'ipotesi che `0x4` sia un value
-custom di una build OEM D-Link/Broadcom è plausibile ma non
-verificabile senza accesso a documentazione interna o a un secondo
-firmware OEM. Per il MVP non rileva (il bring-up sta su UNII-1, che è
-band-agnostic). Per il post-MVP serve chiuderlo.
-
 ### `wl phytable` formato output
 
 Il dump di table 0x44/0x45 mostra valori del tipo `0x0c000044`,
@@ -324,10 +313,9 @@ resta valido.
 
 ### Nuovi sub-band 5 GHz (UNII-2/2e/3)
 
-Bloccato dalla restrizione `Bad Channel` osservata. Se è regulatory:
-risolvibile cambiando `ccode`/`regrev` sul chip o aggirando il
-controllo nel kernel-patch. Se è `subband5gver=0x4`-related: serve
-prima chiuderne il significato.
+Bloccato dalla restrizione `Bad Channel` osservata. Sotto l'ipotesi
+regulatory: risolvibile cambiando `ccode`/`regrev` sul chip o
+aggirando il controllo nel kernel-patch.
 
 ### 2.4 GHz su questo board
 
