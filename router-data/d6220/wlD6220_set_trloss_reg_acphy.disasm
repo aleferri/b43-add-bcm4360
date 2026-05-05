@@ -1,0 +1,98 @@
+# Annotated extract from wlD6220.o_save (driver rev 0x70e590e ~= 7.14.89.14)
+#
+# Function: wlc_phy_set_trloss_reg_acphy at 0xa1ff8
+# Purpose:  Per-core writer of bits 14:8 of the rxgain ctx registers
+#           (1785 = 0x6F9, 2297 = 0x8F9, 2809 = 0xAF9, plus 649 for some
+#           cases). New function in 7.x; in 6.30 the equivalent code was
+#           inline in wlc_phy_rxgainctrl_set_gaintbls_acphy @0x42ad4.
+#
+# Empirical evidence on D6220 (chip 0x14e4:0x43b3, post-association):
+#   wl -i wl1 phyreg 0x{6,8,a}f9 -> 0x1602 on all three cores
+#   bits 14:8 of 0x1602 = 0x16 = 22
+#   formula 6.30 predicted (triso[5gl]+4)<<1 = (6+4)<<1 = 0x14 = 20
+#   delta +2 explained by the addiu at 0xa20fc below.
+
+# === Prologue ============================================================
+   a1ff8:  addiu  sp, sp, -40
+   a1ffc:  sw     s2, 28(sp)
+   a2000:  sw     s1, 24(sp)
+   a2004:  sw     s0, 20(sp)
+   a2008:  sw     ra, 36(sp)
+   a200c:  sw     s3, 32(sp)
+   a2010:  lhu    v0, 242(a0)            # v0 = pi.field242 (band/mode bits)
+   a2014:  sll    s1, a1, 0x18           # s1 = a1 << 24 (sign-extend...)
+   a2018:  andi   s2, v0, 0x3800         # s2 = pi.field242 & 0x3800 (sub-band)
+   a201c:  addiu  v1, zero, 8192         # v1 = 0x2000
+   a2020:  addu   s0, a0, zero           # s0 = pi
+   a2024:  sra    s1, s1, 0x18           # ...s1 = (s8) signed core index
+   a2028:  beq    s2, v1, 0xa2448        # if sub-band == 0x2000 -> alt path
+   a202c:  lw     s3, 220(a0)            # s3 = pi.field220 (sprom struct ptr)
+
+# === Per-core cache fetch + formula compute ==============================
+# This is the equivalent of the 6.30 lbu @cache+911 read, but the cache
+# layout is different in 7.x: the value is composed runtime from THREE
+# cache slots instead of one pre-transformed byte.
+   a208c:  lbu    v1, 1166(s2)           # v1 = cache[1166 + base]
+   a2090:  lbu    v0, 1164(s2)           # v0 = cache[1164 + base]
+   a2094:  subu   s2, v1, v0             # s2 = cache[1166] - cache[1164]
+   a2098:  addiu  v0, s1, 730
+   a209c:  sll    v0, v0, 0x2            # v0 = (core + 730) * 4
+   a20a0:  addu   s3, s3, v0             # s3 = sprom + (core+730)*4
+   a20a4:  sll    s2, s2, 0x18           # s2 sign-extend low byte
+   a20a8:  lbu    v1, 3(s3)              # v1 = sprom[(core+730)*4 + 3]
+   a20ac:  lw     v0, 32(s0)             # v0 = pi.chanband_index
+   a20b0:  sra    s2, s2, 0x18           #     ...completed sign-extension
+   a20b4:  addu   s2, s2, v1             # s2 += v1
+   a20b8:  sltiu  v0, v0, 2
+   a20bc:  beq    v0, zero, 0xa223c      # branch on chanband_index >= 2
+   a20c0:  andi   s2, s2, 0xff           # s2 &= 0xff
+
+#   ... intermediate path: read/write of an unrelated reg via s3=core*0x200+1854
+   a20c4:  sll    s3, s1, 0x9
+   a20c8:  addiu  s3, s3, 1854
+   a20cc:  andi   s3, s3, 0xffff
+   a20d0:  R_MIPS_HI16 phy_reg_read
+   a20d4:  addu   a0, s0, zero
+   a20dc:  jalr   v0
+   a20e0:  addu   a1, s3, zero           # phy_reg_read(pi, 1854 + core*0x200)
+   a20e4:  andi   a2, v0, 0xfb3f         # mask off bits 10:7 + 7 of read value
+   a20f0:  addu   a0, s0, zero
+   a20f4:  addu   a1, s3, zero
+   a20f8:  jalr   v0                     # phy_reg_write(pi, same_reg, masked)
+
+# *** THE +2 *** =========================================================
+   a20fc:  addiu  s2, s2, 2              # <<< s2 += 2  (NOT in 6.30)
+   a2100:  addiu  v0, zero, 1
+   a2104:  bne    s1, v0, 0xa2248        # if core != 1, alt branch
+   a2108:  andi   s2, s2, 0xff
+
+#   ... middle of function: many branches dispatching on chanband index
+#       to choose which of {1785, 2297, 2809, 649} gets written for this
+#       core, with mask 0x7F00 vs 0xff00 vs 0xffff per case.
+
+# === The phy_reg_mod call to register 1785 (= 0x6F9) ====================
+# Identical in shape to the 6.30 call:
+#   phy_reg_mod(pi, reg=1785, mask=0x7F00, value = s2 << 8)
+# Only the input s2 differs: 6.30 takes raw cache@911 (pre-transformed
+# (triso+4)<<1 at attach time); 7.x takes the recomposed s2 with +2.
+   a2494:  sll    a3, s2, 0x8            # a3 = s2 << 8 (gainctx in bits 14:8)
+   a2498:  addu   a0, s0, zero
+   a249c:  R_MIPS_LO16 phy_reg_mod
+   a24a0:  addiu  a1, zero, 1785         # reg = 0x6F9
+   a24a4:  jalr   s1
+   a24a8:  addiu  a2, zero, 32512        # mask = 0x7F00 (bits 14:8)
+
+# === Summary =============================================================
+# The +2 at 0xa20fc is explicit, unconditional inside this code path,
+# and the only structural difference with 6.30 that affects the value
+# observable at phyreg 0x{6,8,a}f9 bits 14:8.
+#
+# SALAME pendente: the algebraic identity of (cache[1166] - cache[1164] +
+# sprom[(core+730)*4 + 3]) with the 6.30 (triso+4)<<1 is plausible from
+# the single-point observation 0x16-2 = 0x14 = (6+4)<<1 for triso=6 5gl,
+# but not formally verified. Closing it requires disassembling the 7.x
+# attach-time populator (the 7.x analog of wlc_phy_attach_acphy @0x4660c
+# in 6.30), specifically the code that writes those three cache slots.
+# Not blocking the b43 MVP: the patch series ships the 6.30 formula,
+# producing 0x14 instead of 0x16, ~1 dB rxgain ctx delta, well inside
+# link-budget margin for OFDM 6 Mbit on UNII-1.

@@ -17,7 +17,7 @@ DSL-3580L, leading to the introduction of the
 
 ```
 $ make                     # builds ./test
-$ make check               # runs against ../../../router-data/wl1_*.txt
+$ make check               # runs against ../../../router-data/dsl3580l/wl1_*.txt
 $ make check-bcm4360usb    # runs the synth-mode round-trip on the
                            # bcm4360usb reference NVRAM (see below)
 ```

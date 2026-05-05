@@ -323,6 +323,33 @@ Impossibile: `aa2g=0`. La 2.4 GHz va testata su un board diverso della
 famiglia 4352 (es. un BCM4352 PCIe card consumer con antenne 2.4 GHz
 cablate). Fuori scope DSL-3580L.
 
+### Allineamento driver 7.14 (Netgear D6220)
+
+La motivazione operativa del progetto è che il blob OEM
+per il D-Link 6.30 sul DSL-3580L soffre di disconnessioni frequenti in uso reale
+, il che rende il porting `b43`/mainline il percorso minimo per ottenere 
+una piattaforma affidabile (eventualmente sotto OpenWrt). 
+Il bring-up MVP segue il path 6.30 audit-ato perché è la riferimento storica del repo
+e produce un driver minimale; in post-MVP vale la pena allineare con il 7.14 che
+mostra evoluzioni concrete:
+
+- **`wlc_phy_set_trloss_reg_acphy` separato** (a `0xa1ff8` nel
+  `wlD6220.o`) — extract della parte register-write rxgain ctx fuori da
+  `wlc_phy_rxgainctrl_set_gaintbls_acphy`. Refactor mainline-friendly,
+  vale considerare la stessa separazione nel `b43_phy_ac_*`.
+- **Correzione `+2` runtime** sul gainctx (audit @`0xa20fc`, vedi
+  `router-data/d6220/wlD6220_set_trloss_reg_acphy.disasm`) — empirica,
+  ~1 dB di rxgain ctx in più. Da valutare se replicare in mainline solo
+  dopo che dati di campo dimostrano differenza misurabile sul link
+  budget reale.
+- **Cache layout 7.14 rifattorizzato** — `cache[1164]/[1166] +
+  sprom[(core+730)*4 + 3]` invece del singolo `cache[911]`
+  pre-trasformato del 6.30. Il populator attach-time del 7.14 (analogo
+  di `wlc_phy_attach_acphy@0x4660c` del 6.30) è ancora da disasm-are
+  per chiudere l'identità algebrica con `(triso+4)<<1`.
+- **Chip è 5 GHz only sul reference design BCM43b3 nel suo insieme**
+  — il D6220 ha `aa2g=0` come il DSL, non solo il DSL.
+
 ### Submission upstream della serie `sprom-rev11/`
 
 Pre-condizioni elencate nel README della serie:
@@ -375,13 +402,16 @@ diretta sul DSL-3580L target con firmware OEM `wl0: Jul 8 2013
 I dump completi sono committati in `router-data/`:
 
 ```
-router-data/wl1_nvram.txt        — output di `wl -i wl1 nvram_dump`
-router-data/wl1_srom_raw.txt     — output di `wl -i wl1 srdump`
+router-data/dsl3580l/wl1_nvram.txt    — output di `wl -i wl1 nvram_dump`
+router-data/dsl3580l/wl1_srom_raw.txt — output di `wl -i wl1 srdump`
+router-data/d6220/                    — analoga sessione su Netgear D6220
+                                        (stesso target chip 0x14e4:0x43b3,
+                                        board rev P355). Vedi router-data/d6220/README.md
 ```
 
 Il file `bcm43b3_3580l_map.bin` (480 byte, root del repo) è una
 versione binaria del SROM, congruente coi 240 word di
-`router-data/wl1_srom_raw.txt` salvo lo stato del CRC (high byte di
+`router-data/dsl3580l/wl1_srom_raw.txt` salvo lo stato del CRC (high byte di
 word 233): il `.bin` è di una snapshot anteriore, il `.txt` è il
 dump corrente. Per il cross-reference nome→valore→offset il
 testuale è la fonte affidabile.

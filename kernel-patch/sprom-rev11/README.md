@@ -92,8 +92,8 @@ The DSL-3580L reference dump is committed in `router-data/` of this
 repository:
 
 ```
-router-data/wl1_nvram.txt        — `wl -i wl1 nvram_dump` output
-router-data/wl1_srom_raw.txt     — `wl -i wl1 srdump`     output
+router-data/dsl3580l/wl1_nvram.txt    — `wl -i wl1 nvram_dump` output
+router-data/dsl3580l/wl1_srom_raw.txt — `wl -i wl1 srdump`     output
 ```
 
 Every offset pinned in the patch has been derived by exact byte-match
