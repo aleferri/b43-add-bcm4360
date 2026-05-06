@@ -21,7 +21,7 @@ data_load.o:   data_load.c   data_load.h   kernel_shim.h
 synth_srom.o:  synth_srom.c  synth_srom.h  data_load.h ssb_regs.h kernel_shim.h
 test.o:        test.c        data_load.h   ssb_sprom.h synth_srom.h
 
-.PHONY: check check-bcm4360usb check-d6220 clean
+.PHONY: check check-bcm4360usb check-d6220 check-agcombo clean
 check: test
 	./test
 
@@ -38,6 +38,14 @@ check-bcm4360usb: test
 check-d6220: test
 	./test ../../../router-data/d6220/wl1_srom_raw.txt \
 	       ../../../router-data/d6220/wl1_nvram.txt
+
+# Fourth test vector: agcombo (BCM4360 reference, 3x3, dual-band).
+# srdump returns zero on this blob (OEM omits the raw path), so the
+# vector runs in --synth mode against agcombo_nvram.txt only. Exercises
+# fields the BCM43b3 boards leave dormant: 2.4 GHz PA chain, aa2g=7,
+# chain 2 rxgains.
+check-agcombo: test
+	./test --synth ../../../router-data/agcombo/agcombo_nvram.txt
 
 clean:
 	rm -f $(OBJS) test

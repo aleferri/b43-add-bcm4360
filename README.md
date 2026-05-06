@@ -391,12 +391,13 @@ Miłecki (bcma).
 - Harness userspace in `kernel-patch/sprom-rev11/harness/` che
   compila `bcma_sprom_extract_r11()` contro un kernel shim e diffa
   ogni campo popolato vs `wl nvram_dump`. Stato corrente:
-  `make check` (DSL-3580L) **77 PASS / 0 FAIL / 2 INFO**;
-  `make check-d6220` (Netgear D6220, secondo board hardware-reale
-  della famiglia BCM43b3) **74 PASS / 0 FAIL / 5 INFO**;
-  `make check-bcm4360usb` (synth-mode, NVRAM-only di asuswrt-merlin)
-  passa ma espone `Finding 1` su collisione word IL0MAC/CCODE — vedi
-  `cross_check.md`.
+  `make check` (DSL-3580L raw) **77 PASS / 0 FAIL / 2 INFO**;
+  `make check-d6220` (D6220 raw) **74 PASS / 0 FAIL / 5 INFO**;
+  `make check-bcm4360usb` (synth NVRAM-only di asuswrt-merlin) espone
+  `Finding 1` IL0MAC/CCODE word collision;
+  `make check-agcombo` (synth NVRAM-only di agcombo, BCM4360 3×3
+  dual-band) **74 PASS / 0 FAIL / 5 INFO** e riproduce `Finding 1`
+  indipendentemente. Vedi `cross_check.md`.
 - Cross-board confirmation su tre board indipendenti (DSL-3580L 2×2
   BCM43b3, D6220 2×2 BCM43b3, agcombo 3×3 BCM4360): stride per-chain
   0x28 e offset header reggono uniformemente; triplet rxgain

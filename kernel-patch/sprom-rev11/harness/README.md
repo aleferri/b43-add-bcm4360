@@ -22,6 +22,9 @@ $ make check-d6220         # runs against ../../../router-data/d6220/wl1_*.txt
                            # (second hardware-real board, same chip family)
 $ make check-bcm4360usb    # runs the synth-mode round-trip on the
                            # bcm4360usb reference NVRAM (see below)
+$ make check-agcombo       # runs the synth-mode round-trip on the
+                           # agcombo NVRAM (BCM4360 reference 3x3,
+                           # dual-band, ../../../router-data/agcombo/)
 ```
 
 To run against another vector:
@@ -40,14 +43,24 @@ Output is line-per-field PASS/FAIL/INFO with a final summary. Exit
 status is 0 if no FAIL occurred. Current state on the committed
 vectors:
 
-  - DSL-3580L: 77 PASS / 0 FAIL / 2 INFO (the two INFO are
-    SROM-vs-NVRAM source divergences for `il0mac` and `country_code`,
-    both legitimate and explained inline in the output).
-  - D6220:     74 PASS / 0 FAIL / 5 INFO (same two source-divergence
-    INFOs as DSL, plus three NVRAM-missing-key INFOs for
-    `mcsbw1605g{l,m,h}po` — D6220's NVRAM doesn't declare 160 MHz
-    power-per-rate keys, the parser still extracts them from SROM
-    bytes but there is no oracle to diff against).
+  - DSL-3580L:     77 PASS / 0 FAIL / 2 INFO (raw mode; the two INFO
+                   are SROM-vs-NVRAM source divergences for `il0mac`
+                   and `country_code`, both legitimate and explained
+                   inline in the output).
+  - D6220:         74 PASS / 0 FAIL / 5 INFO (raw mode; same two
+                   source-divergence INFOs as DSL, plus three
+                   NVRAM-missing-key INFOs for `mcsbw1605g{l,m,h}po`
+                   — D6220's NVRAM doesn't declare 160 MHz
+                   power-per-rate keys, the parser still extracts
+                   them from SROM bytes but there is no oracle to
+                   diff against).
+  - bcm4360usb:    synth mode, exposes Finding 1 (IL0MAC/CCODE
+                   word collision) — see `../cross_check.md`.
+  - agcombo:       74 PASS / 0 FAIL / 5 INFO (synth mode; BCM4360
+                   reference 3x3 dual-band; reproduces Finding 1
+                   independently — the synthesized MAC bytes 2/3
+                   are zeroed by the ccode write to word 0x92, see
+                   `../cross_check.md`).
 
 ## Synth-mode round-trip (NVRAM-only second vector)
 
@@ -71,18 +84,22 @@ What it does *not* do is cross-validate offsets against an external
 source: synth and parse share offsets by construction. For canonical
 checks against `bcmsrom_tbl.h`, see `../cross_check.md`.
 
-The committed second vector is `vectors/bcm4360usb.nvram`, BCM4360
-USB defaults from asuswrt-merlin / landonf/bhnd_nvram_fmt — same chip
-family as the DSL-3580L target but with non-saturated `triso=9` and
-`aa2g=3` populated. Running `make check-bcm4360usb` exercises the
-2 GHz header path and the rxgains encoding on inputs the DSL-3580L
-cannot reach.
+The committed synth-mode vectors are two:
 
-The bcm4360usb run currently exposes one finding the single-board
-test missed: `SSB_SPROM11_IL0MAC=0x90` and the reused
-`SSB_SPROM8_CCODE=0x92` overlap on word 0x92, so a real rev-11 SROM
-cannot store both fields at those offsets simultaneously. See
-Finding 1 in `../cross_check.md`.
+- `vectors/bcm4360usb.nvram` — BCM4360 USB defaults from
+  asuswrt-merlin / landonf/bhnd_nvram_fmt; same chip family as the
+  DSL-3580L target with non-saturated `triso=9` and `aa2g=3`. Run via
+  `make check-bcm4360usb`.
+- `router-data/agcombo/agcombo_nvram.txt` — BCM4360 reference 3x3
+  dual-band, hardware-real NVRAM dump. Exercises chain 2 (the
+  BCM43b3 boards are 2x2) and the full 2.4 GHz PA chain (`aa2g=7`).
+  Run via `make check-agcombo`.
+
+Both runs expose Finding 1 (IL0MAC/CCODE collision on word 0x92)
+when the NVRAM declares a non-zero macaddr — the bcm4360usb run
+shows it in the assert output, the agcombo run shows it as the
+INFO `il0mac — SROM-derived MAC ... bytes 2/3 zeroed`. See
+`../cross_check.md` for the canonical layout question.
 
 ## Contributing a new test vector
 
@@ -132,4 +149,6 @@ particularly useful — see `../README.md` for the full priority list:
   DSL-3580L vector at `../../../router-data/dsl3580l/`,
   `make check-d6220` runs against the committed D6220 vector at
   `../../../router-data/d6220/`, `make check-bcm4360usb` runs the
-  bcm4360usb synth-mode round-trip.
+  bcm4360usb synth-mode round-trip, `make check-agcombo` runs the
+  agcombo synth-mode round-trip against
+  `../../../router-data/agcombo/agcombo_nvram.txt`.

@@ -17,22 +17,29 @@ ledger of those checks.
 
 ### 1. IL0MAC / CCODE offset collision (open)
 
-The bcm4360usb synth-mode run (`make check-bcm4360usb`) writes a
-non-zero `macaddr=00:90:4c:0e:60:11` and `ccode=0` into the same
-synthetic SROM. With the patch's current offsets:
+Two synth-mode vectors with non-zero `macaddr` and `ccode=0` reproduce
+the same word collision on word 0x92:
+
+- `make check-bcm4360usb` — `macaddr=00:90:4c:0e:60:11`, parser reads
+  back `00:90:00:00:60:11` (bytes 2/3 zeroed).
+- `make check-agcombo` — `macaddr=00:c0:02:01:07:24`, parser reads
+  back `00:c0:00:00:07:24` (bytes 2/3 zeroed).
+
+With the patch's current offsets:
 
     SSB_SPROM11_IL0MAC  = 0x0090   (3 u16 words at 0x90, 0x92, 0x94)
     SSB_SPROM8_CCODE    = 0x0092   (reused unchanged for rev 11)
 
 word 0x92 is shared between byte 2/3 of il0mac and the entire ccode
-field. The synth's later write of ccode=0 zeroes the middle of the
-MAC, and the parser reads back `00:90:00:00:60:11`.
+field. The synth's `ccode=0` write zeroes the middle of the MAC, and
+the parser reads back the corrupted value.
 
-On the DSL-3580L this collision is invisible because the SROM region
-0x90..0x95 reads all-zero on that board (NVRAM macaddr comes from a
-separate CFE store; see `extract_r11.c` rationale block). It only
-surfaces with a vector whose nominal NVRAM exercises both fields with
-non-zero values.
+The hardware-real raw-mode vectors (DSL-3580L, D6220) do not surface
+the collision because the SROM region 0x90..0x95 reads all-zero on
+both boards (NVRAM macaddr comes from a separate CFE store; see
+`extract_r11.c` rationale block). Two synth vectors on two distinct
+boards reproducing the same byte-zeroing pattern at the same offsets
+make this a structural offset bug, not a vector-specific artifact.
 
 **Implication.** A real rev-11 SROM cannot store both fields if they
 share a word. Either:
