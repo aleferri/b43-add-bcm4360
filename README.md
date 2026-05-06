@@ -1,24 +1,23 @@
 # b43 BCM4352-family / 0x43b3 (PHY-AC) — DSL-3580L
 
-Re-target del repo `b43-add-bcm4360` originale alla luce della scoperta
-che l'hardware del DSL-3580L **non** è BCM4360 ma BCM4352-family con
-chip ID `acphychipid = 0x43b3`. Il binario `wlDSL-3580_EU.o_save` resta
-la fonte per il reverse, ma le code-path estratte sono rifatte con
-dispatch chip corretto.
+Porting `b43` per la generazione AC-PHY rev 1 r2069, target principale
+DSL-3580L (BCM4352-family `0x43b3`, 2×2, 5 GHz only). Reverse a partire
+dal binario `wlDSL-3580_EU.o_save`; le code-path estratte sono rifatte
+con dispatch chip-aware su `{4352, 4360, default}`. Sample hardware
+secondario sotto `router-data/`: D6220 (BCM43b3, ramo OEM 7.14.89) e
+agcombo (BCM4360, ramo OEM 7.14.43, dual-band 3×3).
 
-## Stato del bring-up dopo verifica hardware diretta
+## Stato del bring-up
 
-Le precedenti versioni di questo README pianificavano un MVP "2.4 GHz
-canale 6 CCK 1×1" basato su una lettura *parziale* delle informazioni
-del board, ottenute da `router_info.txt`. Una sessione di sondaggio
-diretto via `wl -i wl1 ...` sul DSL-3580L ha rivelato che quel piano è
-fisicamente irrealizzabile su questo hardware. Il MVP è stato
-ricalibrato di conseguenza.
+Hardware target sondato direttamente via `wl -i wl1 ...` su tre board
+indipendenti della generazione AC-PHY rev 1 / r2069 (DSL-3580L,
+Netgear D6220, agcombo). Vedi §"Provenance" in fondo. Il MVP è 5 GHz
+UNII-1 sul DSL-3580L; la 2.4 GHz su questo board è coperta da wl0
+(BCM6362 N-PHY, fuori scope).
 
 ### Quello che il chip target è davvero
 
-Letto via `wl -i wl1 revinfo` e `wl -i wl1 nvram_dump` (vedi
-§"Provenance" in fondo):
+Letto via `wl -i wl1 revinfo` e `wl -i wl1 nvram_dump`:
 
 | Campo | Valore | Rilevanza |
 |---|---|---|
@@ -28,8 +27,8 @@ Letto via `wl -i wl1 revinfo` e `wl -i wl1 nvram_dump` (vedi
 | `phytype` | `0xb` (= AC-PHY) | conferma path acphy |
 | `phyrev` | `0x1` | rev 1 (early AC) |
 | `boardid` | `0x668` | **non** `0x513` (quello era wl0) |
-| `boardrev` | `0x1353` (display "P353") | **non** "P230" |
-| `sromrev` | **`11`** | vedi §"SROM rev 11: groundwork preparato" |
+| `boardrev` | `0x1353` (display "P353") | |
+| `sromrev` | **`11`** | vedi §"SROM rev 11" |
 | `aa2g / aa5g` | `0 / 3` | vedi §"Implicazione fondamentale" |
 | `txchain / rxchain` | `3 / 3` | 2×2, conferma `num_cores=2` |
 | `subband5gver` | `0x4` | partizione 5 GHz a 4 segmenti, confini 5250 / 5500 / 5745 MHz (da NVRAM sample BCM43569A2 in `armbian/firmware`, `nvfam-bcm43569a2-phy.txt`) |
@@ -40,25 +39,21 @@ Letto via `wl -i wl1 revinfo` e `wl -i wl1 nvram_dump` (vedi
 ### Implicazione fondamentale: il chip è 5 GHz only su questo board
 
 `aa2g=0` significa che il SROM dichiara **zero antenne disponibili
-sulla 2.4 GHz**. Empiricamente, i tentativi di portare il chip su
-canali 2.4 GHz via `wl chanspec 2g6/20` falliscono. La 2.4 GHz del
-DSL-3580L è coperta da wl0 (BCM6362, N-PHY, fuori scope). Il chip
-target wl1 fa solo 5 GHz.
+sulla 2.4 GHz**. Empiricamente, `wl chanspec 2g6/20` fallisce. Il
+chip target wl1 fa solo 5 GHz; la 2.4 GHz del DSL-3580L è coperta da
+wl0 (BCM6362, N-PHY, fuori scope). L'MVP è 5 GHz UNII-1.
 
-Conseguenza: **il MVP "2.4 GHz CCK 1Mbit" del piano originale non è
-eseguibile su questo hardware**. Quello che l'iterazione precedente del
-README chiamava "post-MVP §Estensione 5 GHz" è in realtà l'unico MVP
-possibile.
+Una limitazione operativa aggiuntiva, sotto firmware OEM 6.30:
+`5g100/20` (UNII-2 extended) viene rifiutato con `Bad Channel`. Il
+test su un secondo board della stessa famiglia (D6220, ramo OEM 7.14)
+e su un board distinto della stessa generazione (agcombo, ramo OEM
+7.14.43) accetta `5g100/20` con NVRAM regulatory identica
+(`ccode=""`, `regrev=0`). Il rifiuto è specifico al **driver D-Link
+6.30**; il path mainline `b43`/`cfg80211` (regdb del kernel) non
+eredita il lock. La sub-banda usata per il bring-up MVP resta
+**UNII-1 (canali 36-48)** per ortogonalità rispetto alle DFS reali.
 
-Una limitazione operativa aggiuntiva: anche dentro la 5 GHz, il
-chanspec `5g100/20` (UNII-2 extended) viene rifiutato con `Bad
-Channel`. <span style="color:red">**SALAME**</span> — la causa
-candidata è una restrizione regulatory locale al firmware OEM
-(`ccode=` vuoto + `regrev=0` non basta a sbloccare DFS). Il
-risultato pratico è che la sub-banda affidabile per il bring-up è
-**UNII-1 (canali 36-48)**.
-
-## Obiettivo MVP rivisto
+## Obiettivo MVP
 
 Probe pulito + `ifconfig wlan1 up` + scan passivo + associate su AP
 5 GHz canale 36 + 6 Mbit OFDM 1×1, su BCM4352-family **incluso**
@@ -71,19 +66,14 @@ UNII-2/2e/3 (DFS).
 
 ## SROM rev 11: groundwork preparato (`kernel-patch/sprom-rev11/`)
 
-Le iterazioni precedenti di questo README dichiaravano "Blocker #1:
-SPROM rev 11" sostenendo che la mainline `b43`/`bcma`/`ssb` rifiuta la
-rev 11 con `Unsupported SPROM revision: 11`. <span
-style="color:blue">**TONNO**</span> — l'audit del torvalds/linux master
-corrente (commit `6d35786`) mostra che `bcma_sprom_valid` accetta rev
-11 dal 2015 (Rafał Miłecki). Quello che effettivamente *manca* è
-diverso: l'unico estrattore implementato è `bcma_sprom_extract_r8`,
-chiamato indistintamente per rev 8/9/10/11. Per una SROM rev 11 questo
-estrattore popola solo i campi a layout condiviso e lascia a zero tutti
-quelli rev-11-only (`rxgains_*`, `subband5gver`, il blocco femctrl,
-`mcsbw80*po`, `mcsbw160*po`, le matrici `sb20in*`/`sb40and80`,
-`pdoffset*`, e per ogni chain `maxp2ga`, `maxp5ga[4]`, `pa2ga[3]`,
-`pa5ga[12]`).
+`bcma_sprom_valid` mainline accetta rev 11 dal 2015 (Rafał Miłecki,
+torvalds/linux `6d35786`). Quello che manca è l'estrattore: l'unico
+implementato è `bcma_sprom_extract_r8`, chiamato indistintamente per
+rev 8/9/10/11. Per una SROM rev 11 questo popola solo i campi a layout
+condiviso e lascia a zero tutti quelli rev-11-only (`rxgains_*`,
+`subband5gver`, il blocco femctrl, `mcsbw80*po`, `mcsbw160*po`, le
+matrici `sb20in*`/`sb40and80`, `pdoffset*`, e per ogni chain `maxp2ga`,
+`maxp5ga[4]`, `pa2ga[3]`, `pa5ga[12]`).
 
 Per coprire il gap è in `kernel-patch/sprom-rev11/` una **patch DRAFT
 v2** contro mainline (`0001-ssb-bcma-firmware-SROM-revision-11-support.patch`).
@@ -102,8 +92,8 @@ sul `master` corrente. Va mantenuta nel repo finché:
 1. Il bring-up MVP raggiunge probe + RX su UNII-1 ch.36 (cioè il
    resto di questo README), così c'è almeno un consumer in-tree
    testabile dei nuovi campi.
-2. Il decoder rxgains nel chain block (vedi §"Strategia rxgain
-   rivista" e §"Open questions residue") viene chiuso o lasciato
+2. Il decoder rxgains nel chain block (vedi §"Strategia rxgain"
+   e §"Open questions residue") viene chiuso o lasciato
    esplicitamente come TODO con motivazione documentata.
 
 L'invio anticipato è esplicitamente fuori discussione: mandare a
@@ -114,7 +104,7 @@ Vantaggio collaterale, già operativo localmente: con la patch
 applicata, il porting rxgain (sotto) riceve `rxgains_5g{l,m,h}` e
 `pa5ga[12]` per nome, niente costanti hardcoded.
 
-## Strategia rxgain — SROM-driven
+## Strategia rxgain
 
 Tutti gli input del calcolo rxgain sono campi SROM nominali esposti dal
 blob:
@@ -126,7 +116,8 @@ rxgains5ghelnagaina{0,1,2}   rxgains5ghtrisoa{0,1,2}   rxgains5ghtrelnabypa{0,1,
 noiselvl5ga{0,1,2}           rxgainerr5ga{0,1,2}        (entrambi array di 4 per sub-band)
 ```
 
-Più gli analoghi `2g` (azzerati su questo board, `aa2g=0`).
+Più gli analoghi `2g`, che non sono usati dal populator del firmware
+OEM neanche su board dual-band attivo (vedi §"Table 0x44 / 0x45").
 
 ### Formula populator (register-side)
 
@@ -164,62 +155,71 @@ body, vedi sotto).
 Formula committata in `b43_phy_ac_rxgain_init`:
 `gainctx = (rxgains.triso[core] + 4) << 1`.
 
-### Strategia per le table 0x44 / 0x45
+### Table 0x44 / 0x45
 
-Lo skeleton in `kernel-patch/new_files/rxgain_phy_ac.c` espone le 10
-write per-core come array statico
-`b43_phy_ac_rxgain_tbl_writes_5g[]` con un singolo resolver
-`b43_phy_ac_rxgain_tbl_source()`. Resolver attualmente ritorna NULL —
-nessuna write. Due strade per popolarlo, non alternative:
+Le 10 write per-core di `wlc_phy_table_write_acphy` su id 0x44/0x45
+(width=8) sono in `b43_phy_ac_rxgain_tbl_writes_5g[]` di
+`kernel-patch/new_files/rxgain_phy_ac.c`. Il resolver
+`b43_phy_ac_rxgain_tbl_source()` serve la slice `[offset, offset+len)`
+da due immagini statiche `b43_phy_ac_rxgain_5g_tbl_{44,45}_5gl[]`
+catturate via `wl phytable` su BCM4360 reference (agcombo) post-attach,
+sub-band 5gl (vedi `router-data/agcombo/agcombo_phytable_5gl.txt`).
 
-1. **Runtime populator SROM-driven** (PATCH POINT (a) nel resolver).
-   Combina `rxgains_5gl.{elnagain, triso, trelnabyp}[core]` + i
-   `block_B` base/delta arrays di `.rodata` + il return degli 8
-   `wlc_phy_table_read_acphy` per riprodurre il body del per-core loop
-   del blob. Da decodificare via disasm walk del body 0x42a8c..0x4307b.
-2. **Dump statico via `wl phytable`** (PATCH POINT (b)). Capture di
-   0x44/0x45 sul chip associato in stato MVP (channel 36, OFDM 6 Mbit)
-   come `static const u8[]` indicizzati per `(id, offset, len)`.
-   Richiede hardware. Anche oracolo di test per la (1).
+Il populator OEM è single-shot ad attach-time sul ramo 7.14: phyreg e
+phytable restano frozen al sub-band default 5gl indipendentemente da
+`chanspec` (verificato su 5g36/20 e 5g100/20). Il porting `b43` chiama
+`b43_phy_ac_rxgain_init` solo da `op_init`.
+
+Triplet rxgain `(elnagain, triso, trelnabyp)` per chain è
+default-radio-side: identico per i tre chain del 3×3 agcombo, identico
+fra agcombo (BCM4360) e DSL/D6220 (BCM4352-family). L'immagine 5gl
+serve dunque tutti i chain senza per-chain stride.
+
+Quando `op_switch_channel` si estende a 5gm/5gh il resolver guadagna
+un parametro sub-band e altre due immagini statiche, da catturare con
+la stessa procedura su un blob 6.30 (che rifa il populator a chanspec
+switch) o forzando l'attach-time su una sub-band diversa.
 
 Path block_A (2.4 GHz): dead code marcato `__maybe_unused` in
-`rxgain_phy_ac.c`.
+`rxgain_phy_ac.c`. Confermato che il populator 2g del firmware OEM non
+passa per i campi SROM `rxgains2g*` neanche su un board dual-band
+attivo (agcombo, `aa2g=7`, `rxgains2g*=0` su tutti i chain).
 
 ### SROM-side: encoding rxgains nei due word del chain block
 
-Indipendente dal populator register-side. Cross-reference fra il dump
-nominale (`nvram_dump`) e l'array byte grezzo (`srdump`): i 9 valori
-rxgains per chain (4 sub-band × 3 fields, 12 byte) finiscono in due
-word `srom[112,113]` per il chain 0 (analoghi per chain 1, 2 con
-stride 20 word). Con assegnazione byte → sub-band `(5gm, 5gh, 2g, 5gl)`
-regge l'encoding `value = (b<<7) | (t<<3) | e`:
+I 9 valori rxgains per chain (4 sub-band × 3 fields, 12 byte) finiscono
+in due word `srom[112,113]` per chain 0 (analoghi per chain 1, 2 con
+stride 20 word). Assegnazione byte → sub-band `(5gm, 5gh, 2g, 5gl)`,
+encoding `value = (b<<7) | (t<<3) | e`:
 
 ```
-5gm: e=7, t=15, b=1 → 0xff   (low byte di srom[112] = 0xff ✓)
-5gh: e=7, t=15, b=1 → 0xff   (high byte di srom[112] = 0xff ✓)
-2g:  e=0, t=0,  b=0 → 0x00   (low byte di srom[113] = 0x00 ✓)
-5gl: e=3, t=6,  b=1 → 0xb3   (high byte di srom[113] = 0xb3 ✓)
+5gm: e=7, t=15, b=1 → 0xff   (low byte di srom[112] = 0xff)
+5gh: e=7, t=15, b=1 → 0xff   (high byte di srom[112] = 0xff)
+2g:  e=0, t=0,  b=0 → 0x00   (low byte di srom[113] = 0x00)
+5gl: e=3, t=6,  b=1 → 0xb3   (high byte di srom[113] = 0xb3)
 ```
 
-<span style="color:red">**SALAME**</span> — gli unici byte
-*informativi* sono `5gl=0xb3` (gli altri tre sono saturi a `0xff` o
-zero), quindi l'encoding non è univocamente determinato. Encodings
-alternativi che *casualmente* danno 0xb3 sui valori `(3, 6, 1)`
-restano possibili. Disambiguazione richiede un secondo board della
-famiglia 4352 con triplet rxgains diversi, o un read-back diretto dei
-register `0x6f9 / 0x8f9 / 0xaf9` bits 14:8 dopo che il populator del
-kernel ha girato — siccome la formula register-side legge solo
-`triso`, serve specificamente un board con `triso` non saturo né
-zero. `elnagain` / `trelnabyp` vanno testati indirettamente via le
-table 0x44/0x45.
+Half **triso** chiusa via cross-check runtime su tre board: `phyreg
+0x{6,8,a}f9` bits 14:8 = `0x16` su D6220 (7.14.89) e agcombo (7.14.43),
+formula 7.14 `(triso+4)<<1 + 2` ⇒ triso=6, consistente con la
+decodifica di `0xb3` sotto `(b<<7)|(t<<3)|e` (`bits 6:3 = 0110 = 6`).
+Nessun bit-field-ordering naturale alternativo mappa `0xb3` → triso=6,
+quindi la half triso è univocamente determinata.
 
-Finché `bcma_sprom_extract_r11` non popola `rxgains_5gl.triso[]`,
-`triso` legge zero, `gainctx = (0+4)<<1 = 8`, e la high-byte dei tre
-register rxgains è forzata a `0x08`. Sull'AP-tester sotto a 6 Mbit
-OFDM (~50 cm dal client, 80 dB di link budget di troppo) è plausibile
-che funzioni comunque, ma è da validare empiricamente.
+Half **elnagain** e **trelnabyp** non sono direttamente osservabili
+register-side (la formula popolator usa solo triso). Sono bypassate
+nel porting MVP dal dump statico phytable 0x44/0x45 in
+`kernel-patch/new_files/rxgain_phy_ac.c`. La derivazione esatta byte →
+table cell richiede il disasm walk del body `0x42a8c..0x4307b` del
+6.30; non bloccante per il bring-up.
 
-## Bring-up MVP rivisto
+Triplet rxgain default radio-side: i tre board sampleati (DSL-3580L
+2×2 BCM43b3, D6220 2×2 BCM43b3, agcombo 3×3 BCM4360) hanno triplet
+identico `(3, 6, 1)/(7, 15, 1)/(7, 15, 1)/(0, 0, 0)` per
+`(5gl, 5gm, 5gh, 2g)` per *ogni* chain. È una proprietà del radio rev
+1 r2069, non una calibrazione board-specific.
+
+## Bring-up MVP
 
 Prerequisiti: kernel locale con `B43_PHY_AC=y` (rimosso `BROKEN`)
 **+ patch `sprom-rev11/0001-*.patch` applicata** (DRAFT v2 da
@@ -232,12 +232,11 @@ applicare con `git am` sul kernel di test), firmware in
    - PCI ID `0x14e4:0x43b3` detected su bus PCIe (su BCM63xx il bus è
      1, vedi `revinfo`)
    - chipid registrato = `0x4352` (chip family) con device `0x43b3`
-   - SROM extract clean (la mainline accetta rev 11 dal 2015 anche
-     senza queste patch; la differenza con le patch applicate è che
-     i campi `ssb_sprom.subband5gver`, `ssb_sprom.rxgains_5gl.*`,
-     `core_pwr_info[i].pa5ga[*]` sono popolati anziché zero —
-     verificabile via debugfs/printk se utile)
-   - sromrev = 11 letto correttamente
+   - SROM extract clean: con la patch `sprom-rev11/` applicata i campi
+     `ssb_sprom.subband5gver`, `ssb_sprom.rxgains_5gl.*`,
+     `core_pwr_info[i].pa5ga[*]` sono popolati (verificabile via
+     debugfs/printk se utile)
+   - sromrev = 11
    - boardrev = 0x1353, boardid = 0x668
    - `num_cores = 2`
    - I 24 PHY init tables caricate senza WARN_ON
@@ -250,38 +249,27 @@ applicare con `git am` sul kernel di test), firmware in
 4. **Associate** a `D-Link DSL-3580L_5G` con WPA2-PSK, forzando il
    client lato a 6 Mbit OFDM 20 MHz (no HT, no VHT). Failure più
    probabile: rxgain map sbagliata → AP non risponde all'auth/assoc.
-   Compilare con `B43_DEBUG=y` per logs dettagliati. A questo punto la
-   safety net Strategia 2 (table dump statico) può essere sostituita
-   alla Strategia 0 SROM-driven per isolare se il problema è la
-   formula populator.
+   Compilare con `B43_DEBUG=y` per logs dettagliati.
 5. **Ping 6 Mbit OFDM**: MVP raggiunto.
 
 ## Open questions residue
 
-### Encoding rxgains nei due word del chain block (SROM-side)
+### Encoding rxgains, half elnagain/trelnabyp
 
-Vedi §"Strategia rxgain — SROM-side" e il commento TODO di
-`bcma_sprom_extract_r11` nella patch consolidata.
-
-### `wl phytable` formato output
-
-Il dump di table 0x44/0x45 mostra valori del tipo `0x0c000044`,
-`0xfb000044`, dove il byte basso ripete il table id e il dato
-significativo è in un altro byte. <span
-style="color:red">**SALAME**</span> — l'interpretazione "byte alto =
-data, byte basso = id echo, padding intermedio" è inferenza dal pattern
-osservato; lettere alternative possibili includono "valore signed 32
-bit con la maschera applicata sui bit alti per chip-specific reason".
-Da chiudere prima di committare il dump come ground truth statico,
-testando la stessa entry con `width=8` vs `width=16` vs `width=32`.
+Half triso chiusa (vedi §"SROM-side: encoding rxgains"). Le altre due
+half non sono direttamente verificabili senza disasm walk del body
+`0x42a8c..0x4307b` del 6.30 (mappa byte SROM → cell phytable). Per
+l'MVP sono bypassate dal dump statico in
+`b43_phy_ac_rxgain_5g_tbl_{44,45}_5gl[]`; il decoder
+`bcma_sprom_extract_r11` espone i campi nominali per nome ma il
+consumer `b43_phy_ac_rxgain_init` non li usa per le table.
 
 ### Co-load con 0x435F integrated
 
-Invariato rispetto alla revisione precedente. Il kernel deve poter
-caricare b43 per *entrambi* i core (PCIe AC wl1 + SoC integrato wl0
-N-PHY). I MAC sono già differenziati (`:3D` per wl0, `:3E` per wl1),
-quindi il rischio di collisione `wlanN` è gestibile. Testabile solo a
-bring-up reale.
+Il kernel deve poter caricare b43 per *entrambi* i core (PCIe AC wl1
++ SoC integrato wl0 N-PHY). I MAC sono già differenziati (`:3D` per
+wl0, `:3E` per wl1), quindi il rischio di collisione `wlanN` è
+gestibile. Testabile solo a bring-up reale.
 
 ## Post-MVP
 
@@ -307,49 +295,58 @@ hardcoding.
 
 Estensione naturale del MVP OFDM 6 Mbit. Le 24 init tables coprono già
 OFDM (`tx_evm`, `mcs`, `noise_shaping`); il path PHY è il punto da
-auditare per "late PHY writes" OFDM-specific. Il <span
-style="color:red">**SALAME**</span> della precedente revisione su
-"eventuale coda OFDM in `wlc_phy_init_acphy` non ancora estratta"
-resta valido.
+auditare per "late PHY writes" OFDM-specific. <span
+style="color:red">**SALAME**</span> — possibile coda OFDM in
+`wlc_phy_init_acphy` non ancora estratta dal disasm; va verificata
+prima di committare l'estensione.
 
 ### Nuovi sub-band 5 GHz (UNII-2/2e/3)
 
-Bloccato dalla restrizione `Bad Channel` osservata. Sotto l'ipotesi
-regulatory: risolvibile cambiando `ccode`/`regrev` sul chip o
-aggirando il controllo nel kernel-patch.
+Lato kernel mainline non c'è ostacolo regulatory: il lock OEM 6.30
+non si propaga a `cfg80211`/regdb. Estensione richiede dump phytable
+0x44/0x45 per le sub-band 5gm e 5gh come fatto per 5gl in
+`router-data/agcombo/`. Il blob 6.30 è l'oracolo naturale perché rifa
+il populator a chanspec switch (verificato sul disasm DSL); il blob
+7.14 è single-shot e congela al sub-band attach-time, quindi serve
+boot dedicato per ognuna.
 
 ### 2.4 GHz su questo board
 
-Impossibile: `aa2g=0`. La 2.4 GHz va testata su un board diverso della
-famiglia 4352 (es. un BCM4352 PCIe card consumer con antenne 2.4 GHz
-cablate). Fuori scope DSL-3580L.
+Impossibile: `aa2g=0`. Vale per tutto il reference design BCM43b3
+(verificato anche sul D6220), non solo per il DSL-3580L. La 2.4 GHz va
+testata su un chip diverso della stessa generazione che dichiari
+`aa2g != 0`, ad esempio l'agcombo (BCM4360 dual-band 3×3, vedi
+`router-data/agcombo/`). Fuori scope DSL-3580L.
 
-### Allineamento driver 7.14 (Netgear D6220)
+### Allineamento driver 7.14 (Netgear D6220, agcombo)
 
-La motivazione operativa del progetto è che il blob OEM
-per il D-Link 6.30 sul DSL-3580L soffre di disconnessioni frequenti in uso reale
-, il che rende il porting `b43`/mainline il percorso minimo per ottenere 
-una piattaforma affidabile (eventualmente sotto OpenWrt). 
-Il bring-up MVP segue il path 6.30 audit-ato perché è la riferimento storica del repo
-e produce un driver minimale; in post-MVP vale la pena allineare con il 7.14 che
-mostra evoluzioni concrete:
+La motivazione operativa del progetto è che il blob OEM per il D-Link
+6.30 sul DSL-3580L soffre di disconnessioni frequenti in uso reale; il
+porting `b43`/mainline è il percorso minimo per ottenere una piattaforma
+affidabile (eventualmente sotto OpenWrt). Il bring-up MVP segue il
+6.30 audit-ato perché è la riferimento del repo. Il ramo 7.14 mostra
+evoluzioni concrete che vale considerare in post-MVP:
 
 - **`wlc_phy_set_trloss_reg_acphy` separato** (a `0xa1ff8` nel
   `wlD6220.o`) — extract della parte register-write rxgain ctx fuori da
   `wlc_phy_rxgainctrl_set_gaintbls_acphy`. Refactor mainline-friendly,
   vale considerare la stessa separazione nel `b43_phy_ac_*`.
-- **Correzione `+2` runtime** sul gainctx (audit @`0xa20fc`, vedi
-  `router-data/d6220/wlD6220_set_trloss_reg_acphy.disasm`) — empirica,
-  ~1 dB di rxgain ctx in più. Da valutare se replicare in mainline solo
-  dopo che dati di campo dimostrano differenza misurabile sul link
-  budget reale.
+- **Correzione `+2` runtime** sul gainctx (audit @`0xa20fc` in
+  `router-data/d6220/wlD6220_set_trloss_reg_acphy.disasm`, presente sia
+  in 7.14.43 sia in 7.14.89 — proprietà del ramo 7.14, non un fix
+  late). ~1 dB di rxgain ctx in più. Da valutare se replicare in
+  mainline solo dopo che dati di campo dimostrano differenza misurabile
+  sul link budget reale.
 - **Cache layout 7.14 rifattorizzato** — `cache[1164]/[1166] +
   sprom[(core+730)*4 + 3]` invece del singolo `cache[911]`
-  pre-trasformato del 6.30. Il populator attach-time del 7.14 (analogo
-  di `wlc_phy_attach_acphy@0x4660c` del 6.30) è ancora da disasm-are
-  per chiudere l'identità algebrica con `(triso+4)<<1`.
-- **Chip è 5 GHz only sul reference design BCM43b3 nel suo insieme**
-  — il D6220 ha `aa2g=0` come il DSL, non solo il DSL.
+  pre-trasformato del 6.30. <span style="color:red">**SALAME**</span> —
+  identità algebrica col vecchio `(triso+4)<<1` regge sui data point
+  runtime osservati (phyreg `0x16` su due build 7.14 distinti per
+  triso=6 5gl), non formalmente verificata via disasm del populator
+  attach-time 7.14. Non bloccante per il porting.
+- **Populator single-shot ad attach-time** (verificato register-side e
+  table-side su 7.14.43 e 7.14.89). Il porting `b43` chiama
+  `b43_phy_ac_rxgain_init` solo da `op_init` ed è coerente.
 
 ### Submission upstream della serie `sprom-rev11/`
 
@@ -370,11 +367,12 @@ Miłecki (bcma).
   kernel-patch con citazione dell'offset disasm.
 - `b43_phy_ac_rxgain_init`: prologue/epilogue, 4 `phy_reg_write`
   chip-default pinnati, calcolo `gainctx = (triso+4)<<1` applicato
-  ai register canonici 1785/2297/2809/649, e scaffolding delle 10
-  `wlc_phy_table_write_acphy` su id 0x44/0x45 (array statico +
-  resolver con due PATCH POINTS — runtime populator e static dump).
-  Resolver torna NULL: tabelle 0x44/0x45 inerti finché un dump o il
-  populator non viene cablato.
+  ai register canonici 1785/2297/2809/649, e le 10
+  `wlc_phy_table_write_acphy` su id 0x44/0x45 servite da due immagini
+  statiche `b43_phy_ac_rxgain_5g_tbl_{44,45}_5gl[]` catturate via
+  `wl phytable` su BCM4360 reference (vedi
+  `router-data/agcombo/agcombo_phytable_5gl.txt`). Resolver torna le
+  slice corrette per id ∈ {0x44, 0x45}, NULL per altri id.
 - `kernel-patch/existing_files/{Makefile,phy_ac.h,phy_ac.c}.additions`
   riorientati a 5 GHz UNII-1: dispatch `op_switch_channel` rifiuta
   2.4 GHz con `-EOPNOTSUPP` (`aa2g=0` board-specific), range-check
@@ -399,49 +397,37 @@ Miłecki (bcma).
   `make check-bcm4360usb` (synth-mode, NVRAM-only di asuswrt-merlin)
   passa ma espone `Finding 1` su collisione word IL0MAC/CCODE — vedi
   `cross_check.md`.
-- Cross-board confirmation D6220 → DSL-3580L: stride per-chain 0x28
-  e offset header (boardrev, aa{2,5}g, txchain/rxchain, antswitch,
-  subband5gver) reggono su un secondo board della famiglia con PA
-  table e `maxp5ga0` strutturalmente diversi (vedi
-  `router-data/d6220/README.md`). **Non** chiude la SALAME `Finding 1`
-  (region 0x90..0x95 letta zero anche sul D6220) né l'encoding
-  rxgains chain block (triplet identici, `0xb3` resta unico
-  informativo).
+- Cross-board confirmation su tre board indipendenti (DSL-3580L 2×2
+  BCM43b3, D6220 2×2 BCM43b3, agcombo 3×3 BCM4360): stride per-chain
+  0x28 e offset header reggono uniformemente; triplet rxgain
+  `(3,6,1)/(7,15,1)/(7,15,1)/(0,0,0)` per `(5gl,5gm,5gh,2g)` identico
+  fra tutti, default radio-side r2069 rev 1; populator OEM 7.14
+  single-shot ad attach-time (verificato via phyreg e phytable invariant
+  di chanspec); regulatory `Bad Channel` su UNII-2/3 specifico al ramo
+  6.30 D-Link (7.14 accetta).
 
 ## Provenance
 
-I valori "verified" in questo README provengono da una sessione
-diretta sul DSL-3580L target con firmware OEM `wl0: Jul 8 2013
-13:52:55 version 6.30.102.7.cpe4.12L07.0`, attraverso:
-
-- `wl -i wl1 nvram_dump` → SROM rev 11 nominale (campi per nome)
-- `wl -i wl1 srdump` → SROM raw byte-level (240 word, BE byte stream)
-
-I dump completi sono committati in `router-data/`:
+I valori "verified" in questo README provengono da sessioni dirette su
+tre board reali della stessa generazione AC-PHY rev 1 / r2069:
 
 ```
-router-data/dsl3580l/wl1_nvram.txt    — output di `wl -i wl1 nvram_dump`
-router-data/dsl3580l/wl1_srom_raw.txt — output di `wl -i wl1 srdump`
-router-data/d6220/                    — analoga sessione su Netgear D6220
-                                        (stesso target chip 0x14e4:0x43b3,
-                                        board rev P355). Vedi router-data/d6220/README.md
+router-data/dsl3580l/      D-Link DSL-3580L, BCM43b3 2x2, OEM 6.30.102.7
+                           wl1_nvram.txt + wl1_srom_raw.txt
+router-data/d6220/         Netgear D6220, BCM43b3 2x2, OEM 7.14.89.14
+                           wl1_*.txt + wlD6220_set_trloss_reg_acphy.disasm
+                           Vedi router-data/d6220/README.md
+router-data/agcombo/       BCM4360 reference 3x3, OEM 7.14.43.21
+                           agcombo_*.txt + agcombo_phytable_5gl.txt
+                           Vedi router-data/agcombo/README.md
 ```
 
-Per il cross-reference nome→valore→offset il testuale (`wl1_srom_raw.txt`,
-240 word BE per riga di word) è la fonte affidabile.
-
-Non ancora committati ma utili per chiudere le aperture residue:
-
-- `wl -i wl1 revinfo` → header chip identificativo (chipnum,
-  chiprev, corerev, radiorev, phytype, phyrev, boardid, sromrev).
-  La maggior parte di questi campi è già citata nel README per
-  valore — lo sarebbe per consolidare la provenance.
-- `wl -i wl1 phyreg <off>` per `off ∈ {0x6f9, 0x8f9, 0xaf9}` →
-  bits 14:8 sono il `gainctx` runtime per ciascun core. Necessario
-  per chiudere la SALAME register-side della formula populator
-  rxgain (vedi §"Open questions: formula populator"). Da prendere
-  con il chip associato a un AP UNII-1, dopo che il driver OEM
-  ha fatto girare il populator.
+Per il cross-reference nome→valore→offset SROM il testuale
+`wl1_srom_raw.txt` (240 word BE per riga di word) è la fonte
+affidabile su DSL e D6220. Su agcombo `srdump` ritorna zero (blob
+implementa solo nvram_dump per la SROM nominale), quindi il
+cross-reference offset-side per agcombo è derivato dagli altri due
+board sotto stessa sromrev.
 
 ## Rigenerare gli output reverse
 

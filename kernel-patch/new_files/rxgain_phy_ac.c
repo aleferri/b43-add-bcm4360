@@ -8,20 +8,18 @@
  * 0x43b3 lands here). 2.4 GHz path is included as dead code under
  * __maybe_unused for boards with aa2g != 0.
  *
- * What runs:
+ * Per-core flow:
  *   - outer RFCTL1 + table-write gate bracket;
- *   - per-core: 3 phy_reg_mod (gainctx-driven), 4 chip-pinned phy_reg_write,
- *     scaffolded 0x44/0x45 table writes (resolver currently NULL → no
- *     writes), trailing reg-649 mod for core > 0;
+ *   - 3 gainctx-driven phy_reg_mod, 4 chip-pinned phy_reg_write,
+ *     10 phytable writes for 0x44/0x45 served from a static 5gl image
+ *     (PATCH POINT (b) of the README), trailing reg-649 mod for core > 0;
  *   - epilogue: pin RFCTL1=364, restore gates.
- *
- * What does NOT run yet: the body of b43_phy_ac_rxgain_tbl_source().
- * See its comment block.
  *
  * Cross-refs in the repo:
  *   reverse-output/rxgain/{00_INDEX.md, 03_disasm_annotated.txt,
  *                          04_call_inventory.txt}
- *   top-level README.md §"Strategia rxgain rivista"
+ *   router-data/agcombo/agcombo_phytable_5gl.txt  (table source images)
+ *   top-level README.md §"Strategia rxgain"
  */
 
 #include "b43.h"
@@ -88,14 +86,14 @@ b43_phy_ac_rxgain_chip_writes_default[4] = {
 };
 
 /**************************************************
- * Tables 0x44 / 0x45 writes — scaffolding
+ * Tables 0x44 / 0x45 writes
  **************************************************/
 
 /*
- * The 10 per-core wlc_phy_table_write_acphy calls (all width=8). Lifted
- * from reverse-output/rxgain/04_call_inventory.txt; addresses are the
- * disasm low-byte for cross-ref. Items 7..9 are a second pass after the
- * chip-id check pair @0x42f74/0x42fa0.
+ * The 10 wlc_phy_table_write_acphy calls (all width=8). Lifted from
+ * reverse-output/rxgain/04_call_inventory.txt; addresses are the
+ * disasm low-byte for cross-ref. Items 7..9 are a second pass after
+ * the chip-id check pair @0x42f74/0x42fa0.
  *
  * The OOL tail @0x430dc (id=0x0b, len=3, off=11) is reached via
  * tail-call from elsewhere in the blob and is NOT scaffolded here —
@@ -123,33 +121,61 @@ b43_phy_ac_rxgain_tbl_writes_5g[10] = {
 };
 
 /*
- * Source resolver for one rxgain table write. Returns NULL to skip.
+ * Static images of tables 0x44 / 0x45 captured from a BCM4360 3x3
+ * r2069-rev1 reference (router-data/agcombo) via wl phytable, after
+ * the OEM populator completed at attach time. The populator on the
+ * 7.14 driver is single-shot and freezes the table content at the
+ * attach-time sub-band default (5gl), so these byte sequences are the
+ * authoritative 5gl image regardless of current chanspec.
  *
- * Inputs to the eventual body (per-core, see file header & README):
- *   - rxgains_5gl from the SROM (elnagain, triso, trelnabyp)[core];
- *   - @core_gainctx = (rxgains.triso[core] + 4) << 1, the cached byte
- *     that set_gaintbls_acphy reads at pi+168 + 911 + 3*core;
- *   - block_B base/delta arrays declared above.
+ * Indexing is by phytable byte offset; gaps between the slices touched
+ * by b43_phy_ac_rxgain_tbl_writes_5g[] stay zero (chip-side init clears
+ * the table memory; the populator never writes into the gaps).
  *
- * Wiring strategies (top-level README §"Strategia rxgain rivista"):
- *   (a) runtime populator combining the inputs above per the blob's
- *       per-core flow (8 table_read + 9 memcpy + 10 table_write);
- *   (b) static `wl phytable` capture of 0x44/0x45 on the OEM blob,
- *       indexed by (id, offset, len).
+ * Triplet rxgain (elnagain, triso, trelnabyp) is uniform per-chain on
+ * every 5gl board sampled (DSL-3580L 2x2, D6220 2x2, agcombo 3x3, all
+ * (3, 6, 1)), so the same image is written by every core.
+ */
+static const u8 b43_phy_ac_rxgain_5g_tbl_44_5gl[42] = {
+	[ 0] = 0x0c, [ 1] = 0x0c,
+	[ 8] = 0xfe, [ 9] = 0xfe, [10] = 0x04, [11] = 0x0a,
+	[12] = 0x10, [13] = 0x17,
+	[16] = 0xf8, [17] = 0xf8, [18] = 0xfb, [19] = 0xfe,
+	[20] = 0x02, [21] = 0x05, [22] = 0x09,
+	[32] = 0x07, [33] = 0x07, [34] = 0x07, [35] = 0x07, [36] = 0x07,
+	[37] = 0x07, [38] = 0x07, [39] = 0x07, [40] = 0x07, [41] = 0x07,
+};
+
+static const u8 b43_phy_ac_rxgain_5g_tbl_45_5gl[42] = {
+	[ 8] = 0x01, [16] = 0x01,
+	[32] = 0x02, [33] = 0x02, [34] = 0x02, [35] = 0x02, [36] = 0x02,
+	[37] = 0x02, [38] = 0x02, [39] = 0x02, [40] = 0x02, [41] = 0x02,
+};
+
+/*
+ * Source resolver for one rxgain table write.
  *
- * Open question: whether the second pass (descriptor entries 7..9)
- * is additive or strict re-write. Disambiguate from a `wl phytable`
- * capture before committing (a).
+ * MVP scope is UNII-1 (5gl) only; both the caller of
+ * b43_phy_ac_rxgain_init and op_switch_channel reject anything else.
+ * When 5gm/5gh land, this resolver gains a sub-band parameter and
+ * additional table images captured the same way.
  */
 static const u8 *
 b43_phy_ac_rxgain_tbl_source(const struct b43_phy_ac_rxgain_tbl_write *w,
 			     unsigned int core,
 			     u16 core_gainctx)
 {
-	(void)w;
 	(void)core;
 	(void)core_gainctx;
-	return NULL;
+
+	switch (w->id) {
+	case 0x44:
+		return &b43_phy_ac_rxgain_5g_tbl_44_5gl[w->offset];
+	case 0x45:
+		return &b43_phy_ac_rxgain_5g_tbl_45_5gl[w->offset];
+	default:
+		return NULL;
+	}
 }
 
 static void
@@ -240,7 +266,7 @@ void b43_phy_ac_rxgain_init(struct b43_wldev *dev)
 	b43_phy_ac_tbl_write_unlock(dev, saved_tblwr);
 
 	b43dbg(dev->wl,
-	       "phy-ac: rxgain_init run (%u cores, UNII-1, sprom rev %u; 0x44/0x45 inert)\n",
+	       "phy-ac: rxgain_init run (%u cores, UNII-1 5gl, sprom rev %u)\n",
 	       (unsigned int)B43_PHY_AC_NUM_CORES,
 	       (unsigned int)sprom->revision);
 }
