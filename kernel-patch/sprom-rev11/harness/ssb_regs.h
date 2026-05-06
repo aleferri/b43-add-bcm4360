@@ -57,6 +57,13 @@
 #define SSB_SPROM11_ANTAVAIL		0x00A0
 #define SSB_SPROM11_TXRXC		0x00A8
 
+/* rev-11 has dedicated CCODE/REGREV offsets distinct from the rev-8
+ * reuse, per Broadcom bcmsrom_tbl.h: SROM11_CCODE = word 75, SROM11_
+ * REGREV = word 76. Reusing SSB_SPROM8_CCODE = 0x92 collides with the
+ * MACMID word (the middle u16 of IL0MAC at 0x90+2). */
+#define SSB_SPROM11_CCODE		0x0096	/* word 75 */
+#define SSB_SPROM11_REGREV		0x0098	/* word 76, mask 0x00ff */
+
 #define SSB_SPROM11_SUBBAND5GVER	0x00D6
 
 #define SSB_SPROM11_PDOFFSET40MA	0x00CA

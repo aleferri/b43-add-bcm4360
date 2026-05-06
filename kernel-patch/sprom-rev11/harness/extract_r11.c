@@ -79,7 +79,7 @@ static void bcma_sprom_extract_r11(struct bcma_bus *bus, const u16 *sprom)
 	SPEX(board_rev, SSB_SPROM8_BOARDREV, ~0, 0);
 	SPEX(board_type, SSB_SPROM1_SPID, ~0, 0);
 
-	SPEX(country_code, SSB_SPROM8_CCODE, ~0, 0);
+	SPEX(country_code, SSB_SPROM11_CCODE, ~0, 0);
 	SPEX(ant_available_a, SSB_SPROM11_ANTAVAIL, SSB_SPROM8_ANTAVAIL_A,
 	     SSB_SPROM8_ANTAVAIL_A_SHIFT);
 	SPEX(ant_available_bg, SSB_SPROM11_ANTAVAIL, SSB_SPROM8_ANTAVAIL_BG,

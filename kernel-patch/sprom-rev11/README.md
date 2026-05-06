@@ -98,9 +98,11 @@ harness/vectors/bcm4360usb.nvram                — synth-mode, NVRAM-only
                                                   asuswrt-merlin
 ```
 
-Run with `make check`, `make check-d6220`, `make check-bcm4360usb`
-respectively. Current state: 77/0/2, 74/0/5, synth round-trip clean
-modulo `Finding 1` (see `cross_check.md`).
+Run with `make check`, `make check-d6220`, `make check-bcm4360usb`,
+`make check-agcombo`. Current state with the v3 fix scoped in
+`extract_r11.c` and `synth_srom.c`: 77/0/2, 74/0/5, synth-clean,
+75/0/4. Finding 1 (IL0MAC/CCODE word collision) closed per
+`cross_check.md`.
 
 The DSL-3580L is the primary board because every offset pinned in
 the patch has been derived by exact byte-match of a NVRAM nominal
@@ -111,16 +113,16 @@ of fit:
   there exists exactly one byte offset in the raw SROM whose bytes
   match the NVRAM-declared value, and the field's neighbours fit the
   expected struct layout. All offsets pinned in the patch are in
-  this category.
+  this category, with one fix scoped for v3 (ccode at
+  `SSB_SPROM11_CCODE = 0x0096` instead of the rev-8 reuse at 0x92).
 
-- **Saturated/zero values, encoding fits across positions** (medium
-  confidence): the rxgains bit-packing on the reference board has
-  three of four bytes saturated (0xff or 0x00). The fourth byte
-  (5gl=0xb3) uniquely fits `(b<<7)|(t<<3)|e` with the NVRAM-declared
-  triplet (3,6,1). The encoding is committed because it fits all
-  four observed bytes uniformly and matches every chain, but a
-  second board with non-saturated 5gm/5gh and non-zero 2g rxgains
-  would harden it further.
+- **Vendor-canonical encoding** (high confidence): the rxgains
+  bit-packing `(trelnabyp<<7)|(triso<<3)|elnagain` matches the
+  Broadcom `bcmsrom_tbl.h` masks
+  (`SROM11_RXGAINS5G{H,L}{TRELNABYPA,TRISOA,ELNAGAINA}_MASK` and the
+  2g/5gm pairs at the low byte). Triplet `(3,6,1)` for 5gl on every
+  sampled board (DSL/D6220/agcombo) decodes uniformly, runtime
+  cross-checked via `phyreg 0x{6,8,a}f9 = 0x1602` on two 7.x builds.
 
 - **Region byte 0x190..0x1B0 reads all zero** (cannot disambiguate
   from a single dump): mcslr*po, sb20in40/sb20in80and160 hr/lr,
@@ -130,38 +132,27 @@ of fit:
 
 ## Open before sending upstream
 
-1. **Cross-board confirmation of the v2 offset fixes for IL0MAC,
-   ANTAVAIL, TXRXC.** v1 of this patch reused the `SSB_SPROM8_*`
-   offsets for these three header fields. The offline harness in
-   `harness/` (compiles the parser in userspace, diffs every
-   populated field against `wl nvram_dump`) showed the rev-8
-   offsets produce wrong values on the DSL-3580L: aa{2,5}g, txchain,
-   rxchain, antswitch and the SROM-side MAC actually live at +4 / +6
-   / +4 byte past the rev-8 positions. v2 introduces
-   `SSB_SPROM11_IL0MAC=0x90`, `SSB_SPROM11_ANTAVAIL=0xA0`,
-   `SSB_SPROM11_TXRXC=0xA8`. Status as of D6220 onboarding:
-   - `ANTAVAIL`/`TXRXC`: D6220 has the same `aa5g=3 / aa2g=0 /
-     txchain=3 / rxchain=3` as DSL (BCM43b3 reference design is
-     2x2 5GHz-only across both boards), so D6220 only confirms
-     "byte-match still holds at these offsets on a second board",
-     not "the offset is correct against a different payload". For
-     non-degenerate confirmation, the bcm4360usb synth vector
-     (aa2g=3, aa5g=3) plus a future Fastgate or other 4352 board
-     with different `aa2g` are the relevant signals.
-   - `IL0MAC`: still on a single board because both DSL and D6220
-     read the 0x90..0x95 region as zero (CFE-store-sourced MAC,
-     not SROM). Finding 1 in `cross_check.md` remains the gating
-     issue here.
+1. **Patch v3 regeneration.** `harness/{extract_r11.c,synth_srom.c,
+   ssb_regs.h}` carry the v3 fix for ccode (Finding 1, see
+   `cross_check.md`). The kernel-mainline patch file
+   `0001-*.patch` still encodes v2; regeneration before send is a
+   single-block edit:
 
-2. Cross-board confirmation of:
-   - rxgains decoding by reading registers `0x6f9/0x8f9/0xaf9` bits
-     14:8 against the populator output for at least one sub-band
-     change, *or* by collecting a `wl srdump`/`wl nvram_dump` pair
-     on a second rev-11 board with non-saturated rxgains;
-   - the all-zero region's offset assignment by collecting a dump
-     pair on a second board with non-zero values in that region
-     (`mcslr*po`, `sb20in*`, `sb40and80*`, `dot11agdup*po`,
-     `pdoffset80ma`, plus the femctrl context block).
+       +#define SSB_SPROM11_CCODE   0x0096
+       +#define SSB_SPROM11_REGREV  0x0098
+       -SPEX(country_code, SSB_SPROM8_CCODE, ~0, 0);
+       +SPEX(country_code, SSB_SPROM11_CCODE, ~0, 0);
+
+   Held until the bring-up MVP completes: there is no point shipping
+   v3 to linux-wireless before the in-tree consumer
+   (`b43_phy_ac_rxgain_init`) has been exercised end-to-end on real
+   hardware.
+
+2. Cross-board confirmation of the all-zero region's offset
+   assignment by collecting a dump pair on a second board with
+   non-zero values in that region (`mcslr*po`, `sb20in*`,
+   `sb40and80*`, `dot11agdup*po`, `pdoffset80ma`, plus the femctrl
+   context block).
 
 3. Bring-up reaches probe + RX path on UNII-1 ch.36 in the b43-ac
    scaffolding. This is the in-tree consumer that exercises the

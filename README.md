@@ -189,29 +189,35 @@ attivo (agcombo, `aa2g=7`, `rxgains2g*=0` su tutti i chain).
 
 I 9 valori rxgains per chain (4 sub-band × 3 fields, 12 byte) finiscono
 in due word `srom[112,113]` per chain 0 (analoghi per chain 1, 2 con
-stride 20 word). Assegnazione byte → sub-band `(5gm, 5gh, 2g, 5gl)`,
-encoding `value = (b<<7) | (t<<3) | e`:
+stride 20 word). Encoding canonico per byte (Broadcom `bcmsrom_tbl.h`
+rev-11 mask):
+
+| bit  | 5g_ (per byte high) | 2g_ / 5gm (per byte low) |
+|---|---|---|
+| 7   | trelnabyp | trelnabyp |
+| 6:3 | triso (4 bit) | triso (4 bit) |
+| 2:0 | elnagain (3 bit) | elnagain (3 bit) |
+
+`value = (trelnabyp << 7) | (triso << 3) | elnagain`. Byte assignment
+per sub-band:
 
 ```
-5gm: e=7, t=15, b=1 → 0xff   (low byte di srom[112] = 0xff)
-5gh: e=7, t=15, b=1 → 0xff   (high byte di srom[112] = 0xff)
-2g:  e=0, t=0,  b=0 → 0x00   (low byte di srom[113] = 0x00)
-5gl: e=3, t=6,  b=1 → 0xb3   (high byte di srom[113] = 0xb3)
+word 112 (RXGAINS1, path offset 4):  high byte = 5gh, low byte = 5gm
+word 113 (RXGAINS,  path offset 5):  high byte = 5gl, low byte = 2g
 ```
 
-Half **triso** chiusa via cross-check runtime su tre board: `phyreg
-0x{6,8,a}f9` bits 14:8 = `0x16` su D6220 (7.14.89) e agcombo (7.14.43),
-formula 7.14 `(triso+4)<<1 + 2` ⇒ triso=6, consistente con la
-decodifica di `0xb3` sotto `(b<<7)|(t<<3)|e` (`bits 6:3 = 0110 = 6`).
-Nessun bit-field-ordering naturale alternativo mappa `0xb3` → triso=6,
-quindi la half triso è univocamente determinata.
+Decodifica del DSL/D6220/agcombo (`srom[112]=0xffff, srom[113]=0xb300`):
 
-Half **elnagain** e **trelnabyp** non sono direttamente osservabili
-register-side (la formula popolator usa solo triso). Sono bypassate
-nel porting MVP dal dump statico phytable 0x44/0x45 in
-`kernel-patch/new_files/rxgain_phy_ac.c`. La derivazione esatta byte →
-table cell richiede il disasm walk del body `0x42a8c..0x4307b` del
-6.30; non bloccante per il bring-up.
+```
+5gh: 0xff → e=7,  t=15, b=1
+5gm: 0xff → e=7,  t=15, b=1
+5gl: 0xb3 → e=3,  t=6,  b=1
+2g:  0x00 → e=0,  t=0,  b=0
+```
+
+Cross-check runtime su due board 7.x: `phyreg 0x{6,8,a}f9` bits 14:8 =
+`0x16` su D6220 (7.14.89) e agcombo (7.14.43), formula `(triso+4)<<1+2`
+⇒ triso=6 — consistente con `0xb3` decodificato.
 
 Triplet rxgain default radio-side: i tre board sampleati (DSL-3580L
 2×2 BCM43b3, D6220 2×2 BCM43b3, agcombo 3×3 BCM4360) hanno triplet
@@ -253,16 +259,6 @@ applicare con `git am` sul kernel di test), firmware in
 5. **Ping 6 Mbit OFDM**: MVP raggiunto.
 
 ## Open questions residue
-
-### Encoding rxgains, half elnagain/trelnabyp
-
-Half triso chiusa (vedi §"SROM-side: encoding rxgains"). Le altre due
-half non sono direttamente verificabili senza disasm walk del body
-`0x42a8c..0x4307b` del 6.30 (mappa byte SROM → cell phytable). Per
-l'MVP sono bypassate dal dump statico in
-`b43_phy_ac_rxgain_5g_tbl_{44,45}_5gl[]`; il decoder
-`bcma_sprom_extract_r11` espone i campi nominali per nome ma il
-consumer `b43_phy_ac_rxgain_init` non li usa per le table.
 
 ### Co-load con 0x435F integrated
 
@@ -390,14 +386,13 @@ Miłecki (bcma).
   nel repo finché il bring-up non rende esercitabile l'estrazione.
 - Harness userspace in `kernel-patch/sprom-rev11/harness/` che
   compila `bcma_sprom_extract_r11()` contro un kernel shim e diffa
-  ogni campo popolato vs `wl nvram_dump`. Stato corrente:
-  `make check` (DSL-3580L raw) **77 PASS / 0 FAIL / 2 INFO**;
+  ogni campo popolato vs `wl nvram_dump`. Stato corrente con il fix
+  v3 scoped (`SSB_SPROM11_CCODE = 0x0096`, vedi `cross_check.md`):
+  `make check` (DSL raw) **77 PASS / 0 FAIL / 2 INFO**;
   `make check-d6220` (D6220 raw) **74 PASS / 0 FAIL / 5 INFO**;
-  `make check-bcm4360usb` (synth NVRAM-only di asuswrt-merlin) espone
-  `Finding 1` IL0MAC/CCODE word collision;
-  `make check-agcombo` (synth NVRAM-only di agcombo, BCM4360 3×3
-  dual-band) **74 PASS / 0 FAIL / 5 INFO** e riproduce `Finding 1`
-  indipendentemente. Vedi `cross_check.md`.
+  `make check-bcm4360usb` (synth) **clean** (Finding 1 collision
+  fixed); `make check-agcombo` (synth, BCM4360 3×3 dual-band)
+  **75 PASS / 0 FAIL / 4 INFO**.
 - Cross-board confirmation su tre board indipendenti (DSL-3580L 2×2
   BCM43b3, D6220 2×2 BCM43b3, agcombo 3×3 BCM4360): stride per-chain
   0x28 e offset header reggono uniformemente; triplet rxgain

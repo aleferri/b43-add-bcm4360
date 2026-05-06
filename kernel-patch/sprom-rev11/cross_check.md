@@ -15,81 +15,52 @@ ledger of those checks.
 
 ## Findings to date
 
-### 1. IL0MAC / CCODE offset collision (open)
+### 1. IL0MAC / CCODE offset collision (resolved, v3 fix scoped)
 
-Two synth-mode vectors with non-zero `macaddr` and `ccode=0` reproduce
-the same word collision on word 0x92:
-
-- `make check-bcm4360usb` — `macaddr=00:90:4c:0e:60:11`, parser reads
-  back `00:90:00:00:60:11` (bytes 2/3 zeroed).
-- `make check-agcombo` — `macaddr=00:c0:02:01:07:24`, parser reads
-  back `00:c0:00:00:07:24` (bytes 2/3 zeroed).
-
-With the patch's current offsets:
-
-    SSB_SPROM11_IL0MAC  = 0x0090   (3 u16 words at 0x90, 0x92, 0x94)
-    SSB_SPROM8_CCODE    = 0x0092   (reused unchanged for rev 11)
-
-word 0x92 is shared between byte 2/3 of il0mac and the entire ccode
-field. The synth's `ccode=0` write zeroes the middle of the MAC, and
-the parser reads back the corrupted value.
-
-The hardware-real raw-mode vectors (DSL-3580L, D6220) do not surface
-the collision because the SROM region 0x90..0x95 reads all-zero on
-both boards (NVRAM macaddr comes from a separate CFE store; see
-`extract_r11.c` rationale block). Two synth vectors on two distinct
-boards reproducing the same byte-zeroing pattern at the same offsets
-make this a structural offset bug, not a vector-specific artifact.
-
-**Implication.** A real rev-11 SROM cannot store both fields if they
-share a word. Either:
-
-  (a) `SSB_SPROM11_IL0MAC` is not at 0x90 — the v2 fix's value-match
-      against rev-8 + 4 was a false positive on a board with all-zero
-      MAC bytes in SROM; or
-  (b) `ccode` for rev 11 has a different offset than the rev-8
-      `SROM8_CCODE = 0x92` and the patch is missing that fix.
-
-**Resolution: case (b).** Excerpt from Broadcom `bcmsrom_tbl.h` rev-11
-section:
+`bcmsrom_tbl.h` rev-11 entry table excerpt:
 
     {"boardnum",  0xfffff800, 0,            SROM11_MACLO,  0xffff},
     {"macaddr",   0xfffff800, SRFL_ETHADDR, SROM11_MACHI,  0xffff},
     {"ccode",     0xfffff800, SRFL_CCODE,   SROM11_CCODE,  0xffff},
     {"regrev",    0xfffff800, 0,            SROM11_REGREV, 0x00ff},
 
-`revmask = 0xfffff800` covers rev 11 (and forward). Four distinct
-rev-11 constants: `MACLO` (boardnum, 1 word), `MACHI` (macaddr, 3
-words via `SRFL_ETHADDR`), `CCODE` (1 word), `REGREV` (1 word, mask
-`0x00ff`). The vendor decoder does not reuse `SROM8_CCODE` for rev 11.
+`bcmsrom.h` numeric definitions (word indices):
 
-Mapping to v2 patch nomenclature:
+    SROM11_MACHI    = 72   (byte 0x090)
+    SROM11_MACMID   = 73   (byte 0x092)
+    SROM11_MACLO    = 74   (byte 0x094)
+    SROM11_CCODE    = 75   (byte 0x096)
+    SROM11_REGREV   = 76   (byte 0x098)
 
-| v2 patch                  | vendor canonical | status |
-|---|---|---|
-| `SSB_SPROM11_IL0MAC = 0x90` (3 words 0x90,0x92,0x94) | `SROM11_MACHI` + 2 + 4 | numeric offset pending |
-| reuse `SSB_SPROM8_CCODE = 0x92` for rev 11 | `SROM11_CCODE` (distinct) | **bug confirmed** |
-| `regrev` via rev-8 path | `SROM11_REGREV` | numeric offset pending |
-| no `boardnum` rev-11 entry | `SROM11_MACLO` | missing entry |
+The v2 patch's `SSB_SPROM11_IL0MAC = 0x0090` is correct: it is the
+`SROM11_MACHI` start of the 3-word MAC (MACHI/MACMID/MACLO at 0x90,
+0x92, 0x94). The byte zeroing at MAC[2..3] in the synth-mode runs
+came from the v2 patch reading ccode at the rev-8 offset 0x92 — which
+is `SROM11_MACMID`, the middle word of the MAC. Case (b) is the
+correct one; case (a) is falsified.
 
-**Fix outline for v3:**
+**v3 fix (scoped, validated in harness):**
 
-1. Introduce `SSB_SPROM11_MACHI`, `SSB_SPROM11_MACLO`,
-   `SSB_SPROM11_CCODE`, `SSB_SPROM11_REGREV` with the numeric values
-   from `bcmsrom.h` (or the leading `#define` block of
-   `bcmsrom_tbl.h`); not in the table excerpt above.
-2. Replace `SSB_SPROM11_IL0MAC` with `SSB_SPROM11_MACHI` in
-   `bcma_sprom_extract_r11`, dropping the value-matched-via-rev-8+4
-   derivation that produced 0x90.
-3. Drop the rev-8 reuse for ccode and regrev on the rev-11 path; use
-   the SROM11-specific offsets.
-4. Add a `boardnum` extraction at `SSB_SPROM11_MACLO` (1 word).
+    #define SSB_SPROM11_CCODE   0x0096   /* word 75, mask 0xffff */
+    #define SSB_SPROM11_REGREV  0x0098   /* word 76, mask 0x00ff */
 
-Pending: the four numeric offsets. They are not in the `bcmsrom_tbl.h`
-table body — typically defined in `bcmsrom.h` or in a leading
-`#define` block of `bcmsrom_tbl.h`. Until they are sighted, the harness
-synth-mode keeps the v2 collision as a red sentinel and v3 cannot be
-emitted.
+    SPEX(country_code, SSB_SPROM11_CCODE, ~0, 0);   /* was SSB_SPROM8_CCODE */
+
+Applied to `harness/extract_r11.c`, `harness/synth_srom.c`,
+`harness/ssb_regs.h`. Result on the four committed vectors:
+
+  - DSL-3580L raw: 77 PASS / 0 FAIL / 2 INFO (unchanged, SROM region
+    0x90..0x95 reads zero on this board).
+  - D6220 raw:     74 PASS / 0 FAIL / 5 INFO (unchanged, idem).
+  - bcm4360usb synth: il0mac MAC bytes no longer zeroed by ccode write
+    (Finding 1 collision gone).
+  - agcombo synth: 75 PASS / 0 FAIL / 4 INFO; `il0mac` moves from
+    `INFO MAC corruption` to `PASS`.
+
+The kernel-mainline patch file `0001-*.patch` still encodes v2; v3
+regeneration is a single-block edit (add the two `#define` lines,
+flip one `SPEX` call site) and gated on the bring-up MVP completing
+on hardware before any upstream send.
 
 ### 2. Rxgains bit-packing (verified self-consistent)
 

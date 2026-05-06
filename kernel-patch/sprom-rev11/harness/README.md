@@ -41,7 +41,8 @@ $ ./test --synth path/to/nvram.txt
 
 Output is line-per-field PASS/FAIL/INFO with a final summary. Exit
 status is 0 if no FAIL occurred. Current state on the committed
-vectors:
+vectors with the v3 fix scoped in `extract_r11.c` and `synth_srom.c`
+(`SSB_SPROM11_CCODE = 0x0096`):
 
   - DSL-3580L:     77 PASS / 0 FAIL / 2 INFO (raw mode; the two INFO
                    are SROM-vs-NVRAM source divergences for `il0mac`
@@ -54,13 +55,14 @@ vectors:
                    power-per-rate keys, the parser still extracts
                    them from SROM bytes but there is no oracle to
                    diff against).
-  - bcm4360usb:    synth mode, exposes Finding 1 (IL0MAC/CCODE
-                   word collision) — see `../cross_check.md`.
-  - agcombo:       74 PASS / 0 FAIL / 5 INFO (synth mode; BCM4360
-                   reference 3x3 dual-band; reproduces Finding 1
-                   independently — the synthesized MAC bytes 2/3
-                   are zeroed by the ccode write to word 0x92, see
-                   `../cross_check.md`).
+  - bcm4360usb:    synth mode, Finding 1 collision fixed
+                   (`il0mac` no longer corrupted by `ccode` write).
+                   Remaining INFOs are nvram-key-missing on the
+                   minimal asuswrt-merlin NVRAM template.
+  - agcombo:       75 PASS / 0 FAIL / 4 INFO (synth mode; BCM4360
+                   reference 3x3 dual-band; `il0mac` PASS, only
+                   country_code source divergence and three 160 MHz
+                   NVRAM-key-missing INFOs remain).
 
 ## Synth-mode round-trip (NVRAM-only second vector)
 
@@ -95,11 +97,13 @@ The committed synth-mode vectors are two:
   BCM43b3 boards are 2x2) and the full 2.4 GHz PA chain (`aa2g=7`).
   Run via `make check-agcombo`.
 
-Both runs expose Finding 1 (IL0MAC/CCODE collision on word 0x92)
-when the NVRAM declares a non-zero macaddr — the bcm4360usb run
-shows it in the assert output, the agcombo run shows it as the
-INFO `il0mac — SROM-derived MAC ... bytes 2/3 zeroed`. See
-`../cross_check.md` for the canonical layout question.
+Both runs write a non-zero `macaddr` and a `ccode` value; with the
+v2 patch's rev-8 ccode reuse this collided on word 0x92 (Finding 1).
+The v3 fix in `extract_r11.c` and `synth_srom.c` reads/writes ccode
+at `SSB_SPROM11_CCODE = 0x0096` per Broadcom `bcmsrom.h` rev-11
+canonical. After the fix the collision is gone in both vectors
+(harness confirms `il0mac` PASS on agcombo synth). See
+`../cross_check.md` for the canonical layout reference.
 
 ## Contributing a new test vector
 

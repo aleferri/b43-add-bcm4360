@@ -215,7 +215,7 @@ int synth_srom_from_nvram(const struct nvram *nv, u16 *srom, size_t words)
 	{ u16 v = 0; if (nv_u16(nv, "boardtype", &v) == 0)
 		write_u16_at_byte(srom, SSB_SPROM1_SPID, v); }
 	{ u16 v = 0; if (nv_u16(nv, "ccode",     &v) == 0)
-		write_u16_at_byte(srom, SSB_SPROM8_CCODE, v); }
+		write_u16_at_byte(srom, SSB_SPROM11_CCODE, v); }
 
 	/* ANTAVAIL packs aa5g (high byte) | aa2g (low byte) at 0xA0. */
 	{

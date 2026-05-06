@@ -134,7 +134,9 @@ b43_phy_ac_rxgain_tbl_writes_5g[10] = {
  *
  * Triplet rxgain (elnagain, triso, trelnabyp) is uniform per-chain on
  * every 5gl board sampled (DSL-3580L 2x2, D6220 2x2, agcombo 3x3, all
- * (3, 6, 1)), so the same image is written by every core.
+ * (3, 6, 1)) and matches the radio rev-1 r2069 default per the
+ * canonical Broadcom rxgains bit-pack (trelnabyp<<7 | triso<<3 |
+ * elnagain), so the same image is written by every core.
  */
 static const u8 b43_phy_ac_rxgain_5g_tbl_44_5gl[42] = {
 	[ 0] = 0x0c, [ 1] = 0x0c,
