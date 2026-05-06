@@ -159,24 +159,51 @@ Le 10 write per-core di `wlc_phy_table_write_acphy` su id 0x44/0x45
 (width=8) sono in `b43_phy_ac_rxgain_tbl_writes_5g[]` di
 `kernel-patch/new_files/rxgain_phy_ac.c`. Il resolver
 `b43_phy_ac_rxgain_tbl_source()` serve la slice `[offset, offset+len)`
-da due immagini statiche `b43_phy_ac_rxgain_5g_tbl_{44,45}_5gl[]`
-catturate via `wl phytable` su BCM4360 reference (agcombo) post-attach,
-sub-band 5gl (vedi `router-data/agcombo/agcombo_phytable_5gl.txt`).
+da due immagini statiche `b43_phy_ac_rxgain_5g_tbl_{44,45}_5gl[64]`
+catturate via `wl phytable` sul DSL-3580L sotto OEM 6.30, sub-band
+5gl (vedi `router-data/dsl3580l/wl1_phytable_5gl.txt`).
 
-Il populator OEM è single-shot ad attach-time sul ramo 7.14: phyreg e
-phytable restano frozen al sub-band default 5gl indipendentemente da
-`chanspec` (verificato su 5g36/20 e 5g100/20). Il porting `b43` chiama
-`b43_phy_ac_rxgain_init` solo da `op_init`.
+Il populator OEM 6.30 è chanspec-aware e popola il footprint completo
+ad ogni channel switch; le immagini DSL sono lo stato post-populator
+in 5g36/20. Il populator OEM 7.14 è single-shot ad attach-time (vedi
+agcombo `router-data/agcombo/agcombo_phytable_5gl.txt`) e scrive un
+sottoinsieme delle stesse immagini — i blocchi `[24..31]` e `[48..57]`
+mancano sull'agcombo perché il 7.14 non fa il "second pass" dei
+descriptor `@0x42fe8`/`@0x43008`/`@0x43028` ad attach-time.
+
+Cross-board byte-per-byte:
+
+- block B `[16..22]` di 0x44: identico DSL vs agcombo (BCM43b3 vs
+  BCM4360, due famiglie chip).
+- block A `[8..13]` di 0x44: differisce di un offset signed uniforme
+  +3 su agcombo (0xfe vs 0xfb, 0x04 vs 0x01, ...). Plausibilmente
+  termine di calibrazione board- o chain-count-dipendente; per il
+  porting DSL si usano i valori DSL.
+- block C `[32..41]`/[48..57]` di 0x44: tutti `0x07`, identici dove
+  agcombo li scrive (il 6.30 li scrive due volte, il 7.14 una).
+- 0x45: tre repliche del ramp `01 01 02 03 04 05 06 07` agli offset
+  8/16/24, due blocchi `02*10` agli offset 32/48; agcombo ne ha solo
+  un sottoinsieme.
 
 Triplet rxgain `(elnagain, triso, trelnabyp)` per chain è
 default-radio-side: identico per i tre chain del 3×3 agcombo, identico
 fra agcombo (BCM4360) e DSL/D6220 (BCM4352-family). L'immagine 5gl
 serve dunque tutti i chain senza per-chain stride.
 
+Nota di copertura: il `b43_phy_ac_rxgain_tbl_writes_5g[]` descriptor
+list copre 25+12 = 37 byte (sottoinsieme che il populator 7.14
+agcombo committa). Il footprint reale del 6.30 sul DSL è più ampio
+(le slice duplicate citate sopra). Per il bring-up MVP RX 6 Mbit OFDM
+il sottoinsieme è probabilmente sufficiente — è quello che fa
+funzionare il radio sull'agcombo. Estendere il descriptor list ai
+duplicati è un follow-up se bring-up dimostra che il sottoinsieme è
+limitante.
+
 Quando `op_switch_channel` si estende a 5gm/5gh il resolver guadagna
-un parametro sub-band e altre due immagini statiche, da catturare con
-la stessa procedura su un blob 6.30 (che rifa il populator a chanspec
-switch) o forzando l'attach-time su una sub-band diversa.
+un parametro sub-band e altre due immagini statiche, da catturare
+con la stessa procedura sul DSL forzando la chanspec sulla sub-band
+desiderata e rileggendo le table — il 6.30 rifa il populator quindi
+non serve reboot.
 
 Path block_A (2.4 GHz): dead code marcato `__maybe_unused` in
 `rxgain_phy_ac.c`. Confermato che il populator 2g del firmware OEM non
