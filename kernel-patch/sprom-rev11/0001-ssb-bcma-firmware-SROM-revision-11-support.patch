@@ -1,7 +1,7 @@
 From 0c5e37ad2e2d416867949f22f5a3704737e9e856 Mon Sep 17 00:00:00 2001
 From: DRAFT <draft@example.com>
 Date: Mon, 4 May 2026 09:51:16 +0000
-Subject: [DRAFT PATCH v2] ssb / bcma / firmware: SROM revision 11 support
+Subject: [DRAFT PATCH v3] ssb / bcma / firmware: SROM revision 11 support
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -9,25 +9,24 @@ Content-Transfer-Encoding: 8bit
 DRAFT — derived primarily from a single BCM4352-family board
 (DSL-3580L); see sprom-rev11/README.md in the proposal repository for
 the data set and provenance, and sprom-rev11/cross_check.md for the
-status of cross-validation against canonical Broadcom layout. Not for
-upstream submission until:
+cross-validation against canonical Broadcom layout. Not for upstream
+submission until:
 
- - the IL0MAC vs. CCODE word overlap exposed by the bcm4360usb
-   cross-board test vector is resolved (SSB_SPROM11_IL0MAC=0x90 and
-   SSB_SPROM8_CCODE=0x92 share word 0x92; one of the two is wrong
-   for rev 11 -- see Finding 1 in sprom-rev11/cross_check.md);
+ - the bring-up MVP completes probe + RX path on UNII-1 ch.36 in the
+   b43-ac scaffolding, exercising the extractor end-to-end through an
+   in-tree consumer;
 
  - a second rev-11 board with non-zero values in the all-zero region
    (byte 0x190..0x1B0) confirms the offsets pinned here.
 
 The bcm4360usb reference NVRAM (defaultsromvars_4360usb in
 asuswrt-merlin / hynnet / landonf, rev 11, BCM4360 USB -- same chip
-family as the DSL-3580L target) has been added as a second test
-vector under sprom-rev11/harness/vectors/. It exercises ANTAVAIL,
-TXRXC, SUBBAND5GVER, the per-chain block stride (chains 0 and 1) and
-the rxgains bit-packing on a non-saturated triplet (triso=9), all of
-which round-trip cleanly. Its principal new finding is the IL0MAC
-overlap above.
+family as the DSL-3580L target) and the agcombo NVRAM (BCM4360
+reference 3x3 dual-band, hardware-real dump in router-data/agcombo/)
+are committed as synth-mode test vectors under sprom-rev11/harness/.
+Together they exercise ANTAVAIL, TXRXC, SUBBAND5GVER, the per-chain
+block stride (chains 0/1/2), the rxgains bit-packing on non-saturated
+triplets, the 2.4 GHz PA chain, and chain 2 of a true 3x3 board.
 
 This is a single-patch consolidation of three logically independent
 changes that nevertheless need to land together to be useful:
@@ -56,17 +55,21 @@ changes that nevertheless need to land together to be useful:
     The extractor decodes:
 
       - boardrev at the rev-8 offset (0x82) -- verified;
-      - IL0MAC, ANTAVAIL and TXRXC at rev-11-specific offsets
-        (0x90 / 0xA0 / 0xA8). v1 of this patch reused the rev-8
-        positions for these three; an offline differential test
-        ('wl srdump' decoded by the parser vs. 'wl nvram_dump' as
-        oracle) on the DSL-3580L falsified that assumption: the
-        nominal values for aa{2,5}g, txchain/rxchain/antswitch and
-        the SROM-side MAC appeared at offsets shifted past the
-        rev-8 positions. Three new SSB_SPROM11_* offset constants
-        are introduced; the bitfield masks/shifts are unchanged
-        (the field layout within each word is the same as rev 8,
-        only the absolute offset moved);
+      - IL0MAC, ANTAVAIL, TXRXC, CCODE, REGREV at rev-11-specific
+        offsets (0x90 / 0xA0 / 0xA8 / 0x96 / 0x98). v1 of this patch
+        reused the rev-8 positions for IL0MAC/ANTAVAIL/TXRXC; an
+        offline differential test ('wl srdump' decoded by the parser
+        vs. 'wl nvram_dump' as oracle) on the DSL-3580L falsified
+        that assumption: the nominal values for aa{2,5}g, txchain/
+        rxchain/antswitch and the SROM-side MAC appeared at offsets
+        shifted past the rev-8 positions. v3 adds CCODE/REGREV to
+        the same shift family, per Broadcom bcmsrom.h
+        (SROM11_CCODE = word 75 = byte 0x96, SROM11_REGREV = word
+        76 = byte 0x98). Reusing SSB_SPROM8_CCODE = 0x92 collides
+        with SROM11_MACMID (the middle u16 of the IL0MAC block);
+        the bitfield masks/shifts are unchanged, only the absolute
+        offset moved (the field layout within each word is the same
+        as rev 8);
       - subband5gver at byte 0xD6;
       - per-chain power info blocks at 0xD8 / 0x100 / 0x128
         (stride 0x28), full layout: maxp2ga, pa2ga[3], rxgains
@@ -76,14 +79,16 @@ changes that nevertheless need to land together to be useful:
         with byte-to-sub-band assignment
             RXGAINS0 lo=5gm, hi=5gh
             RXGAINS1 lo=2g,  hi=5gl(UNII-1)
-        verified by cross-reference of `wl srdump` against
-        `wl nvram_dump`. Three of the four reference bytes are
-        saturated/zero on the DSL-3580L, so 5gl=0xb3 is the only
-        fully informative data point on that board; on the
-        bcm4360usb second vector the encoding round-trips on the
-        non-saturated triplets (3, 9, 1) [5 GHz] and (4, 9, 1)
-        [2.4 GHz] for both populated chains, which exercises every
-        bit position;
+        confirmed against Broadcom bcmsrom_tbl.h
+        SROM11_RXGAINS5G{H,L}{TRELNABYPA,TRISOA,ELNAGAINA}_MASK
+        (trelnabyp at bit 7, triso at bits 6:3 = 4 bit, elnagain
+        at bits 2:0 = 3 bit). Three of the four reference bytes are
+        saturated/zero on the DSL-3580L; the bcm4360usb second
+        vector round-trips on (3, 9, 1) [5 GHz] and (4, 9, 1)
+        [2.4 GHz] non-saturated triplets, and runtime cross-check
+        on D6220 (7.14.89) and agcombo (7.14.43) reads phyreg
+        0x{6,8,a}f9 = 0x1602 -> triso = 6 via the populator formula
+        (triso+4)<<1+2, consistent with the 5gl byte 0xb3 decoding;
       - per-chain pdoffset40ma triplet at byte 0xCA;
       - the rev-11 power-per-rate region (byte 0x150..0x190).
         Layout differs from rev 9: each 5 GHz sub-band has four
@@ -118,16 +123,18 @@ vector, diffs every populated field against the corresponding
 NVRAM nominal). Two run modes:
 
  - default: srom_dump + nvram_dump pair from a real board
-   ('wl srdump' + 'wl nvram_dump'). Used for the DSL-3580L vector
-   committed under router-data/. Exposed the rev-11 offset shift of
-   IL0MAC / ANTAVAIL / TXRXC fixed in this v2.
+   ('wl srdump' + 'wl nvram_dump'). Used for the DSL-3580L and
+   D6220 vectors committed under router-data/. Exposed the rev-11
+   offset shift of IL0MAC / ANTAVAIL / TXRXC fixed in v2.
 
  - synth (--synth FILE): NVRAM-only round-trip. Synthesizes a raw
    SROM from the NVRAM using this patch's offsets/encoding, runs the
    parser against it, diffs back. Used for the bcm4360usb reference
-   NVRAM, where no raw 'wl srdump' is available. Exposed the IL0MAC
-   vs. CCODE word overlap recorded as the first pre-upstream blocker
-   above.
+   NVRAM and the agcombo NVRAM (the latter hardware-real, the former
+   from asuswrt-merlin defaultsromvars). Both vectors with non-zero
+   macaddr exposed the v2 IL0MAC/CCODE word-0x92 collision (Finding 1
+   in cross_check.md), fixed in v3 by sourcing CCODE from
+   SSB_SPROM11_CCODE = 0x96 per Broadcom bcmsrom.h.
 
 Reviewers and contributors of new test vectors can use either path
 to flag any further per-board divergence before bring-up. Canonical
@@ -141,8 +148,8 @@ Signed-off-by: TBD <tbd@example.com>
  drivers/bcma/sprom.c                      | 227 +++++++++++++++++++++-
  drivers/firmware/broadcom/bcm47xx_sprom.c | 175 ++++++++++++++++-
  include/linux/ssb/ssb.h                   |  96 +++++++++
- include/linux/ssb/ssb_regs.h              |  82 ++++++++
- 4 files changed, 577 insertions(+), 3 deletions(-)
+ include/linux/ssb/ssb_regs.h              |  87 ++++++++
+ 4 files changed, 582 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/bcma/sprom.c b/drivers/bcma/sprom.c
 index e668ad7..cbe79dc 100644
@@ -230,7 +237,7 @@ index e668ad7..cbe79dc 100644
 +	SPEX(board_rev, SSB_SPROM8_BOARDREV, ~0, 0);
 +	SPEX(board_type, SSB_SPROM1_SPID, ~0, 0);
 +
-+	SPEX(country_code, SSB_SPROM8_CCODE, ~0, 0);
++	SPEX(country_code, SSB_SPROM11_CCODE, ~0, 0);
 +	SPEX(ant_available_a, SSB_SPROM11_ANTAVAIL, SSB_SPROM8_ANTAVAIL_A,
 +	     SSB_SPROM8_ANTAVAIL_A_SHIFT);
 +	SPEX(ant_available_bg, SSB_SPROM11_ANTAVAIL, SSB_SPROM8_ANTAVAIL_BG,
@@ -724,7 +731,7 @@ diff --git a/include/linux/ssb/ssb_regs.h b/include/linux/ssb/ssb_regs.h
 index 210f464..c0bde71 100644
 --- a/include/linux/ssb/ssb_regs.h
 +++ b/include/linux/ssb/ssb_regs.h
-@@ -606,6 +606,88 @@
+@@ -606,6 +606,93 @@
  #define SSB_SPROM8_BW40PO		0x0196
  #define SSB_SPROM8_BWDUPPO		0x0198
  
@@ -741,19 +748,24 @@ index 210f464..c0bde71 100644
 + * fallback path also follows. Cross-board confirmation pending; see
 + * sprom-rev11/README.md.
 + */
-+/* Rev-11 header offsets that DO NOT match the rev-8 layout. Three
++/* Rev-11 header offsets that DO NOT match the rev-8 layout. Five
 + * fields shifted past their rev-8 positions on the BCM4352 reference
 + * board: IL0MAC by 4 bytes (rev-8 0x8C, rev-11 0x90), ANTAVAIL by 4
-+ * bytes (0x9C -> 0xA0), TXRXC by 6 bytes (0xA2 -> 0xA8). The bitfield
-+ * masks (SSB_SPROM8_ANTAVAIL_A/_BG, SSB_SPROM8_TXRXC_TXCHAIN/_RXCHAIN/
-+ * _SWITCH) are reused unchanged: only the absolute offset moved, the
-+ * field layout within each word is the same. boardrev (0x82) does
-+ * coincide between rev 8 and rev 11 and continues to be read from
-+ * SSB_SPROM8_BOARDREV.
++ * bytes (0x9C -> 0xA0), TXRXC by 6 bytes (0xA2 -> 0xA8), CCODE by 4
++ * bytes (rev-8 0x92 -> rev-11 0x96), REGREV by 4 bytes (rev-8 0x94
++ * -> rev-11 0x98). The bitfield masks (SSB_SPROM8_ANTAVAIL_A/_BG,
++ * SSB_SPROM8_TXRXC_TXCHAIN/_RXCHAIN/_SWITCH) are reused unchanged:
++ * only the absolute offset moved, the field layout within each word
++ * is the same. boardrev (0x82) does coincide between rev 8 and rev
++ * 11 and continues to be read from SSB_SPROM8_BOARDREV. The CCODE
++ * shift is required because reusing SSB_SPROM8_CCODE = 0x92 collides
++ * with SROM11_MACMID (the middle u16 of the IL0MAC block at 0x90).
 + */
 +#define SSB_SPROM11_IL0MAC		0x0090
 +#define SSB_SPROM11_ANTAVAIL		0x00A0
 +#define SSB_SPROM11_TXRXC		0x00A8
++#define SSB_SPROM11_CCODE		0x0096	/* word 75 */
++#define SSB_SPROM11_REGREV		0x0098	/* word 76, mask 0x00ff */
 +
 +#define SSB_SPROM11_SUBBAND5GVER	0x00D6	/* u8, low byte of u16 at word 107 */
 +
