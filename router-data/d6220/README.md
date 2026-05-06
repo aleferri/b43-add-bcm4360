@@ -27,18 +27,12 @@ del campionamento.
 
 ### Risolve
 
-**Identità target su un secondo board.** PCI ID, chipnum, chiprev, corerev,
-radiorev, phytype, phyrev, sromrev, subband5gver, txchain/rxchain, femctrl,
-boardid: tutti identici al DSL-3580L (vedi `../dsl3580l/wl1_*.txt`). Il path
+**Conferma stesse antenne / chain / subband del DSL.** PCI ID,
+chipnum, chiprev, corerev, radiorev, phytype, phyrev, sromrev,
+subband5gver, txchain/rxchain, femctrl, boardid: tutti identici al
+DSL-3580L (vedi `../dsl3580l/wl1_*.txt`). Il path
 `b43`/`bcma`/`ssb` patchato deve riconoscere e gestire entrambi senza
 distinzione device-tree-side.
-
-**Falsifica la SALAME regulatory del README master.** Sezione §"Implicazione
-fondamentale" attribuiva il `Bad Channel` su `5g100/20` del DSL al combinato
-`ccode="" + regrev=0`. Il D6220 ha gli stessi due campi *identici* (vedi
-`wl1_nvram.txt`) e accetta `5g100/20` (vedi `wl1_phyreg_rxgain.txt`,
-`Chanspec set to 0xd064`). La causa nel DSL non è SROM regulatory ma
-firmware/driver OEM-specific (driver D-Link 6.30 vs Netgear 7.14).
 
 **Chiude la SALAME formula populator register-side.** Il delta `+2`
 osservato a phyreg bits 14:8 (`0x16` invece dell'atteso `0x14` del 6.30)

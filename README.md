@@ -39,19 +39,17 @@ Letto via `wl -i wl1 revinfo` e `wl -i wl1 nvram_dump`:
 ### Implicazione fondamentale: il chip è 5 GHz only su questo board
 
 `aa2g=0` significa che il SROM dichiara **zero antenne disponibili
-sulla 2.4 GHz**. Empiricamente, `wl chanspec 2g6/20` fallisce. Il
-chip target wl1 fa solo 5 GHz; la 2.4 GHz del DSL-3580L è coperta da
-wl0 (BCM6362, N-PHY, fuori scope). L'MVP è 5 GHz UNII-1.
+sulla 2.4 GHz**. Il chip target wl1 fa solo 5 GHz; la 2.4 GHz del
+DSL-3580L è coperta da wl0 (BCM6362, N-PHY, fuori scope). L'MVP è
+5 GHz UNII-1.
 
-Una limitazione operativa aggiuntiva, sotto firmware OEM 6.30:
-`5g100/20` (UNII-2 extended) viene rifiutato con `Bad Channel`. Il
-test su un secondo board della stessa famiglia (D6220, ramo OEM 7.14)
-e su un board distinto della stessa generazione (agcombo, ramo OEM
-7.14.43) accetta `5g100/20` con NVRAM regulatory identica
-(`ccode=""`, `regrev=0`). Il rifiuto è specifico al **driver D-Link
-6.30**; il path mainline `b43`/`cfg80211` (regdb del kernel) non
-eredita il lock. La sub-banda usata per il bring-up MVP resta
-**UNII-1 (canali 36-48)** per ortogonalità rispetto alle DFS reali.
+Sub-banda usata per il bring-up MVP: **UNII-1 (canali 36-48)** per
+ortogonalità rispetto alle DFS reali. Nessuna restrizione regulatory
+osservabile su UNII-1 da userspace: `wl -i wl1 chanspec` accetta
+`5g36/20`, `5g36/80`, `5g40/80` sul DSL sotto firmware OEM 6.30 (e
+analogamente sul agcombo sotto 7.14.43, dove anche `5g100/20` —
+UNII-2e — passa). Il path mainline `b43`/`cfg80211` userà comunque
+la regdb del kernel, indipendente dal blob OEM.
 
 ## Obiettivo MVP
 
@@ -298,13 +296,13 @@ prima di committare l'estensione.
 
 ### Nuovi sub-band 5 GHz (UNII-2/2e/3)
 
-Lato kernel mainline non c'è ostacolo regulatory: il lock OEM 6.30
-non si propaga a `cfg80211`/regdb. Estensione richiede dump phytable
-0x44/0x45 per le sub-band 5gm e 5gh come fatto per 5gl in
-`router-data/agcombo/`. Il blob 6.30 è l'oracolo naturale perché rifa
-il populator a chanspec switch (verificato sul disasm DSL); il blob
-7.14 è single-shot e congela al sub-band attach-time, quindi serve
-boot dedicato per ognuna.
+Lato kernel mainline il regulatory passa per la regdb del kernel,
+indipendente dal blob OEM. Estensione richiede dump phytable 0x44/0x45
+per le sub-band 5gm e 5gh come fatto per 5gl in `router-data/agcombo/`.
+Il blob 6.30 è l'oracolo naturale perché rifa il populator a chanspec
+switch (verificato sul disasm DSL); il blob 7.14 è single-shot e
+congela al sub-band attach-time, quindi richiederebbe un boot dedicato
+per ognuna delle sub-band aggiuntive.
 
 ### 2.4 GHz su questo board
 
@@ -399,8 +397,7 @@ Miłecki (bcma).
   `(3,6,1)/(7,15,1)/(7,15,1)/(0,0,0)` per `(5gl,5gm,5gh,2g)` identico
   fra tutti, default radio-side r2069 rev 1; populator OEM 7.14
   single-shot ad attach-time (verificato via phyreg e phytable invariant
-  di chanspec); regulatory `Bad Channel` su UNII-2/3 specifico al ramo
-  6.30 D-Link (7.14 accetta).
+  di chanspec).
 
 ## Provenance
 

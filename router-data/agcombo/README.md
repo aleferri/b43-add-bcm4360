@@ -55,8 +55,11 @@ dato. Width=16 e width=32 sono reinterpretazione LE multi-byte dello
 stesso buffer. Coerente sui 37 byte campionati, niente maschere
 chip-specific.
 
-**Regulatory `Bad Channel`.** Sull'agcombo 7.14.43 con `ccode=""`
-e `regrev=0` identici a DSL/D6220, `wl -i wl1 chanspec 5g100/20`
-ritorna `Chanspec set to 0xd064` (UNII-2 extended accettato). Il
-lock DFS osservato sul DSL-3580L è specifico al ramo driver D-Link
-6.30, non alla NVRAM regulatory.
+**Chanspec 5g100/20 accettato.** `wl -i wl1 chanspec 5g100/20` ritorna
+`Chanspec set to 0xd064` con `ccode=""` e `regrev=0`. Sul DSL-3580L
+sotto firmware OEM 6.30, lo stesso comando con `-i wl1` accetta almeno
+UNII-1 a 20 e 80 MHz (`5g36/20`, `5g36/80`, `5g40/80` tutti `Chanspec
+set` puliti); la sessione precedente di `Bad Channel` sul DSL era
+artefatto di `wl chanspec` senza `-i wl1`, che agisce sul core 2.4 GHz
+`wl0` (band-locked). UNII-2/2e/3 sul DSL non è stato testato con la
+forma corretta — ma per il bring-up MVP non interessa.
