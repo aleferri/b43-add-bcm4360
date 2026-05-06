@@ -50,20 +50,46 @@ share a word. Either:
   (b) `ccode` for rev 11 has a different offset than the rev-8
       `SROM8_CCODE = 0x92` and the patch is missing that fix.
 
-Resolution requires consulting `bcmsrom_tbl.h` for the canonical
-rev-11 entries of `macaddr` and `ccode`. From the partial fetch of
-the Android `bcmdhd-3.10` table:
+**Resolution: case (b).** Excerpt from Broadcom `bcmsrom_tbl.h` rev-11
+section:
 
-    {"macaddr", 0x00000700, SRFL_ETHADDR, SROM8_MACHI, 0xffff},
+    {"boardnum",  0xfffff800, 0,            SROM11_MACLO,  0xffff},
+    {"macaddr",   0xfffff800, SRFL_ETHADDR, SROM11_MACHI,  0xffff},
+    {"ccode",     0xfffff800, SRFL_CCODE,   SROM11_CCODE,  0xffff},
+    {"regrev",    0xfffff800, 0,            SROM11_REGREV, 0x00ff},
 
-`revmask = 0x00000700` covers revs 8/9/10 *only*; bit 11 is clear,
-i.e. rev-11 macaddr does *not* live at `SROM8_MACHI = 0x8C`. There
-must be a separate `{"macaddr", ..., SROM11_..., ...}` entry covering
-rev 11 elsewhere in the table. That entry's `off` field is the
-authoritative answer for case (a).
+`revmask = 0xfffff800` covers rev 11 (and forward). Four distinct
+rev-11 constants: `MACLO` (boardnum, 1 word), `MACHI` (macaddr, 3
+words via `SRFL_ETHADDR`), `CCODE` (1 word), `REGREV` (1 word, mask
+`0x00ff`). The vendor decoder does not reuse `SROM8_CCODE` for rev 11.
 
-Likewise for ccode. Until those two entries are sighted, the patch
-should not be sent; one of the two offsets is wrong.
+Mapping to v2 patch nomenclature:
+
+| v2 patch                  | vendor canonical | status |
+|---|---|---|
+| `SSB_SPROM11_IL0MAC = 0x90` (3 words 0x90,0x92,0x94) | `SROM11_MACHI` + 2 + 4 | numeric offset pending |
+| reuse `SSB_SPROM8_CCODE = 0x92` for rev 11 | `SROM11_CCODE` (distinct) | **bug confirmed** |
+| `regrev` via rev-8 path | `SROM11_REGREV` | numeric offset pending |
+| no `boardnum` rev-11 entry | `SROM11_MACLO` | missing entry |
+
+**Fix outline for v3:**
+
+1. Introduce `SSB_SPROM11_MACHI`, `SSB_SPROM11_MACLO`,
+   `SSB_SPROM11_CCODE`, `SSB_SPROM11_REGREV` with the numeric values
+   from `bcmsrom.h` (or the leading `#define` block of
+   `bcmsrom_tbl.h`); not in the table excerpt above.
+2. Replace `SSB_SPROM11_IL0MAC` with `SSB_SPROM11_MACHI` in
+   `bcma_sprom_extract_r11`, dropping the value-matched-via-rev-8+4
+   derivation that produced 0x90.
+3. Drop the rev-8 reuse for ccode and regrev on the rev-11 path; use
+   the SROM11-specific offsets.
+4. Add a `boardnum` extraction at `SSB_SPROM11_MACLO` (1 word).
+
+Pending: the four numeric offsets. They are not in the `bcmsrom_tbl.h`
+table body — typically defined in `bcmsrom.h` or in a leading
+`#define` block of `bcmsrom_tbl.h`. Until they are sighted, the harness
+synth-mode keeps the v2 collision as a red sentinel and v3 cannot be
+emitted.
 
 ### 2. Rxgains bit-packing (verified self-consistent)
 
