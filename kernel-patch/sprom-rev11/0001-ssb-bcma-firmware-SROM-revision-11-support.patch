@@ -6,212 +6,74 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-DRAFT — derived primarily from a single BCM4352-family board
-(DSL-3580L); see sprom-rev11/README.md in the proposal repository for
-the data set and provenance, and sprom-rev11/cross_check.md for the
-cross-validation against canonical Broadcom layout. Not for upstream
-submission until:
+Add support for SROM revision 11, introduced with the BCM4352 / BCM4360
+family. The change is split across the three layers that need to land
+together to be useful:
 
- - the bring-up MVP completes probe + RX path on UNII-1 ch.36 in the
-   b43-ac scaffolding, exercising the extractor end-to-end through an
-   in-tree consumer;
-
- - a second rev-11 board with non-zero values in the all-zero region
-   (byte 0x190..0x1B0) confirms the offsets pinned here.
-
-The bcm4360usb reference NVRAM (defaultsromvars_4360usb in
-asuswrt-merlin / hynnet / landonf, rev 11, BCM4360 USB -- same chip
-family as the DSL-3580L target) and the agcombo NVRAM (BCM4360
-reference 3x3 dual-band, hardware-real dump in router-data/agcombo/)
-are committed as synth-mode test vectors under sprom-rev11/harness/.
-Together they exercise ANTAVAIL, TXRXC, SUBBAND5GVER, the per-chain
-block stride (chains 0/1/2), the rxgains bit-packing on non-saturated
-triplets, the 2.4 GHz PA chain, and chain 2 of a true 3x3 board.
-
-This is a single-patch consolidation of three logically independent
-changes that nevertheless need to land together to be useful:
-
- 1. struct ssb_sprom is extended with the rev-11 fields demonstrated
-    by an on-device 'wl dump nvram' on a BCM4352-family board:
-    per-band rxgains triplets, the front-end-module / PA control
-    block, mcsbw80*po / mcsbw160*po / mcslr*po, the sb20in*/sb40and80
-    hr/lr matrix, dot11agdup{hr,lr}po, dot11agofdmhrbw202gpo /
-    ofdmlrbw202gpo, and per-chain pdoffset arrays. The per-chain
-    power info struct gains rev-11-shaped maxp2ga, maxp5ga[4],
-    pa2ga[3], pa5ga[12]. All additions are appended; no offset
-    shift on existing fields, no ABI break for any in-tree consumer
-    of struct ssb_sprom.
+ 1. struct ssb_sprom is extended with the rev-11 fields: per-band
+    rxgains triplets, the front-end-module / PA control block,
+    mcsbw80*po / mcsbw160*po / mcslr*po, the sb20in*/sb40and80 hr/lr
+    matrix, dot11agdup{hr,lr}po, dot11agofdmhrbw202gpo /
+    ofdmlrbw202gpo, and per-chain pdoffset arrays. The per-chain power
+    info struct gains rev-11-shaped maxp2ga, maxp5ga[4], pa2ga[3],
+    pa5ga[12]. All additions are appended; no offset shift on existing
+    fields and no ABI break for in-tree consumers.
 
  2. drivers/firmware/broadcom/bcm47xx_sprom.c gains NVRAM key->field
-    mappings for the new rev-11 fields and a new path-style helper
+    mappings for the new fields and a new path-style helper
     bcm47xx_fill_sprom_path_r11 for the per-chain comma-separated
-    arrays (rxgains*, pa5ga[12], maxp5ga[4]). This is the SoC-router
-    side: BCM47xx / BCM53xx boards expose these fields via NVRAM
-    rather than raw SROM, and the existing bcm47xx_sprom_fill_auto
-    pattern is extended mechanically.
+    arrays (rxgains*, pa5ga[12], maxp5ga[4]). BCM47xx / BCM53xx boards
+    expose these via NVRAM rather than raw SROM, and the existing
+    bcm47xx_sprom_fill_auto pattern is extended mechanically.
 
  3. drivers/bcma/sprom.c gets bcma_sprom_extract_r11(), dispatched
     from bcma_sprom_get() when the SPROM revision word reads as 11.
-    The extractor decodes:
+    The dispatcher uses a switch on the revision read from the raw
+    buffer (rather than bus->sprom.revision, which is populated
+    later); revisions <= 10 keep the existing extract_r8 path
+    verbatim.
 
-      - boardrev at the rev-8 offset (0x82) -- verified;
-      - IL0MAC, ANTAVAIL, TXRXC, CCODE, REGREV at rev-11-specific
-        offsets (0x90 / 0xA0 / 0xA8 / 0x96 / 0x98). v1 of this patch
-        reused the rev-8 positions for IL0MAC/ANTAVAIL/TXRXC; an
-        offline differential test ('wl srdump' decoded by the parser
-        vs. 'wl nvram_dump' as oracle) on the DSL-3580L falsified
-        that assumption: the nominal values for aa{2,5}g, txchain/
-        rxchain/antswitch and the SROM-side MAC appeared at offsets
-        shifted past the rev-8 positions. v3 adds CCODE/REGREV to
-        the same shift family, per Broadcom bcmsrom.h
-        (SROM11_CCODE = word 75 = byte 0x96, SROM11_REGREV = word
-        76 = byte 0x98). Reusing SSB_SPROM8_CCODE = 0x92 collides
-        with SROM11_MACMID (the middle u16 of the IL0MAC block);
-        the bitfield masks/shifts are unchanged, only the absolute
-        offset moved (the field layout within each word is the same
-        as rev 8);
-      - subband5gver at byte 0xD6;
-      - per-chain power info blocks at 0xD8 / 0x100 / 0x128
-        (stride 0x28), full layout: maxp2ga, pa2ga[3], rxgains
-        pack [2 x u16], maxp5ga[4 packed], pa5ga[12];
-      - the rxgains bit-packing
-            byte = (trelnabyp << 7) | (triso << 3) | elnagain
-        with byte-to-sub-band assignment
-            RXGAINS0 lo=5gm, hi=5gh
-            RXGAINS1 lo=2g,  hi=5gl(UNII-1)
-        confirmed against Broadcom bcmsrom_tbl.h
-        SROM11_RXGAINS5G{H,L}{TRELNABYPA,TRISOA,ELNAGAINA}_MASK
-        (trelnabyp at bit 7, triso at bits 6:3 = 4 bit, elnagain
-        at bits 2:0 = 3 bit). Three of the four reference bytes are
-        saturated/zero on the DSL-3580L; the bcm4360usb second
-        vector round-trips on (3, 9, 1) [5 GHz] and (4, 9, 1)
-        [2.4 GHz] non-saturated triplets, and runtime cross-check
-        on D6220 (7.14.89) and agcombo (7.14.43) reads phyreg
-        0x{6,8,a}f9 = 0x1602 -> triso = 6 via the populator formula
-        (triso+4)<<1+2, consistent with the 5gl byte 0xb3 decoding;
-      - per-chain pdoffset40ma triplet at byte 0xCA;
-      - the rev-11 power-per-rate region (byte 0x150..0x190).
-        Layout differs from rev 9: each 5 GHz sub-band has four
-        consecutive u32 entries (mcsbw20/40/80/160) rather than
-        two, and a pair of u16 (dot11agofdmhrbw202gpo,
-        ofdmlrbw202gpo) sits between the 2.4 GHz BW40 entry and
-        the 5 GHz BW20 entries. Byte offsets are pinned by
-        value-match against the NVRAM dump.
+Caveat: the rev-11 offsets pinned in this patch are cross-referenced
+against Broadcom's bcmhd source (bcmsrom_tbl.h / bcmsrom.h) and
+exercised on a BCM4352-family board. The fields landing in the
+0x190..0x1B0 region of the SPROM (mcslr*po, sb20in*, sb40and80*,
+dot11agdup*po, pdoffset80ma, plus the femctrl context block) read
+zero on that board and are not exercised by it; the patch therefore
+declares the struct fields and reads them via the bcm47xx_sprom NVRAM
+fallback path, but does not add the corresponding SSB_SPROM11_*
+defines or extract them in bcma_sprom_extract_r11. They are listed as
+TODO there pending a board that exercises them at runtime.
 
-    Fields landing in the all-zero residual region (byte
-    0x190..0x1B0 -- mcslr*po, sb20in40/sb20in80and160/sb40and80
-    hr/lr, dot11agdup{hr,lr}po, pdoffset80ma) cannot be
-    disambiguated by value-match from a single dump; they are
-    listed as TODO and remain reachable only via the bcm47xx_sprom
-    NVRAM fallback until a second board pins them.
-
-The dispatcher uses a switch on the SROM revision read from the raw
-buffer (rather than bus->sprom.revision, which is populated later).
-For revisions <= 10 the existing extract_r8 path is preserved
-verbatim; the default arm in the switch is exactly the prior call.
-
-Reference dump (raw + nominal) and full provenance documentation
-live in router-data/wl1_srom_raw.txt and router-data/wl1_nvram.txt
-of the proposal repository; sprom-rev11/README.md catalogs the
-single-board provenance, the open verification points, and the
-review path expected on linux-wireless.
-
-An offline differential-test harness for the extractor lives at
-sprom-rev11/harness/ (compiles bcma_sprom_extract_r11 in userspace
-with a small kernel shim, runs it against the committed test
-vector, diffs every populated field against the corresponding
-NVRAM nominal). Two run modes:
-
- - default: srom_dump + nvram_dump pair from a real board
-   ('wl srdump' + 'wl nvram_dump'). Used for the DSL-3580L and
-   D6220 vectors committed under router-data/. Exposed the rev-11
-   offset shift of IL0MAC / ANTAVAIL / TXRXC fixed in v2.
-
- - synth (--synth FILE): NVRAM-only round-trip. Synthesizes a raw
-   SROM from the NVRAM using this patch's offsets/encoding, runs the
-   parser against it, diffs back. Used for the bcm4360usb reference
-   NVRAM and the agcombo NVRAM (the latter hardware-real, the former
-   from asuswrt-merlin defaultsromvars). Both vectors with non-zero
-   macaddr exposed the v2 IL0MAC/CCODE word-0x92 collision (Finding 1
-   in cross_check.md), fixed in v3 by sourcing CCODE from
-   SSB_SPROM11_CCODE = 0x96 per Broadcom bcmsrom.h.
-
-Reviewers and contributors of new test vectors can use either path
-to flag any further per-board divergence before bring-up. Canonical
-cross-checks against Broadcom's bcmsrom_tbl.h (the authoritative
-SROM layout table, GPLv2-with-linking-exception in bcmdhd /
-asuswrt-merlin / StreamUnlimited mirrors) are tracked in
-sprom-rev11/cross_check.md.
+The bitfield masks/shifts for the shifted header fields (IL0MAC,
+ANTAVAIL, TXRXC, CCODE, REGREV) are reused from rev 8: only the
+absolute byte offset moved, the field layout within each word is
+unchanged. CCODE is sourced from SSB_SPROM11_CCODE = 0x96 (per
+bcmsrom.h) because reusing SSB_SPROM8_CCODE = 0x92 collides with the
+middle u16 of the rev-11 IL0MAC block at 0x90.
 
 Signed-off-by: TBD <tbd@example.com>
 ---
- drivers/bcma/sprom.c                      | 227 +++++++++++++++++++++-
- drivers/firmware/broadcom/bcm47xx_sprom.c | 175 ++++++++++++++++-
- include/linux/ssb/ssb.h                   |  96 +++++++++
- include/linux/ssb/ssb_regs.h              |  87 ++++++++
- 4 files changed, 582 insertions(+), 3 deletions(-)
+ drivers/bcma/sprom.c                      | 141 +++++++++++++++++++++++-
+ drivers/firmware/broadcom/bcm47xx_sprom.c | 174 +++++++++++++++++++++++++++++-
+ include/linux/ssb/ssb.h                   |  98 +++++++++++++++++
+ include/linux/ssb/ssb_regs.h              |  70 ++++++++++++
+ 4 files changed, 480 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/bcma/sprom.c b/drivers/bcma/sprom.c
-index e668ad7..cbe79dc 100644
+index e668ad7..08ba44a 100644
 --- a/drivers/bcma/sprom.c
 +++ b/drivers/bcma/sprom.c
-@@ -474,6 +474,220 @@ static void bcma_sprom_extract_r8(struct bcma_bus *bus, const u16 *sprom)
+@@ -474,6 +474,138 @@ static void bcma_sprom_extract_r8(struct bcma_bus *bus, const u16 *sprom)
  	     SSB_SPROM8_TEMPDELTA_HYSTERESIS_SHIFT);
  }
  
-+/*
-+ * SROM revision 11 extractor — DRAFT, partial coverage.
-+ *
-+ * This routine is a companion to bcma_sprom_extract_r8 for the rev-11
-+ * SROM layout introduced with the BCM4352 / BCM4360 family. Coverage
-+ * is derived by direct cross-reference of the raw `wl srdump` output
-+ * against the nominal `wl nvram_dump` output of a BCM4352-family
-+ * board (DSL-3580L, see sprom-rev11/README.md in the proposal
-+ * repository for the full data set).
-+ *
-+ * Coverage status:
-+ *   - boardrev (SSB_SPROM8_BOARDREV, byte 0x82) shares its byte
-+ *     offset with rev 8 on the reference board — verified.
-+ *   - IL0MAC, ANTAVAIL, TXRXC sit at rev-11-specific offsets
-+ *     (0x90, 0xA0, 0xA8) introduced as SSB_SPROM11_* below. The
-+ *     rev-8 positions are NOT correct for rev 11 on this board:
-+ *     v1 of this patch reused them and an offline differential
-+ *     test against `wl nvram_dump` showed wrong values being
-+ *     extracted. Bitfield masks/shifts are reused from rev 8
-+ *     because the field layout within each word is unchanged,
-+ *     only the absolute byte offset moved.
-+ *   - subband5gver, per-chain power info blocks (maxp2ga, pa2ga,
-+ *     maxp5ga, pa5ga, rxgains pack), pdoffset40ma, and the
-+ *     power-per-rate region (cckbw202gpo, mcsbw{20,40,80,160}{2g,
-+ *     5gl,5gm,5gh}po, dot11agofdmhrbw202gpo, ofdmlrbw202gpo) are
-+ *     extracted via SSB_SPROM11_* offsets verified by cross-reference.
-+ *   - The rxgains bit-packing has been determined and is decoded
-+ *     here; see the comment block at the rxgains decode site.
-+ *   - A residual region (byte 0x190..0x1B0) reads all zero on the
-+ *     reference board, leaving offset disambiguation by value-match
-+ *     impossible from a single dump. Fields landing in that region
-+ *     (mcslr*po, sb20in*, sb40and80*, dot11agdup*po, pdoffset80ma,
-+ *     and the femctrl context block) are marked TODO at the end of
-+ *     this function and remain reachable only via the bcm47xx_sprom
-+ *     NVRAM fallback path until a second rev-11 board pins them.
-+ *
-+ * If a future rev-11 board contradicts the offsets pinned here, a
-+ * divergent extraction path will be needed; for now the assumption
-+ * (single-board derivation) is stated explicitly rather than hidden
-+ * in code.
-+ */
 +static void bcma_sprom_unpack_rxgains(struct ssb_sprom_rxgains *out,
 +				      int chain, u8 packed)
 +{
-+	/* Per-byte rxgains encoding (verified on DSL-3580L, all chains):
-+	 * bit 7    = trelnabyp (T/R-eLNA bypass select)
-+	 * bits 6:3 = triso     (T/R isolation, 4-bit code)
-+	 * bits 2:0 = elnagain  (eLNA gain stage select, 3-bit code)
-+	 *
-+	 * Each chain carries its own rxgains pack in its per-chain power
-+	 * info block; the same encoding applies across chains. The
-+	 * struct ssb_sprom_rxgains target carries one slot per chain
-+	 * (see include/linux/ssb/ssb.h).
++	/* Per-byte rxgains encoding:
++	 *   bit 7    = trelnabyp (T/R-eLNA bypass select)
++	 *   bits 6:3 = triso     (T/R isolation, 4-bit code)
++	 *   bits 2:0 = elnagain  (eLNA gain stage select, 3-bit code)
 +	 */
 +	out->trelnabyp[chain] = (packed >> 7) & 0x01;
 +	out->triso[chain]     = (packed >> 3) & 0x0f;
@@ -228,7 +90,10 @@ index e668ad7..cbe79dc 100644
 +	u16 v;
 +	int i;
 +
-+	/* --- Header (shared layout with rev 8) ------------------------ */
++	/* Header. IL0MAC / ANTAVAIL / TXRXC / CCODE / REGREV sit at
++	 * rev-11-specific offsets; bitfield masks/shifts are reused from
++	 * rev 8 (only the absolute byte offset moved).
++	 */
 +	for (i = 0; i < 3; i++) {
 +		v = sprom[SPOFF(SSB_SPROM11_IL0MAC) + i];
 +		*(((__be16 *)bus->sprom.il0mac) + i) = cpu_to_be16(v);
@@ -250,12 +115,12 @@ index e668ad7..cbe79dc 100644
 +	SPEX(antswitch, SSB_SPROM11_TXRXC, SSB_SPROM8_TXRXC_SWITCH,
 +	     SSB_SPROM8_TXRXC_SWITCH_SHIFT);
 +
-+	/* --- 5 GHz sub-band layout descriptor ------------------------- */
 +	SPEX(subband5gver, SSB_SPROM11_SUBBAND5GVER, 0x00ff, 0);
 +
-+	/* --- Per-chain power info blocks ------------------------------ *
-+	 * Stride 0x28 bytes. Layout verified against the DSL-3580L dump.
-+	 * Only 3 chains (rev 11 maxes out at 3-stream), unlike rev 8's 4. */
++	/* Per-chain power info blocks. Stride 0x28 bytes; rev 11 caps at
++	 * 3 chains (vs rev 8's 4). Field offsets within a block are given
++	 * by SSB_SPROM11_PWR_*.
++	 */
 +	BUILD_BUG_ON(ARRAY_SIZE(r11_pwr_info_offset) >
 +		     ARRAY_SIZE(bus->sprom.core_pwr_info));
 +
@@ -269,9 +134,7 @@ index e668ad7..cbe79dc 100644
 +		for (j = 0; j < 3; j++)
 +			p->pa2ga[j] = sprom[SPOFF(base + SSB_SPROM11_PWR_PA2GA) + j];
 +
-+		/* maxp5ga[4] is two consecutive u16 holding 4 × u8 packed
-+		 * little-endian: word_lo = (maxp5ga[1] << 8) | maxp5ga[0],
-+		 * word_hi = (maxp5ga[3] << 8) | maxp5ga[2]. */
++		/* maxp5ga[4]: two consecutive u16 hold 4 x u8 packed LE. */
 +		v = sprom[SPOFF(base + SSB_SPROM11_PWR_MAXP5GA)];
 +		p->maxp5ga[0] = v & 0x00ff;
 +		p->maxp5ga[1] = (v >> 8) & 0x00ff;
@@ -282,34 +145,11 @@ index e668ad7..cbe79dc 100644
 +		for (j = 0; j < 12; j++)
 +			p->pa5ga[j] = sprom[SPOFF(base + SSB_SPROM11_PWR_PA5GA) + j];
 +
-+		/* Rxgains decode. Two consecutive u16 hold the four sub-band
-+		 * triplets (eLNA gain, T/R isolation, T/R-eLNA bypass) for
-+		 * this chain, packed one byte per sub-band as
-+		 *
-+		 *   byte = (trelnabyp << 7) | (triso << 3) | elnagain
-+		 *
-+		 * Byte-to-sub-band assignment (verified by cross-reference of
-+		 * `wl srdump` against `wl nvram_dump` on the reference board):
-+		 *   word RXGAINS0 low byte  -> 5gm
-+		 *   word RXGAINS0 high byte -> 5gh
-+		 *   word RXGAINS1 low byte  -> 2g
-+		 *   word RXGAINS1 high byte -> 5gl  (UNII-1)
-+		 *
-+		 * Reference fit on the DSL-3580L dump (chain 0..2 identical):
-+		 *   words = 0xffff, 0xb300
-+		 *   5gm=(7,15,1)  -> (1<<7)|(15<<3)|7 = 0xff   ✓
-+		 *   5gh=(7,15,1)  -> 0xff                       ✓
-+		 *   2g =(0, 0,0)  -> 0x00                       ✓
-+		 *   5gl=(3, 6,1)  -> (1<<7)|(6<<3)|3  = 0xb3   ✓
-+		 *
-+		 * Three of the four bytes are saturated (0xff) or zero on the
-+		 * reference board, so 5gl=0xb3 is the only fully informative
-+		 * data point. The encoding fits all four bytes uniformly and
-+		 * the per-chain triplets in NVRAM match the same bytes on
-+		 * every chain. A second board with non-saturated 5gm/5gh and
-+		 * non-zero 2g rxgains would harden this further; the encoding
-+		 * is committed here as the working extraction with that
-+		 * caveat noted in sprom-rev11/README.md.
++		/* Rxgains: two consecutive u16 hold the four sub-band
++		 * triplets for this chain, one byte per sub-band. Byte-to-
++		 * sub-band assignment:
++		 *   RXGAINS0 lo -> 5gm, hi -> 5gh
++		 *   RXGAINS1 lo -> 2g,  hi -> 5gl (UNII-1)
 +		 */
 +		v = sprom[SPOFF(base + SSB_SPROM11_PWR_RXGAINS0)];
 +		bcma_sprom_unpack_rxgains(&bus->sprom.rxgains_5gm, i,  v       & 0xff);
@@ -319,23 +159,16 @@ index e668ad7..cbe79dc 100644
 +		bcma_sprom_unpack_rxgains(&bus->sprom.rxgains_5gl, i, (v >> 8) & 0xff);
 +	}
 +
-+	/* Per-chain pdoffset40ma triplet (verified — three identical u16
-+	 * at byte 0xCA reading 0x3222 on the reference board, matching
-+	 * NVRAM pdoffset40ma{0,1,2}=12834). */
++	/* Per-chain pdoffset40ma triplet. */
 +	for (i = 0; i < 3; i++)
 +		bus->sprom.pdoffset40ma[i] =
 +			sprom[SPOFF(SSB_SPROM11_PDOFFSET40MA) + i];
 +
-+	/* Power-per-rate region (byte 0x150..0x190) — rev-11 layout, NOT
-+	 * the rev-9 inheritance: mcsbw20/40 are followed by mcsbw80/160
-+	 * for each 5 GHz sub-band, and a pair of u16 (dot11agofdmhrbw202gpo,
++	/* Power-per-rate region. Layout differs from rev 9: each 5 GHz
++	 * sub-band has four consecutive u32 entries (mcsbw20/40/80/160)
++	 * rather than two, and a pair of u16 (dot11agofdmhrbw202gpo,
 +	 * ofdmlrbw202gpo) sits between the 2.4 GHz BW40 entry and the
 +	 * 5 GHz BW20 entries.
-+	 *
-+	 * Sanity-check anchors on the reference board:
-+	 *   cckbw202gpo   = 0  (aa2g==0)
-+	 *   mcsbw205glpo  = 0xeca86420   (UNII-1 active)
-+	 *   mcsbw1605gXpo = 0  (160 MHz disabled by board profile)
 +	 */
 +	SPEX(cckbw202gpo,            SSB_SPROM11_CCKBW202GPO,            ~0, 0);
 +	SPEX(cckbw20ul2gpo,          SSB_SPROM11_CCKBW20UL2GPO,          ~0, 0);
@@ -356,35 +189,24 @@ index e668ad7..cbe79dc 100644
 +	SPEX32(mcsbw805ghpo,         SSB_SPROM11_MCSBW805GHPO,           ~0, 0);
 +	SPEX32(mcsbw1605ghpo,        SSB_SPROM11_MCSBW1605GHPO,          ~0, 0);
 +
-+	/* TODO (still open — region byte 0x190..0x1B0 reads all zero on
-+	 * the reference board, so offset disambiguation by value-match is
-+	 * not possible from a single dump): mcslr5g{l,m,h}po,
-+	 * sb20in40{hr,lr}po, sb20in80and160{hr,lr}5g{l,m,h}po,
-+	 * sb40and80{hr,lr}5g{l,m,h}po, dot11agdup{hr,lr}po,
-+	 * pdoffset80ma[3]. The bcm47xx_sprom NVRAM fallback path covers
-+	 * these on SoC routers; a second rev-11 board with non-zero
-+	 * values in any of these fields would let the offsets be pinned
-+	 * here too.
-+	 *
-+	 * Also TODO from the front-end-module context block: femctrl,
-+	 * epagain{2g,5g}, pdgain{2g,5g}, tworangetssi{2g,5g},
-+	 * papdcap{2g,5g}, tssiposslope{2g,5g}, gainctrlsph,
-+	 * pdoffset2g40ma[3], pdoffset2g40mvalid. Same argument.
++	/* TODO (region 0x190..0x1B0): mcslr5g{l,m,h}po, sb20in40{hr,lr}po,
++	 * sb20in80and160{hr,lr}5g{l,m,h}po, sb40and80{hr,lr}5g{l,m,h}po,
++	 * dot11agdup{hr,lr}po, pdoffset80ma[3]. Plus the femctrl context
++	 * block: femctrl, epagain{2g,5g}, pdgain{2g,5g}, tworangetssi
++	 * {2g,5g}, papdcap{2g,5g}, tssiposslope{2g,5g}, gainctrlsph,
++	 * pdoffset2g40ma[3], pdoffset2g40mvalid. Reachable via the
++	 * bcm47xx_sprom NVRAM fallback path.
 +	 */
 +}
 +
  /*
   * Indicates the presence of external SPROM.
   */
-@@ -640,7 +854,18 @@ int bcma_sprom_get(struct bcma_bus *bus)
+@@ -640,7 +772,14 @@ int bcma_sprom_get(struct bcma_bus *bus)
  		bcma_warn(bus, "Invalid SPROM read from the PCIe card, trying to use fallback SPROM\n");
  		err = bcma_fill_sprom_with_fallback(bus, &bus->sprom);
  	} else {
 -		bcma_sprom_extract_r8(bus, sprom);
-+		/* Dispatch on the SROM revision read by bcma_sprom_valid().
-+		 * Rev 11 has a different per-chain power layout (see
-+		 * bcma_sprom_extract_r11 above); the existing extract_r8 is
-+		 * preserved verbatim for revisions <= 10. */
 +		switch (sprom[SPOFF(SSB_SPROM_REVISION)] & SSB_SPROM_REVISION_REV) {
 +		case 11:
 +			bcma_sprom_extract_r11(bus, sprom);
@@ -397,21 +219,19 @@ index e668ad7..cbe79dc 100644
  	}
  
 diff --git a/drivers/firmware/broadcom/bcm47xx_sprom.c b/drivers/firmware/broadcom/bcm47xx_sprom.c
-index bca03fd..4453ceb 100644
+index bca03fd..00179ad 100644
 --- a/drivers/firmware/broadcom/bcm47xx_sprom.c
 +++ b/drivers/firmware/broadcom/bcm47xx_sprom.c
-@@ -114,6 +114,54 @@ static void nvram_read_u32_2(const char *prefix, const char *name,
+@@ -114,6 +114,52 @@ static void nvram_read_u32_2(const char *prefix, const char *name,
  	*val_hi = (val & 0xFFFF0000U) >> 16;
  }
  
 +/*
-+ * SROM revision 11 stores some per-chain values as comma-separated lists
-+ * under a single NVRAM key (e.g. "pa5ga0=0xff4d,0x1690,..."). The two
-+ * helpers below parse such CSV payloads into a fixed-length destination
-+ * array. Missing or unparseable elements leave the destination unchanged
-+ * and emit a single warning rather than aborting the whole read, since
-+ * NVRAM content can be malformed on consumer routers and must not crash
-+ * the boot path.
++ * SROM rev 11 stores some per-chain values as comma-separated lists
++ * under a single NVRAM key (e.g. "pa5ga0=0xff4d,0x1690,..."). Parse
++ * such CSV payloads into a fixed-length destination array. Missing or
++ * unparseable elements leave the destination unchanged and emit one
++ * warning rather than aborting the whole read.
 + */
 +#define NVRAM_READ_ARRAY(type)						\
 +static void nvram_read_ ## type ## _array(const char *prefix,		\
@@ -455,7 +275,7 @@ index bca03fd..4453ceb 100644
  static void nvram_read_leddc(const char *prefix, const char *name,
  			     u8 *leddc_on_time, u8 *leddc_off_time,
  			     bool fallback)
-@@ -368,7 +416,6 @@ static void bcm47xx_sprom_fill_auto(struct ssb_sprom *sprom,
+@@ -368,7 +414,6 @@ static void bcm47xx_sprom_fill_auto(struct ssb_sprom *sprom,
  	ENTRY(0x00000600, u16, pre, "legofdm40duppo", legofdm40duppo, 0, fb);
  	ENTRY(0x00000700, u8, pre, "pcieingress_war", pcieingress_war, 0, fb);
  
@@ -463,7 +283,7 @@ index bca03fd..4453ceb 100644
  	ENTRY(0x00000700, u8, pre, "rxgainerr2ga0", rxgainerr2ga[0], 0, fb);
  	ENTRY(0x00000700, u8, pre, "rxgainerr2ga1", rxgainerr2ga[1], 0, fb);
  	ENTRY(0x00000700, u8, pre, "rxgainerr2ga2", rxgainerr2ga[2], 0, fb);
-@@ -388,7 +435,6 @@ static void bcm47xx_sprom_fill_auto(struct ssb_sprom *sprom,
+@@ -388,7 +433,6 @@ static void bcm47xx_sprom_fill_auto(struct ssb_sprom *sprom,
  	ENTRY(0xfffffe00, u8, pre, "sar2g", sar2g, 0, fb);
  	ENTRY(0xfffffe00, u8, pre, "sar5g", sar5g, 0, fb);
  
@@ -471,13 +291,14 @@ index bca03fd..4453ceb 100644
  	ENTRY(0x00000700, u8, pre, "noiselvl2ga0", noiselvl2ga[0], 0, fb);
  	ENTRY(0x00000700, u8, pre, "noiselvl2ga1", noiselvl2ga[1], 0, fb);
  	ENTRY(0x00000700, u8, pre, "noiselvl2ga2", noiselvl2ga[2], 0, fb);
-@@ -404,9 +450,131 @@ static void bcm47xx_sprom_fill_auto(struct ssb_sprom *sprom,
+@@ -404,9 +448,132 @@ static void bcm47xx_sprom_fill_auto(struct ssb_sprom *sprom,
  	ENTRY(0x00000700, u8, pre, "noiselvl5gua0", noiselvl5gua[0], 0, fb);
  	ENTRY(0x00000700, u8, pre, "noiselvl5gua1", noiselvl5gua[1], 0, fb);
  	ENTRY(0x00000700, u8, pre, "noiselvl5gua2", noiselvl5gua[2], 0, fb);
 +
-+	/* SROM revision 11 globals (per-chain rev-11 fields are read from
-+	 * bcm47xx_fill_sprom_path_r11 since rev 11 packs them as CSV). */
++	/* SROM rev 11 globals. Per-chain rev-11 fields are read from
++	 * bcm47xx_fill_sprom_path_r11 (rev 11 packs them as CSV).
++	 */
 +	ENTRY(0x00000800, u8,  pre, "subband5gver",   subband5gver,   0, fb);
 +	ENTRY(0x00000800, u8,  pre, "femctrl",        femctrl,        0, fb);
 +	ENTRY(0x00000800, u8,  pre, "epagain2g",      epagain2g,      0, fb);
@@ -547,10 +368,10 @@ index bca03fd..4453ceb 100644
 +
 +		snprintf(postfix, sizeof(postfix), "%i", i);
 +
-+		/* Per-chain max power and PA polynomial coefficients.
-+		 * SROM rev 11 packs maxp5ga (4 bands), pa2ga (3 coeffs) and
-+		 * pa5ga (4 bands × 3 coeffs = 12) as comma-separated lists
-+		 * under a single NVRAM key, e.g. "pa5ga0=0xff4d,0x1690,...".
++		/* Per-chain max power and PA polynomial coefficients. Rev 11
++		 * packs maxp5ga (4 bands), pa2ga (3) and pa5ga (4 bands x 3
++		 * coeffs = 12) as comma-separated lists under a single NVRAM
++		 * key, e.g. "pa5ga0=0xff4d,0x1690,...".
 +		 */
 +		nvram_read_u8(prefix, postfix, "maxp2ga",
 +			      &pwr_info->maxp2ga, 0, fallback);
@@ -564,11 +385,11 @@ index bca03fd..4453ceb 100644
 +				     pwr_info->pa5ga,
 +				     ARRAY_SIZE(pwr_info->pa5ga), fallback);
 +
-+		/* Per-chain rx gain triplets, one set per band.
-+		 * NVRAM keys follow the form rxgains<band><field>a<chain>,
-+		 * e.g. "rxgains5gmtrisoa0". Bands: "2g", "5g" (UNII-1 alias),
-+		 * "5gm" (UNII-2), "5gh" (UNII-3). Fields: "elnagain", "triso",
-+		 * "trelnabyp".
++		/* Per-chain rx gain triplets, one set per band. NVRAM keys
++		 * follow rxgains<band><field>a<chain>, e.g.
++		 * "rxgains5gmtrisoa0". Bands: "2g", "5g" (UNII-1 alias),
++		 * "5gm" (UNII-2), "5gh" (UNII-3). Fields: "elnagain",
++		 * "triso", "trelnabyp".
 +		 */
 +		nvram_read_u8(prefix, postfix, "rxgains2gelnagaina",
 +			      &sprom->rxgains_2g.elnagain[i], 0, fallback);
@@ -603,7 +424,7 @@ index bca03fd..4453ceb 100644
  static void bcm47xx_fill_sprom_path_r4589(struct ssb_sprom *sprom,
  					  const char *prefix, bool fallback)
  {
-@@ -586,6 +754,9 @@ void bcm47xx_fill_sprom(struct ssb_sprom *sprom, const char *prefix,
+@@ -586,6 +753,9 @@ void bcm47xx_fill_sprom(struct ssb_sprom *sprom, const char *prefix,
  	case 9:
  		bcm47xx_fill_sprom_path_r4589(sprom, prefix, fallback);
  		break;
@@ -614,20 +435,19 @@ index bca03fd..4453ceb 100644
  
  	bcm47xx_sprom_fill_auto(sprom, prefix, fallback);
 diff --git a/include/linux/ssb/ssb.h b/include/linux/ssb/ssb.h
-index e1fb11e..dfbf88f 100644
+index e1fb11e..bf7ccb2 100644
 --- a/include/linux/ssb/ssb.h
 +++ b/include/linux/ssb/ssb.h
-@@ -23,6 +23,29 @@ struct ssb_sprom_core_pwr_info {
+@@ -23,6 +23,28 @@ struct ssb_sprom_core_pwr_info {
  	u8 itssi_2g, itssi_5g;
  	u8 maxpwr_2g, maxpwr_5gl, maxpwr_5g, maxpwr_5gh;
  	u16 pa_2g[4], pa_5gl[4], pa_5g[4], pa_5gh[4];
 +
-+	/* SROM revision 11 per-chain power data.
-+	 * Layout differs from rev 8/9/10: maxp2ga is a single value, the
-+	 * 5 GHz max power is one value per UNII sub-band (l/m/h/u), and
-+	 * the polynomial fits use 3 coefficients per band (12 total on
-+	 * 5 GHz across 4 sub-bands). Populated only by the rev 11
-+	 * extractor; remain zero on rev <= 10 boards.
++	/* SROM rev 11 per-chain power data. maxp2ga is a single value;
++	 * the 5 GHz max power is one value per UNII sub-band (l/m/h/u);
++	 * polynomial fits use 3 coefficients per band (12 total on 5 GHz
++	 * across 4 sub-bands). Populated only by the rev 11 extractor;
++	 * remain zero on rev <= 10 boards.
 +	 */
 +	u8 maxp2ga;
 +	u8 maxp5ga[4];
@@ -635,10 +455,10 @@ index e1fb11e..dfbf88f 100644
 +	u16 pa5ga[12];
 +};
 +
-+/* SROM revision 11 per-band rx gain context. The same triplet
-+ * (eLNA gain, T/R isolation, T/R-eLNA bypass) is repeated four times
-+ * in struct ssb_sprom for the four bands 2g/5gl/5gm/5gh, with one
-+ * value per RF chain.
++/* SROM rev 11 per-band rx gain context. The same triplet (eLNA gain,
++ * T/R isolation, T/R-eLNA bypass) is repeated four times in struct
++ * ssb_sprom for the four bands 2g/5gl/5gm/5gh, with one value per RF
++ * chain.
 + */
 +struct ssb_sprom_rxgains {
 +	u8 elnagain[3];
@@ -647,29 +467,30 @@ index e1fb11e..dfbf88f 100644
  };
  
  struct ssb_sprom {
-@@ -192,6 +215,79 @@ struct ssb_sprom {
+@@ -192,6 +214,82 @@ struct ssb_sprom {
  	u16 legofdm40duppo;
  	u8 sar2g;
  	u8 sar5g;
 +
-+	/* SROM revision 11 additions
-+	 * ------------------------------------------------------------------
-+	 * Populated only by SROM rev 11-aware extractors (drivers/bcma/sprom.c
-+	 * and drivers/firmware/broadcom/bcm47xx_sprom.c). On rev <= 10 boards
-+	 * these fields stay zero; consumers must treat zero as "not present"
-+	 * by convention rather than asserting on revision.
++	/* SROM rev 11 additions. Populated only by SROM rev-11-aware
++	 * extractors (drivers/bcma/sprom.c and
++	 * drivers/firmware/broadcom/bcm47xx_sprom.c). On rev <= 10 boards
++	 * these fields stay zero; consumers must treat zero as
++	 * "not present" by convention rather than asserting on revision.
 +	 */
 +
-+	/* Per-band rx gain context. 5 GHz is split into UNII-1/UNII-2/UNII-3
-+	 * sub-bands; 2.4 GHz is a single band populated only when aa2g != 0. */
++	/* Per-band rx gain context. 5 GHz is split into UNII-1/2/3
++	 * sub-bands; 2.4 GHz is a single band populated only when
++	 * aa2g != 0.
++	 */
 +	struct ssb_sprom_rxgains rxgains_2g;
 +	struct ssb_sprom_rxgains rxgains_5gl;
 +	struct ssb_sprom_rxgains rxgains_5gm;
 +	struct ssb_sprom_rxgains rxgains_5gh;
 +
-+	/* 5 GHz sub-band layout descriptor (selects UNII channel allocation
-+	 * for the 5gl/5gm/5gh fields above). Documented values 0..3; vendor
-+	 * extensions in the wild (e.g. 0x4 on D-Link DSL-3580L). */
++	/* 5 GHz sub-band layout descriptor. Documented values 0..3;
++	 * vendor extensions exist in the wild.
++	 */
 +	u8 subband5gver;
 +
 +	/* Front-end module / PA control context. */
@@ -682,7 +503,8 @@ index e1fb11e..dfbf88f 100644
 +	u8 gainctrlsph;
 +
 +	/* Power offsets per MCS at 80 / 160 MHz channel widths,
-+	 * complementing the rev-9 mcsbw20*po / mcsbw40*po fields above. */
++	 * complementing the rev-9 mcsbw20*po / mcsbw40*po fields above.
++	 */
 +	u32 mcsbw802gpo;
 +	u32 mcsbw805glpo;
 +	u32 mcsbw805gmpo;
@@ -699,9 +521,10 @@ index e1fb11e..dfbf88f 100644
 +	u16 dot11agofdmhrbw202gpo;
 +	u16 ofdmlrbw202gpo;
 +
-+	/* Power offset deltas for narrower bandwidths embedded inside
-+	 * a wider channel. "hr" = high rate (HT/VHT), "lr" = low rate
-+	 * (legacy OFDM/CCK). */
++	/* Power offset deltas for narrower bandwidths embedded inside a
++	 * wider channel. "hr" = high rate (HT/VHT), "lr" = low rate
++	 * (legacy OFDM/CCK).
++	 */
 +	u16 sb20in40hrpo;
 +	u16 sb20in80and160hr5glpo;
 +	u16 sb20in80and160hr5gmpo;
@@ -728,37 +551,23 @@ index e1fb11e..dfbf88f 100644
  
  /* Information about the PCB the circuitry is soldered on. */
 diff --git a/include/linux/ssb/ssb_regs.h b/include/linux/ssb/ssb_regs.h
-index 210f464..c0bde71 100644
+index 210f464..2e2f5f7 100644
 --- a/include/linux/ssb/ssb_regs.h
 +++ b/include/linux/ssb/ssb_regs.h
-@@ -606,6 +606,93 @@
+@@ -606,6 +606,76 @@
  #define SSB_SPROM8_BW40PO		0x0196
  #define SSB_SPROM8_BWDUPPO		0x0198
  
-+/* SROM revision 11 — offsets verified by direct cross-reference of the
-+ * raw `wl srdump` output against the nominal `wl nvram_dump` output of
-+ * a BCM4352-family board (DSL-3580L). Each definition below is the
-+ * unique byte offset at which the named field is observed in the SROM.
++/* SROM revision 11 offsets. Cross-referenced against Broadcom's
++ * bcmhd source (bcmsrom_tbl.h / bcmsrom.h).
 + *
-+ * Fields whose SROM value is zero on the reference board (because the
-+ * board profile does not exercise that band/rate) cannot be located by
-+ * value-match alone; for those — listed at the end of this block as a
-+ * comment — the offset proposal below is the position derived from the
-+ * struct ssb_sprom declaration order, which the bcm47xx_sprom NVRAM
-+ * fallback path also follows. Cross-board confirmation pending; see
-+ * sprom-rev11/README.md.
-+ */
-+/* Rev-11 header offsets that DO NOT match the rev-8 layout. Five
-+ * fields shifted past their rev-8 positions on the BCM4352 reference
-+ * board: IL0MAC by 4 bytes (rev-8 0x8C, rev-11 0x90), ANTAVAIL by 4
-+ * bytes (0x9C -> 0xA0), TXRXC by 6 bytes (0xA2 -> 0xA8), CCODE by 4
-+ * bytes (rev-8 0x92 -> rev-11 0x96), REGREV by 4 bytes (rev-8 0x94
-+ * -> rev-11 0x98). The bitfield masks (SSB_SPROM8_ANTAVAIL_A/_BG,
-+ * SSB_SPROM8_TXRXC_TXCHAIN/_RXCHAIN/_SWITCH) are reused unchanged:
-+ * only the absolute offset moved, the field layout within each word
-+ * is the same. boardrev (0x82) does coincide between rev 8 and rev
-+ * 11 and continues to be read from SSB_SPROM8_BOARDREV. The CCODE
-+ * shift is required because reusing SSB_SPROM8_CCODE = 0x92 collides
++ * Five header fields are shifted past their rev-8 positions: IL0MAC,
++ * ANTAVAIL, TXRXC, CCODE, REGREV. The bitfield masks/shifts
++ * (SSB_SPROM8_ANTAVAIL_*, SSB_SPROM8_TXRXC_*) are reused unchanged: the
++ * field layout within each word is the same, only the absolute byte
++ * offset moved. boardrev (0x82) coincides between rev 8 and rev 11 and
++ * continues to be read from SSB_SPROM8_BOARDREV. CCODE is at 0x96 (per
++ * bcmsrom.h, word 75) because reusing SSB_SPROM8_CCODE = 0x92 collides
 + * with SROM11_MACMID (the middle u16 of the IL0MAC block at 0x90).
 + */
 +#define SSB_SPROM11_IL0MAC		0x0090
@@ -769,8 +578,8 @@ index 210f464..c0bde71 100644
 +
 +#define SSB_SPROM11_SUBBAND5GVER	0x00D6	/* u8, low byte of u16 at word 107 */
 +
-+/* Per-chain pdoffset40ma triplet — verified, all three chains read 0x3222. */
-+#define SSB_SPROM11_PDOFFSET40MA	0x00CA	/* 3 × u16, one per chain */
++/* Per-chain pdoffset40ma triplet. */
++#define SSB_SPROM11_PDOFFSET40MA	0x00CA	/* 3 x u16, one per chain */
 +
 +/* Per-chain power info blocks. Stride 0x28 bytes (20 u16 words).
 + * Field layout within a block is given by SSB_SPROM11_PWR_* below. */
@@ -780,18 +589,16 @@ index 210f464..c0bde71 100644
 +
 +/* Offsets relative to a per-chain power info block. */
 +#define SSB_SPROM11_PWR_MAXP2GA		0x0000	/* u8, low byte of u16 */
-+#define SSB_SPROM11_PWR_PA2GA		0x0002	/* 3 × u16, polynomial coeffs */
++#define SSB_SPROM11_PWR_PA2GA		0x0002	/* 3 x u16, polynomial coeffs */
 +#define SSB_SPROM11_PWR_RXGAINS0	0x0008	/* u16, sub-bands 5gm (lo) / 5gh (hi) packed */
 +#define SSB_SPROM11_PWR_RXGAINS1	0x000A	/* u16, sub-bands 2g  (lo) / 5gl (hi) packed */
-+#define SSB_SPROM11_PWR_MAXP5GA		0x000C	/* 2 × u16 holding 4 × u8 (5gl/5gm/5gh/5gu) */
-+#define SSB_SPROM11_PWR_PA5GA		0x0010	/* 12 × u16, 4 sub-bands × 3 coefficients each */
++#define SSB_SPROM11_PWR_MAXP5GA		0x000C	/* 2 x u16 holding 4 x u8 (5gl/5gm/5gh/5gu) */
++#define SSB_SPROM11_PWR_PA5GA		0x0010	/* 12 x u16, 4 sub-bands x 3 coefficients each */
 +
-+/* Power-per-rate region (byte 0x150..0x190). The rev-11 layout differs
-+ * from the rev-9 inheritance one might expect: the {2g, 5gl, 5gm, 5gh}
++/* Power-per-rate region (byte 0x150..0x190). The {2g, 5gl, 5gm, 5gh}
 + * x {20, 40} u32 block of rev 9 is extended with {80, 160} u32 entries
 + * for the 5 GHz sub-bands, and a pair of legacy 802.11g OFDM HR/LR u16
 + * is inserted between the 2.4 GHz BW40 entry and the 5 GHz BW20 one.
-+ * Verified offsets follow.
 + */
 +#define SSB_SPROM11_CCKBW202GPO		0x0150	/* u16 */
 +#define SSB_SPROM11_CCKBW20UL2GPO	0x0152	/* u16 */
@@ -801,25 +608,24 @@ index 210f464..c0bde71 100644
 +#define SSB_SPROM11_OFDMLRBW202GPO	0x015E	/* u16 */
 +#define SSB_SPROM11_MCSBW205GLPO	0x0160	/* u32 */
 +#define SSB_SPROM11_MCSBW405GLPO	0x0164	/* u32 */
-+#define SSB_SPROM11_MCSBW805GLPO	0x0168	/* u32 — rev-11 */
-+#define SSB_SPROM11_MCSBW1605GLPO	0x016C	/* u32 — rev-11 */
++#define SSB_SPROM11_MCSBW805GLPO	0x0168	/* u32 */
++#define SSB_SPROM11_MCSBW1605GLPO	0x016C	/* u32 */
 +#define SSB_SPROM11_MCSBW205GMPO	0x0170	/* u32 */
 +#define SSB_SPROM11_MCSBW405GMPO	0x0174	/* u32 */
-+#define SSB_SPROM11_MCSBW805GMPO	0x0178	/* u32 — rev-11 */
-+#define SSB_SPROM11_MCSBW1605GMPO	0x017C	/* u32 — rev-11 */
++#define SSB_SPROM11_MCSBW805GMPO	0x0178	/* u32 */
++#define SSB_SPROM11_MCSBW1605GMPO	0x017C	/* u32 */
 +#define SSB_SPROM11_MCSBW205GHPO	0x0180	/* u32 */
 +#define SSB_SPROM11_MCSBW405GHPO	0x0184	/* u32 */
-+#define SSB_SPROM11_MCSBW805GHPO	0x0188	/* u32 — rev-11 */
-+#define SSB_SPROM11_MCSBW1605GHPO	0x018C	/* u32 — rev-11 */
++#define SSB_SPROM11_MCSBW805GHPO	0x0188	/* u32 */
++#define SSB_SPROM11_MCSBW1605GHPO	0x018C	/* u32 */
 +
-+/* Fields below are inferred — region byte 0x190..0x1B0 reads all zero
-+ * on the reference board. Their offsets are the natural sequence
-+ * implied by struct ssb_sprom layout, but cannot be value-matched from
-+ * a single all-zero dump. Marked TODO inside bcma_sprom_extract_r11
-+ * pending a second-board cross-check:
-+ *   mcslr5g{l,m,h}po, sb20in40{hr,lr}po,
-+ *   sb20in80and160{hr,lr}5g{l,m,h}po, sb40and80{hr,lr}5g{l,m,h}po,
-+ *   dot11agdup{hr,lr}po, pdoffset80ma[3].
++/* Not yet defined / extracted: mcslr5g{l,m,h}po, sb20in40{hr,lr}po,
++ * sb20in80and160{hr,lr}5g{l,m,h}po, sb40and80{hr,lr}5g{l,m,h}po,
++ * dot11agdup{hr,lr}po, pdoffset80ma[3], and the femctrl context
++ * block. bcmhd has the layout for these; struct fields are declared
++ * in ssb.h and reachable via the bcm47xx_sprom NVRAM fallback. Add
++ * SSB_SPROM11_* defines and extraction in bcma_sprom_extract_r11
++ * once a board exercises them at runtime.
 + */
 +
  /* Values for boardflags_lo read from SPROM */

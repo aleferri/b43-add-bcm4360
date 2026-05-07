@@ -505,8 +505,8 @@ static int b43_phy_ac_op_init(struct b43_wldev *dev)
 
 	/* TXPCTL fix: disable HW control, pin targ_pwr = 200 (0xC8).
 	 * Extracted from wlc_phy_txpwrctrl_pwr_setup_acphy. */
-	b43_phy_maskset(dev, 0x0070, ~0xe000, 0x0000);
-	b43_phy_maskset(dev, 0x0071, ~0x00ff, 0x00c8);
+	b43_phy_maskset(dev, 0x0070, (u16)~0xe000, 0x0000);
+	b43_phy_maskset(dev, 0x0071, (u16)~0x00ff, 0x00c8);
 
 	return 0;
 }

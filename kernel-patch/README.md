@@ -12,14 +12,26 @@ kernel-patch/
 ├── new_files/                      — drop into drivers/net/wireless/broadcom/b43/
 │   ├── radio_2069.c                  (new file, ~83 lines)
 │   ├── radio_2069.h                  (new file, ~57 lines)
+│   ├── rxgain_phy_ac.c               (new file, RX gain control helpers)
+│   ├── rxgain_phy_ac.h               (new file, header)
 │   ├── tables_phy_ac.c               (new file, 266 lines — bulk write
 │   │                                   path + 3/24 rev0 tables populated)
-│   └── tables_phy_ac.h               (new file, 23 lines)
+│   ├── tables_phy_ac.h               (new file, 23 lines)
+│   └── acphy_txgain_tables.c         (auto-generated TX-gain data tables;
+│                                       see "Caveat" below — not yet wired)
 └── existing_files/                 — additions snippets to merge by hand
     ├── Makefile.additions            (1 block)
-    ├── phy_ac.h.additions            (7 blocks)
+    ├── phy_ac.h.additions            (5 blocks)
     └── phy_ac.c.additions            (11 blocks)
 ```
+
+> Caveat on `acphy_txgain_tables.c`: the file is committed but is
+> currently **not** referenced by `Makefile.additions` and is **not**
+> `#include`d from any other translation unit. All its symbols are
+> `static`, so as committed the file is dead code. Either wire it via
+> the Makefile and remove `static` (with a matching header), or
+> include it from a consumer .c. To be resolved before any
+> bring-up that needs the TX-gain ladders.
 
 Files in `existing_files/` are **not** standalone source.  Each is a
 sequence of code blocks; every block carries an `INSERT IN ...` header

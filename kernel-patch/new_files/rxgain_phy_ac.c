@@ -24,6 +24,7 @@
 
 #include "b43.h"
 #include "phy_ac.h"
+#include "rxgain_phy_ac.h"
 #include "tables_phy_ac.h"
 
 /**************************************************

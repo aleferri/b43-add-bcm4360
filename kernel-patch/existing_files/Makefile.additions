@@ -12,4 +12,4 @@
 
 b43-$(CONFIG_B43_PHY_AC)	+= tables_phy_ac.o
 b43-$(CONFIG_B43_PHY_AC)	+= radio_2069.o
-
+b43-$(CONFIG_B43_PHY_AC)	+= rxgain_phy_ac.o
