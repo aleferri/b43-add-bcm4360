@@ -94,6 +94,15 @@ involved.
   before `op_init` is even called. Extending `struct ssb_sprom` and the
   rev 11 parser is prerequisite for everything below; see top-level
   `../README.md` §"Blocker #1".
+* **DMA translation for BCM4352-family on BCMA PCIe** (blocker
+  upstream of this scaffolding, parallel to sprom-rev11). The
+  `bcma_core_dma_translation()` default + `b43_dma_translation_in_low_word()`
+  hardcoded `false` for BCMA-DMA64 causes the chip to emit PCIe
+  transactions toward `0x80000000_<ringbase>`, which the BCM63xx
+  PCIe RC rejects. Surfaces as `Fatal DMA error: 0x00001000, 0x0, 0x0, 0x0, 0x0, 0x0`
+  (I_DE on RX, controller 0) at the very first RX descriptor fetch,
+  immediately after `rxgain_init`. The fix is b43-side and chip-family
+  gated; see `dma-4352-translation/`.
 * **RX gain table population** — `b43_phy_ac_rxgain_init()` runs but
   leaves tables 0x44/0x45 unpopulated. The new strategy (top-level
   README §"Strategia rxgain") is two-track and SROM-driven (no longer
